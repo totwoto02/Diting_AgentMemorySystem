@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.smart_trigger import SmartTrigger
+from diting.smart_trigger import SmartTrigger
 
 
 def test_trigger_important_audio():

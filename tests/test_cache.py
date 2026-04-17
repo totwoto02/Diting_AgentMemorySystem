@@ -5,7 +5,7 @@ TDD 第一步：先写测试
 """
 
 import pytest
-from mfs.cache import LRUCache, ConnectionPool
+from diting.cache import LRUCache, ConnectionPool
 
 
 class TestLRUCache:

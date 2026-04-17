@@ -16,7 +16,7 @@ class TestDualAgentSimulation:
     
     def test_basic_memory_operations(self):
         """Test basic memory create/read/update/delete"""
-        from mfs.mft import MFT
+        from diting.mft import MFT
         import tempfile
         
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -54,7 +54,7 @@ class TestDualAgentSimulation:
     
     def test_search_functionality(self):
         """Test memory search capabilities"""
-        from mfs.mft import MFT
+        from diting.mft import MFT
         import tempfile
         
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -92,7 +92,7 @@ class TestDualAgentSimulation:
     
     def test_knowledge_graph_integration(self):
         """Test knowledge graph concept extraction"""
-        from mfs.knowledge_graph_v2 import KnowledgeGraphV2
+        from diting.knowledge_graph_v2 import KnowledgeGraphV2
         import tempfile
         
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:

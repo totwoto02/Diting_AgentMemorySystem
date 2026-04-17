@@ -11,7 +11,7 @@ import sqlite3
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.multimodal_manager import MultimodalMemoryManager
+from diting.multimodal_manager import MultimodalMemoryManager
 
 
 def create_test_manager():

@@ -3,7 +3,7 @@
 """
 
 import pytest
-from mfs.mft import MFT
+from diting.mft import MFT
 
 
 def create_fresh_mft():

@@ -13,15 +13,15 @@ import string
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from mfs.fts5_search import FTS5Search
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
-from mfs.assembler_v2 import AssemblerV2
-from mfs.wal_logger import WALLogger
-from mfs.cache import LRUCache, ConnectionPool
-from mfs.mft import MFT
+from diting.fts5_search import FTS5Search
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.assembler_v2 import AssemblerV2
+from diting.wal_logger import WALLogger
+from diting.cache import LRUCache, ConnectionPool
+from diting.mft import MFT
 
 # Slice 类已在 assembler_v2 中定义
-from mfs.assembler_v2 import Slice
+from diting.assembler_v2 import Slice
 from tests.test_unified_db import create_unified_db
 
 

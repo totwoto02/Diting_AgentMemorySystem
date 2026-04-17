@@ -1,6 +1,6 @@
-# MFS API 文档
+# Diting API 文档
 
-本文档详细说明 MFS (Memory File System) 提供的所有接口和工具。
+本文档详细说明 Diting (Memory File System) 提供的所有接口和工具。
 
 ---
 
@@ -335,9 +335,9 @@ results = mft.search("会议", limit=5)
     "mfs": {
       "command": "python",
       "args": ["-m", "mfs.mcp_server"],
-      "cwd": "/path/to/mfs-memory",
+      "cwd": "/path/to/diting",
       "env": {
-        "MFS_DB_PATH": "file:/path/to/mfs_memory.db?mode=rwc"
+        "Diting_DB_PATH": "file:/path/to/mfs_memory.db?mode=rwc"
       }
     }
   }
@@ -354,7 +354,7 @@ results = mft.search("会议", limit=5)
     "mfs": {
       "command": "python",
       "args": ["-m", "mfs.mcp_server"],
-      "cwd": "/path/to/mfs-memory"
+      "cwd": "/path/to/diting"
     }
   }
 }
@@ -364,9 +364,9 @@ results = mft.search("会议", limit=5)
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
-| `MFS_DB_PATH` | 数据库路径 | `file:memdb?mode=memory&cache=private` |
-| `MFS_CACHE_SIZE` | LRU 缓存大小 | `1000` |
-| `MFS_LOG_LEVEL` | 日志级别 | `INFO` |
+| `Diting_DB_PATH` | 数据库路径 | `file:memdb?mode=memory&cache=private` |
+| `Diting_CACHE_SIZE` | LRU 缓存大小 | `1000` |
+| `Diting_LOG_LEVEL` | 日志级别 | `INFO` |
 
 ### 启动 MCP Server
 
@@ -375,10 +375,10 @@ results = mft.search("会议", limit=5)
 python -m mfs.mcp_server
 
 # 使用文件数据库 (持久化)
-MFS_DB_PATH="file:/path/to/mfs_memory.db?mode=rwc" python -m mfs.mcp_server
+Diting_DB_PATH="file:/path/to/mfs_memory.db?mode=rwc" python -m mfs.mcp_server
 
 # 自定义日志级别
-MFS_LOG_LEVEL=DEBUG python -m mfs.mcp_server
+Diting_LOG_LEVEL=DEBUG python -m mfs.mcp_server
 ```
 
 ---
@@ -415,16 +415,16 @@ MFS_LOG_LEVEL=DEBUG python -m mfs.mcp_server
 #### Python API
 
 ```python
-from mfs import MFT, MFSPathNotFoundError, MFSError
+from mfs import MFT, DitingPathNotFoundError, DitingError
 
 mft = MFT("file:mfs_memory.db?mode=rwc")
 
 try:
     result = mft.read("/nonexistent/path")
-except MFSPathNotFoundError as e:
+except DitingPathNotFoundError as e:
     print(f"路径不存在：{e.path}")
-except MFSError as e:
-    print(f"MFS 错误：{e.message}")
+except DitingError as e:
+    print(f"Diting 错误：{e.message}")
 ```
 
 #### MCP 工具
@@ -464,7 +464,7 @@ mft = MFT("file:mfs_memory.db?mode=rwc")
 print("=== 创建记忆 ===")
 mft.create("/rules/coding", "RULE", "代码必须经过测试才能提交")
 mft.create("/rules/review", "RULE", "代码必须经过代码审查")
-mft.create("/tasks/todo", "TASK", "完成 MFS 开发")
+mft.create("/tasks/todo", "TASK", "完成 Diting 开发")
 mft.create("/notes/ideas", "NOTE", "实现向量搜索功能")
 
 # 3. 读取记忆

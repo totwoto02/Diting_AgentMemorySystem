@@ -12,7 +12,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.multimodal_manager import MultimodalMemoryManager
+from diting.multimodal_manager import MultimodalMemoryManager
 
 
 # 真实场景测试数据

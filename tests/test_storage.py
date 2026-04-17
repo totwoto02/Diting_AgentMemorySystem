@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.storage_backend import StorageManager, LocalStorage
+from diting.storage_backend import StorageManager, LocalStorage
 
 
 def test_local_storage():

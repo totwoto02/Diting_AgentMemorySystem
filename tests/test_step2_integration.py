@@ -5,9 +5,9 @@ Step 2 集成测试
 """
 
 import pytest
-from mfs.fts5_search import FTS5Search
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
-from mfs.wal_logger import WALLogger
+from diting.fts5_search import FTS5Search
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.wal_logger import WALLogger
 
 
 class TestStep2Integration:

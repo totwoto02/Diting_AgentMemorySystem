@@ -19,14 +19,14 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 导入所有模块
-from mfs.mft import MFT
-from mfs.multimodal_manager import MultimodalMemoryManager
-from mfs.smart_trigger import SmartTrigger
-from mfs.ai_queue import AIQueueManager
-from mfs.heat_manager import HeatManager
-from mfs.entropy_manager import EntropyManager
-from mfs.monitor import MonitorDashboard
-from mfs.audit_logger import AuditLogger
+from diting.mft import MFT
+from diting.multimodal_manager import MultimodalMemoryManager
+from diting.smart_trigger import SmartTrigger
+from diting.ai_queue import AIQueueManager
+from diting.heat_manager import HeatManager
+from diting.entropy_manager import EntropyManager
+from diting.monitor import MonitorDashboard
+from diting.audit_logger import AuditLogger
 
 
 def create_test_environment():

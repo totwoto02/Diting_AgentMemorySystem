@@ -9,7 +9,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.monitor import MonitorDashboard, AlertLevel
+from diting.monitor import MonitorDashboard, AlertLevel
 
 
 def create_test_monitor():
@@ -157,7 +157,7 @@ def test_alert_levels():
     """测试 6: 告警级别"""
     print("\n[测试 6] 告警级别...")
     
-    from mfs.monitor import Alert
+    from diting.monitor import Alert
     
     alert_info = Alert(
         id='test_info',

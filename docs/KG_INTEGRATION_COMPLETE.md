@@ -102,13 +102,13 @@ print(result['kg_expansion'])
 
 ```bash
 # 写入记忆（自动建图）
-mcporter call mfs-memory.mfs_write \
+mcporter call diting.mfs_write \
   path="/test/doc.md" \
   type="NOTE" \
   content="用户朋友 游戏 游戏角色"
 
 # 查看图谱统计
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 # 输出：
 # 📊 知识图谱统计:
 #   概念数：3
@@ -116,7 +116,7 @@ mcporter call mfs-memory.kg_stats
 #   平均每概念边数：1.00
 
 # 搜索概念
-mcporter call mfs-memory.kg_search query="用户朋友"
+mcporter call diting.kg_search query="用户朋友"
 # 输出：
 # ✅ 找到概念：用户朋友
 # 🔗 关联概念 (3 个):
@@ -126,7 +126,7 @@ mcporter call mfs-memory.kg_search query="用户朋友"
 # 💡 搜索 '用户朋友' 时，可能也关心：游戏，游戏角色
 
 # 获取相关概念
-mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=5
+mcporter call diting.kg_get_related concept="用户朋友" top_k=5
 # 输出：
 # 🔗 '用户朋友' 的关联概念:
 #   - 游戏 (权重：1.00)
@@ -172,7 +172,7 @@ mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=5
 3. **时间衰减可视化** - 展示权重随时间变化
 
 ### 集成应用
-1. **搜索推荐** - 在 MFS 搜索时自动显示 KG 扩展
+1. **搜索推荐** - 在 Diting 搜索时自动显示 KG 扩展
 2. **记忆关联** - 查看记忆时显示相关记忆
 3. **智能标签** - 基于 KG 自动推荐标签
 

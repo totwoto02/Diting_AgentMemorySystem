@@ -1,4 +1,4 @@
-# MFS 发布指南
+# Diting 发布指南
 
 ## 版本命名规范
 
@@ -70,7 +70,7 @@ git add -A
 git commit -m "release: v0.1.0 - Phase 1 MVP"
 
 # 打 tag
-git tag -a v0.1.0 -m "MFS Phase 1 MVP Release"
+git tag -a v0.1.0 -m "Diting Phase 1 MVP Release"
 
 # 推送到远程
 git push origin main
@@ -92,7 +92,7 @@ twine upload dist/*
 
 ### 6. GitHub Release
 
-1. 访问 https://github.com/yourusername/mfs-memory/releases/new
+1. 访问 https://github.com/yourusername/diting/releases/new
 2. 选择 tag: `v0.1.0`
 3. 填写发布说明 (复制 CHANGELOG.md 内容)
 4. 点击 "Publish release"
@@ -183,7 +183,7 @@ find ~/.mfs/logs/ -name "*.log" -mtime +7 -delete
 ### 备份
 
 ```bash
-# 备份 MFS 数据库
+# 备份 Diting 数据库
 cp ~/.mfs/mfs.db ~/.mfs/backup/mfs_$(date +%Y%m%d).db
 
 # 定期备份 (cron)
@@ -193,7 +193,7 @@ cp ~/.mfs/mfs.db ~/.mfs/backup/mfs_$(date +%Y%m%d).db
 ### 监控
 
 ```bash
-# 检查 MFS 进程
+# 检查 Diting 进程
 ps aux | grep mfs
 
 # 检查数据库大小
@@ -227,6 +227,6 @@ A: 查看 Actions 日志，根据错误信息修复代码或配置。
 
 ---
 
-**维护人**: MFS Team  
+**维护人**: Diting Team  
 **最后更新**: 2026-04-13  
 **版本**: v0.1.0

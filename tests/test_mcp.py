@@ -6,7 +6,7 @@ TDD 流程：先写测试，再写实现
 
 import pytest
 import asyncio
-from mfs.mcp_server import MCPServer
+from diting.mcp_server import MCPServer
 
 
 class TestMCPServerInit:

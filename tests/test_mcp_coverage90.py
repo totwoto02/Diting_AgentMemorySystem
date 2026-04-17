@@ -6,8 +6,8 @@ MCP Server 覆盖率优化测试
 """
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from mfs.mcp_server import MCPServer
-from mfs.errors import MFTNotFoundError, MFTException
+from diting.mcp_server import MCPServer
+from diting.errors import MFTNotFoundError, MFTException
 
 
 class TestMCPServerCoverageOptimization:

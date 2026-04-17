@@ -8,18 +8,18 @@ Usage:
     mfs-version --check <version>
 """
 
-import mfs
+import diting
 
 def main():
     print("=" * 60)
-    print("MFS (Memory File System) 版本信息")
+    print("Diting (谛听) 版本信息")
     print("=" * 60)
     print()
-    print(f"版本号：{mfs.__version__}")
-    print(f"版本信息：{'.'.join(map(str, mfs.__version_info__))}")
-    print(f"发布日期：{mfs.__release_date__}")
-    print(f"作者：{mfs.__author__}")
-    print(f"描述：{mfs.__description__}")
+    print(f"版本号：{diting.__version__}")
+    print(f"版本信息：{'.'.join(map(str, diting.__version_info__))}")
+    print(f"发布日期：{diting.__release_date__}")
+    print(f"作者：{diting.__author__}")
+    print(f"描述：{diting.__description__}")
     print()
     print("核心优化:")
     print("  - FTS5 BM25 温度计算")

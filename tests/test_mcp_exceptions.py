@@ -6,8 +6,8 @@ MCP Server 异常覆盖测试
 
 import pytest
 from unittest.mock import patch, MagicMock
-from mfs.mcp_server import MCPServer
-from mfs.errors import MFTNotFoundError, MFSException
+from diting.mcp_server import MCPServer
+from diting.errors import MFTNotFoundError, MFSException
 
 
 class TestMCPExceptionCoverage:

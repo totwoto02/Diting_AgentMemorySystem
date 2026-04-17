@@ -9,7 +9,7 @@ import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.audit_logger import AuditLogger, LogLevel
+from diting.audit_logger import AuditLogger, LogLevel
 
 
 def create_test_logger():

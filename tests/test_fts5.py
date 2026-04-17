@@ -6,7 +6,7 @@ TDD 第一步：先写测试
 
 import pytest
 import sqlite3
-from mfs.fts5_search import FTS5Search
+from diting.fts5_search import FTS5Search
 
 
 class TestFTS5Search:

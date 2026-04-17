@@ -7,9 +7,9 @@ import tempfile
 import os
 from pathlib import Path
 
-from mfs.mft import MFT
-from mfs.database import Database
-from mfs.config import Config
+from diting.mft import MFT
+from diting.database import Database
+from diting.config import Config
 
 
 @pytest.fixture

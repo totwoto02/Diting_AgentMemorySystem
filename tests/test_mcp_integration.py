@@ -5,8 +5,8 @@ MCP Server 集成测试
 """
 
 import pytest
-from mfs.mcp_server import MCPServer
-from mfs.errors import MFTNotFoundError
+from diting.mcp_server import MCPServer
+from diting.errors import MFTNotFoundError
 
 
 class TestMCPIntegration:

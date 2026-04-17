@@ -5,7 +5,7 @@ TDD 第一步：先写测试
 """
 
 import pytest
-from mfs.wal_logger import WALLogger, WALRecord
+from diting.wal_logger import WALLogger, WALRecord
 
 
 class TestWALLogger:

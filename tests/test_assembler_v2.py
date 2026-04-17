@@ -5,7 +5,7 @@
 """
 
 import pytest
-from mfs.assembler_v2 import AssemblerV2, Slice
+from diting.assembler_v2 import AssemblerV2, Slice
 
 
 class TestAssemblerV2:

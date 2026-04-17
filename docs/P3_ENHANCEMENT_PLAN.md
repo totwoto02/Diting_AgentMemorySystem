@@ -20,7 +20,7 @@
 
 ## ❌ T043: 配额管理系统（已移除）
 
-**移除原因**: MFS 是面向 OpenClaw 等个人智能体的基于 SQLite 的记忆增强组件，单用户使用，不存在多用户配额管理需求。
+**移除原因**: Diting 是面向 OpenClaw 等个人智能体的基于 SQLite 的记忆增强组件，单用户使用，不存在多用户配额管理需求。
 
 **替代方案**: 个人用户可通过 SQLite 数据库大小或文件系统配额自行控制存储使用。
 
@@ -169,7 +169,7 @@ class MonitorDashboard:
     "resource": "slice_abc123",
     "details": {"model": "qwen-vl-max", "cost": 0.01},
     "ip_address": "192.168.1.1",
-    "user_agent": "MFS-Client/1.0"
+    "user_agent": "Diting-Client/1.0"
 }
 ```
 

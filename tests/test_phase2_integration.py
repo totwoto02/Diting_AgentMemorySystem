@@ -5,10 +5,10 @@ MFS Phase 2 集成测试
 """
 
 import pytest
-from mfs.mft import MFT
-from mfs.slicers.length import LengthSplitter
-from mfs.assembler import Assembler
-from mfs.knowledge_graph import KnowledgeGraph
+from diting.mft import MFT
+from diting.slicers.length import LengthSplitter
+from diting.assembler import Assembler
+from diting.knowledge_graph import KnowledgeGraph
 
 
 class TestPhase2Integration:

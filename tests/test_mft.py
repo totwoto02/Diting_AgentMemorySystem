@@ -5,8 +5,8 @@ TDD 流程：先写测试，再写实现
 """
 
 import pytest
-from mfs.mft import MFT
-from mfs.errors import MFTInvalidPathError, MFTNotFoundError
+from diting.mft import MFT
+from diting.errors import MFTInvalidPathError, MFTNotFoundError
 
 
 class TestMFTCreate:

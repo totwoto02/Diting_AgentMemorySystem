@@ -1,11 +1,11 @@
-# MFS 一键安装指南
+# Diting 一键安装指南
 
 ## 快速开始
 
 ### 1. 安装
 
 ```bash
-pip install mfs-memory
+pip install diting
 ```
 
 ### 2. 验证安装
@@ -17,7 +17,7 @@ mfs-check-install
 **预期输出**：
 ```
 ============================================================
-MFS 安装验证工具
+Diting 安装验证工具
 ============================================================
 
 正在检查：Python 版本
@@ -30,29 +30,29 @@ Python 版本：3.11.x
 ✅ mcp 已安装
 ✅ sqlite3 已安装
 
-正在检查：MFS 导入
+正在检查：Diting 导入
 ----------------------------------------
-MFS 版本：0.2.0
-✅ MFS 可正常导入
+Diting 版本：0.2.0
+✅ Diting 可正常导入
 
 正在检查：MCP 注册
 ----------------------------------------
 ✅ 找到 OpenClaw MCP 配置文件
-✅ MFS MCP Server 已注册到 OpenClaw
+✅ Diting MCP Server 已注册到 OpenClaw
 
 ============================================================
 检查结果汇总
 ============================================================
 Python 版本：✅ 通过
 依赖检查：✅ 通过
-MFS 导入：✅ 通过
+Diting 导入：✅ 通过
 MCP 注册：✅ 通过
 
-🎉 所有检查通过！MFS 已正确安装。
+🎉 所有检查通过！Diting 已正确安装。
 
 使用方法:
   1. 在 OpenClaw 中自动识别 mfs_read/mfs_write/mfs_search 工具
-  2. 开始使用 MFS 管理记忆
+  2. 开始使用 Diting 管理记忆
 ```
 
 ### 3. 使用
@@ -116,15 +116,15 @@ MCP 注册：✅ 通过
 **解决**：
 ```bash
 # 重新安装
-pip uninstall mfs-memory
-pip install mfs-memory
+pip uninstall diting
+pip install diting
 ```
 
 ### 问题：MCP 未注册到 OpenClaw
 
 **解决**：
 1. 检查 OpenClaw 配置文件是否存在
-2. 手动添加 MFS MCP Server 配置
+2. 手动添加 Diting MCP Server 配置
 3. 重启 OpenClaw Gateway
 
 ### 问题：Python 版本过低
@@ -143,5 +143,5 @@ python3 --version
 
 ## 技术支持
 
-- GitHub Issues: https://github.com/yourusername/mfs-memory/issues
-- 文档：https://github.com/yourusername/mfs-memory/docs
+- GitHub Issues: https://github.com/yourusername/diting/issues
+- 文档：https://github.com/yourusername/diting/docs

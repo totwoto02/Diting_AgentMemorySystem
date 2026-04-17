@@ -6,8 +6,8 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.mft import MFT
-from mfs.dialog_manager import DialogManager
+from diting.mft import MFT
+from diting.dialog_manager import DialogManager
 
 
 def test_dialog_manager():

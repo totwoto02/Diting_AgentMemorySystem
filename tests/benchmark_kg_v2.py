@@ -14,7 +14,7 @@ from datetime import datetime
 # 添加项目路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
 
 
 def generate_random_text(length=100):

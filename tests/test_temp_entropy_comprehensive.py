@@ -17,8 +17,8 @@ from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.heat_manager import HeatManager
-from mfs.entropy_manager import EntropyManager
+from diting.heat_manager import HeatManager
+from diting.entropy_manager import EntropyManager
 
 
 # ==================== 测试工具函数 ====================

@@ -1,4 +1,4 @@
-# MFS v0.3.0 版本说明
+# Diting v0.3.0 版本说明
 
 **发布时间**: 2026-04-15  
 **版本类型**: 重大更新
@@ -202,14 +202,14 @@ dm.cleanup_old_dialogs()
 ### 1. 写入记忆（自动建图）
 
 ```bash
-mcporter call mfs-memory.mfs_write \
+mcporter call diting.mfs_write \
   path="/memory/用户朋友拍照约定.md" \
   type="NOTE" \
   content="4 月 12 日与用户朋友约定拍照，地点约定地点，下午 3 点集合"
 ```
 
 **自动效果**:
-- ✅ 记忆存储到 MFS
+- ✅ 记忆存储到 Diting
 - ✅ 自动提取概念：用户朋友、拍照、约定、约定地点
 - ✅ 自动建立关联：用户朋友↔拍照↔约定↔地点
 
@@ -219,10 +219,10 @@ mcporter call mfs-memory.mfs_write \
 
 ```bash
 # 普通搜索
-mcporter call mfs-memory.mfs_search query="用户朋友"
+mcporter call diting.mfs_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call mfs-memory.kg_search query="用户朋友"
+mcporter call diting.kg_search query="用户朋友"
 # 返回：用户朋友 + 关联概念（游戏、游戏角色、忠犬...）
 ```
 
@@ -231,7 +231,7 @@ mcporter call mfs-memory.kg_search query="用户朋友"
 ### 3. 查看图谱
 
 ```bash
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 # 📊 知识图谱统计:
 #   概念数：59
 #   边数：291
@@ -277,7 +277,7 @@ dm.mark_as_important(results[0]['v_path'], "重要约会")
 
 ## 🎉 总结
 
-**MFS v0.3.0** 是一个重大更新，包含：
+**Diting v0.3.0** 是一个重大更新，包含：
 
 1. **知识图谱 V2** - 企业级图谱能力
 2. **MFT 深度集成** - 自动建图 + 智能搜索

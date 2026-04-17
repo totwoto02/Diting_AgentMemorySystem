@@ -10,8 +10,8 @@ OpenClaw 集成测试
 
 import pytest
 import time
-from mfs.mcp_server import MCPServer
-from mfs.mft import MFT
+from diting.mcp_server import MCPServer
+from diting.mft import MFT
 
 
 class TestOpenClawMemorySearch:

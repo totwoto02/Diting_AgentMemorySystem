@@ -14,7 +14,7 @@ import os
 import time
 import statistics
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from mfs.mft import MFT
+from diting.mft import MFT
 
 
 class TestReadLatency:

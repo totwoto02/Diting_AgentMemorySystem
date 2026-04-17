@@ -10,8 +10,8 @@ from datetime import datetime
 # 添加 MFS 到路径
 sys.path.insert(0, '/root/.openclaw/workspace/projects/mfs-memory')
 
-from mfs.mft import MFT
-from mfs.dialog_manager import DialogManager
+from diting.mft import MFT
+from diting.dialog_manager import DialogManager
 
 
 def migrate_memory_file(mft: MFT, file_path: str, category: str = "memory"):

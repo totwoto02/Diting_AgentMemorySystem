@@ -3,8 +3,8 @@
 """
 
 import pytest
-from mfs.mft import MFT
-from mfs.assembler import Assembler
+from diting.mft import MFT
+from diting.assembler import Assembler
 
 
 class TestAssembler:

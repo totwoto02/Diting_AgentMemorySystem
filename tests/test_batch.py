@@ -9,7 +9,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.batch_processor import BatchProcessor
+from diting.batch_processor import BatchProcessor
 
 
 def test_batch_processor():

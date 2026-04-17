@@ -1,7 +1,7 @@
 # GitHub + PyPI 发布准备指南
 
 **创建时间**: 2026-04-13 21:32  
-**目的**: 指导 MFS Phase 1 MVP 发布到 GitHub 和 PyPI
+**目的**: 指导 Diting Phase 1 MVP 发布到 GitHub 和 PyPI
 
 ---
 
@@ -39,11 +39,11 @@
 
 ```bash
 # 方法 A: 使用 GitHub CLI (推荐)
-gh repo create mfs-memory --public --description "Memory File System - AI 记忆的 Git + NTFS" --source=. --remote=origin --push
+gh repo create diting --public --description "Memory File System - AI 记忆的 Git + NTFS" --source=. --remote=origin --push
 
 # 方法 B: 网页创建
 # 1. 访问 https://github.com/new
-# 2. 仓库名：mfs-memory
+# 2. 仓库名：diting
 # 3. 描述：Memory File System - AI 记忆的 Git + NTFS
 # 4. 公开仓库 (Public)
 # 5. 不要初始化 (已有代码)
@@ -54,7 +54,7 @@ gh repo create mfs-memory --public --description "Memory File System - AI 记忆
 
 ```bash
 # 添加远程仓库
-git remote add origin https://github.com/YOUR_USERNAME/mfs-memory.git
+git remote add origin https://github.com/YOUR_USERNAME/diting.git
 
 # 推送到 main 分支
 git branch -M main
@@ -68,9 +68,9 @@ git push --tags
 
 **方法 A: 网页创建**
 ```
-1. 访问 https://github.com/YOUR_USERNAME/mfs-memory/releases/new
+1. 访问 https://github.com/YOUR_USERNAME/diting/releases/new
 2. Tag version: v0.1.0
-3. Release title: MFS Phase 1 MVP Release
+3. Release title: Diting Phase 1 MVP Release
 4. 发布说明：复制 CHANGELOG.md 内容
 5. 点击 "Publish release"
 ```
@@ -78,7 +78,7 @@ git push --tags
 **方法 B: 使用 GitHub CLI**
 ```bash
 gh release create v0.1.0 \
-  --title "MFS Phase 1 MVP Release" \
+  --title "Diting Phase 1 MVP Release" \
   --notes-file CHANGELOG.md \
   --generate-notes
 ```
@@ -88,7 +88,7 @@ gh release create v0.1.0 \
 ```
 1. 访问 Settings
 2. About 区域:
-   - Website: https://github.com/YOUR_USERNAME/mfs-memory
+   - Website: https://github.com/YOUR_USERNAME/diting
    - Description: Memory File System - AI 记忆的 Git + NTFS
 3. Topics:
    - memory-system
@@ -167,7 +167,7 @@ twine upload dist/* -u __token__
 ```
 1. 访问 https://pypi.org/manage/account/token/
 2. 点击 "Add API token"
-3. Token name: mfs-memory
+3. Token name: diting
 4. Scope: Entire account (或指定项目)
 5. 点击 "Create token"
 6. **复制 Token** (只显示一次！)
@@ -199,7 +199,7 @@ ls -lh dist/
 twine upload --repository testpypi dist/*
 
 # 验证上传
-# 访问 https://test.pypi.org/project/mfs-memory/
+# 访问 https://test.pypi.org/project/diting/
 ```
 
 #### Step 3: 正式上传
@@ -209,7 +209,7 @@ twine upload --repository testpypi dist/*
 twine upload dist/*
 
 # 验证上传
-# 访问 https://pypi.org/project/mfs-memory/
+# 访问 https://pypi.org/project/diting/
 ```
 
 #### Step 4: 验证安装
@@ -218,7 +218,7 @@ twine upload dist/*
 # 等待 5-10 分钟 (PyPI 索引更新)
 
 # 测试安装
-pip install mfs-memory
+pip install diting
 
 # 验证版本
 python -c "import mfs; print(mfs.__version__)"
@@ -330,7 +330,7 @@ cat ~/.pypirc  # 检查配置
 # 使用 Personal Access Token 代替密码
 # https://github.com/settings/tokens
 
-git push https://YOUR_TOKEN@github.com/YOUR_USERNAME/mfs-memory.git main
+git push https://YOUR_TOKEN@github.com/YOUR_USERNAME/diting.git main
 ```
 
 ### Q5: PyPI 上传失败 "File already exists"
@@ -376,17 +376,17 @@ twine upload --repository testpypi dist/*
 
 ```bash
 # ✅ 访问仓库页面
-# https://github.com/YOUR_USERNAME/mfs-memory
+# https://github.com/YOUR_USERNAME/diting
 
 # ✅ 检查 README 渲染
 # 应该正常显示 Markdown
 
 # ✅ 检查 CI/CD
-# https://github.com/YOUR_USERNAME/mfs-memory/actions
+# https://github.com/YOUR_USERNAME/diting/actions
 # 应该看到绿色的勾
 
 # ✅ 检查 Release
-# https://github.com/YOUR_USERNAME/mfs-memory/releases
+# https://github.com/YOUR_USERNAME/diting/releases
 # 应该看到 v0.1.0
 ```
 
@@ -394,16 +394,16 @@ twine upload --repository testpypi dist/*
 
 ```bash
 # ✅ 访问项目页面
-# https://pypi.org/project/mfs-memory/
+# https://pypi.org/project/diting/
 
 # ✅ 检查项目信息
 # - 版本号：0.1.0
 # - 许可证：MIT
 # - Python 版本：>=3.11
-# - 作者：MFS Team
+# - 作者：Diting Team
 
 # ✅ 测试安装
-pip install mfs-memory
+pip install diting
 python -c "import mfs; print(mfs.__version__)"
 
 # ✅ 检查 CI/CD
@@ -420,7 +420,7 @@ python -c "import mfs; print(mfs.__version__)"
 #!/bin/bash
 set -e
 
-echo "=== MFS Release Script ==="
+echo "=== Diting Release Script ==="
 echo "Version: 0.1.0"
 echo ""
 
@@ -444,7 +444,7 @@ twine upload dist/*
 # 5. 创建 GitHub Release
 echo "5. Creating GitHub Release..."
 gh release create v0.1.0 \
-  --title "MFS Phase 1 MVP Release" \
+  --title "Diting Phase 1 MVP Release" \
   --notes-file CHANGELOG.md \
   --generate-notes
 
@@ -454,8 +454,8 @@ git push --tags
 
 echo ""
 echo "=== Release Complete! ==="
-echo "GitHub: https://github.com/YOUR_USERNAME/mfs-memory"
-echo "PyPI: https://pypi.org/project/mfs-memory/"
+echo "GitHub: https://github.com/YOUR_USERNAME/diting"
+echo "PyPI: https://pypi.org/project/diting/"
 ```
 
 使用:
@@ -501,6 +501,6 @@ brew install gh  # macOS
 
 ---
 
-**维护人**: MFS Team  
+**维护人**: Diting Team  
 **最后更新**: 2026-04-13 21:32  
 **版本**: v0.1.0

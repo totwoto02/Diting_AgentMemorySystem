@@ -9,7 +9,7 @@ import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.entropy_manager import EntropyManager
+from diting.entropy_manager import EntropyManager
 
 
 def create_test_manager():

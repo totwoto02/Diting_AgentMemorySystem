@@ -1,4 +1,4 @@
-# MFS Step 2 功能说明
+# Diting Step 2 功能说明
 
 ## Step 2: FTS5 + 知识图谱完善方案
 
@@ -220,6 +220,6 @@ stats = pool.get_stats()
 
 ## 技术支持
 
-- GitHub: https://github.com/yourusername/mfs-memory
-- Issues: https://github.com/yourusername/mfs-memory/issues
-- 文档：https://github.com/yourusername/mfs-memory/docs
+- GitHub: https://github.com/yourusername/diting
+- Issues: https://github.com/yourusername/diting/issues
+- 文档：https://github.com/yourusername/diting/docs

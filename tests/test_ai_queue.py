@@ -9,7 +9,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.ai_queue import AIQueueManager, TaskStatus
+from diting.ai_queue import AIQueueManager, TaskStatus
 
 
 def create_test_queue():

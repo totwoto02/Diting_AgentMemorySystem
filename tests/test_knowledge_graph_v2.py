@@ -5,7 +5,7 @@ TDD 第一步：先写测试
 """
 
 import pytest
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2, Concept, Edge
+from diting.knowledge_graph_v2 import KnowledgeGraphV2, Concept, Edge
 
 
 class TestKnowledgeGraphV2:

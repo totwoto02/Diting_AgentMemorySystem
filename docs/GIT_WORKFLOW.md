@@ -1,6 +1,6 @@
 # Git 版本管理指南
 
-**项目**: MFS (Memory File System)  
+**项目**: Diting (Memory File System)  
 **版本**: v1.0  
 **创建时间**: 2026-04-13  
 
@@ -322,7 +322,7 @@ git tag -a v0.1.0 -m "Phase 1 MVP: SQLite + MCP"
 git push origin v0.1.0
 
 # 3. 在 GitHub 上创建 Release
-# https://github.com/xxx/mfs-memory/releases/new
+# https://github.com/xxx/diting/releases/new
 ```
 
 ---

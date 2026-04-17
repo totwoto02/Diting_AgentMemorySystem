@@ -7,19 +7,19 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="mfs-memory",
+    name="diting",
     version="1.0.0.0",  # V1.0.0.0 正式版 - C/C++/SQLite 全面优化
     author="main (管家)",
-    author_email="main@mfs-memory.ai",
-    description="Memory File System V1.0.0.0 - AI 记忆的 Git + NTFS (全面优化版)",
+    author_email="main@diting.ai",
+    description="Diting (谛听) - A Thermodynamics-Inspired Memory File System with Anti-Hallucination",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/mfs-memory",
+    url="https://github.com/totwoto02/Diting",
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "mfs-check-install=mfs.cli.install_check:main",
-            "mfs-version=mfs.cli.version:main",
+            "diting-check-install=diting.cli.install_check:main",
+            "diting-version=diting.cli.version:main",
         ],
     },
     classifiers=[

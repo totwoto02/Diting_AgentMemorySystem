@@ -13,9 +13,9 @@ import json
 import tempfile
 import os
 import time
-from mfs.mcp_server import MCPServer
-from mfs.mft import MFT
-from mfs.errors import MFTNotFoundError, MFTInvalidPathError
+from diting.mcp_server import MCPServer
+from diting.mft import MFT
+from diting.errors import MFTNotFoundError, MFTInvalidPathError
 
 
 class TestOpenCodeMCPConfig:

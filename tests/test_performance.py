@@ -6,7 +6,7 @@ MFT 性能测试
 
 import pytest
 import time
-from mfs.mft import MFT, LRUCache
+from diting.mft import MFT, LRUCache
 
 
 class TestLRUCache:

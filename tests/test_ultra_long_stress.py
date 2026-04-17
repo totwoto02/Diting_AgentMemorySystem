@@ -8,11 +8,11 @@ import pytest
 import json
 import time
 import random
-from mfs.mft import MFT
-from mfs.fts5_search import FTS5Search
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
-from mfs.wal_logger import WALLogger
-from mfs.assembler_v2 import AssemblerV2
+from diting.mft import MFT
+from diting.fts5_search import FTS5Search
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.wal_logger import WALLogger
+from diting.assembler_v2 import AssemblerV2
 
 
 class TestUltraLongConversationsStress:

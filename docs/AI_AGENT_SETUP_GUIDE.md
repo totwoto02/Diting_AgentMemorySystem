@@ -1,7 +1,7 @@
 # AI Agent 安装与初始化引导文档
 
 **版本**: v1.0  
-**适用**: OpenClaw + MFS v0.3.0  
+**适用**: OpenClaw + Diting v0.3.0  
 **最后更新**: 2026-04-15
 
 ---
@@ -21,7 +21,7 @@
 
 1. [前置检查](#1-前置检查)
 2. [备份现有数据](#2-备份现有数据)
-3. [安装 MFS](#3-安装-mfs)
+3. [安装 Diting](#3-安装-mfs)
 4. [初始化配置](#4-初始化配置)
 5. [记忆迁移](#5-记忆迁移)
 6. [验证测试](#6-验证测试)
@@ -112,9 +112,9 @@ done
 echo "[4/5] 备份 MCP 配置..."
 cp /root/.openclaw/workspace/config/mcporter.json "$BACKUP_DIR/" 2>/dev/null || echo "  不存在"
 
-# 备份 MFS 数据库（如果已存在）
-echo "[5/5] 备份 MFS 数据库..."
-cp /root/.openclaw/workspace/projects/mfs-memory/*.db "$BACKUP_DIR/" 2>/dev/null || echo "  不存在"
+# 备份 Diting 数据库（如果已存在）
+echo "[5/5] 备份 Diting 数据库..."
+cp /root/.openclaw/workspace/projects/diting/*.db "$BACKUP_DIR/" 2>/dev/null || echo "  不存在"
 
 echo ""
 echo "=== 备份完成 ==="
@@ -143,28 +143,28 @@ ls -lh /root/.openclaw/backups/
 
 ---
 
-## 3. 安装 MFS
+## 3. 安装 Diting
 
-### 3.1 下载/准备 MFS
+### 3.1 下载/准备 Diting
 
 ```bash
-# 检查 MFS 项目目录
-MFS_DIR="/root/.openclaw/workspace/projects/mfs-memory"
+# 检查 Diting 项目目录
+Diting_DIR="/root/.openclaw/workspace/projects/diting"
 
-if [ -d "$MFS_DIR" ]; then
-    echo "✅ MFS 项目已存在"
-    cd "$MFS_DIR"
+if [ -d "$Diting_DIR" ]; then
+    echo "✅ Diting 项目已存在"
+    cd "$Diting_DIR"
 else
-    echo "❌ MFS 项目不存在，需要克隆或创建"
+    echo "❌ Diting 项目不存在，需要克隆或创建"
     # 如果有 Git 仓库
-    # git clone <repo_url> "$MFS_DIR"
+    # git clone <repo_url> "$Diting_DIR"
 fi
 ```
 
 ### 3.2 安装依赖
 
 ```bash
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 
 # 检查 requirements.txt
 if [ -f "requirements.txt" ]; then
@@ -173,7 +173,7 @@ if [ -f "requirements.txt" ]; then
 else
     echo "⚠️  requirements.txt 不存在，创建默认配置..."
     cat > requirements.txt << 'EOF'
-# MFS Memory File System Dependencies
+# Diting Memory File System Dependencies
 mcp>=1.0.0
 pytest>=7.0
 pytest-cov>=4.0
@@ -183,10 +183,10 @@ EOF
 fi
 ```
 
-### 3.3 安装 MFS 包
+### 3.3 安装 Diting 包
 
 ```bash
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 
 # 可编辑安装（推荐，便于开发）
 pip3 install -e .
@@ -195,14 +195,14 @@ pip3 install -e .
 # pip3 install .
 
 # 验证安装
-python3 -c "from mfs.mft import MFT; print('✅ MFS 安装成功')"
+python3 -c "from mfs.mft import MFT; print('✅ Diting 安装成功')"
 ```
 
 ### 3.4 验证 MCP 配置
 
 ```bash
 # 检查 MCP 服务器配置
-cat /root/.openclaw/workspace/config/mcporter.json | grep -A 10 "mfs-memory"
+cat /root/.openclaw/workspace/config/mcporter.json | grep -A 10 "diting"
 
 # 如果没有配置，添加
 python3 << 'EOF'
@@ -214,15 +214,15 @@ config_path = '/root/.openclaw/workspace/config/mcporter.json'
 with open(config_path, 'r', encoding='utf-8') as f:
     config = json.load(f)
 
-# 添加 MFS 配置（如果不存在）
-if 'mfs-memory' not in config.get('mcpServers', {}):
-    config['mcpServers']['mfs-memory'] = {
-        "description": "MFS Memory File System - Local MCP Server",
+# 添加 Diting 配置（如果不存在）
+if 'diting' not in config.get('mcpServers', {}):
+    config['mcpServers']['diting'] = {
+        "description": "Diting Memory File System - Local MCP Server",
         "command": "python3",
         "args": ["-m", "mfs.mcp_server"],
-        "cwd": "/root/.openclaw/workspace/projects/mfs-memory",
+        "cwd": "/root/.openclaw/workspace/projects/diting",
         "env": {
-            "PYTHONPATH": "/root/.openclaw/workspace/projects/mfs-memory"
+            "PYTHONPATH": "/root/.openclaw/workspace/projects/diting"
         }
     }
     
@@ -230,9 +230,9 @@ if 'mfs-memory' not in config.get('mcpServers', {}):
     with open(config_path, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
     
-    print("✅ MFS 配置已添加")
+    print("✅ Diting 配置已添加")
 else:
-    print("✅ MFS 配置已存在")
+    print("✅ Diting 配置已存在")
 EOF
 ```
 
@@ -240,10 +240,10 @@ EOF
 
 ## 4. 初始化配置
 
-### 4.1 创建 MFS 数据库
+### 4.1 创建 Diting 数据库
 
 ```bash
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 
 # 初始化 MFT 和 KG
 python3 << 'EOF'
@@ -252,8 +252,8 @@ from mfs.mft import MFT
 # 创建数据库（会自动初始化 schema）
 mft = MFT(db_path='mfs.db', kg_db_path='mfs_kg.db')
 
-print("✅ MFS 数据库已创建")
-print(f"   MFS 数据库：mfs.db")
+print("✅ Diting 数据库已创建")
+print(f"   Diting 数据库：mfs.db")
 print(f"   KG 数据库：mfs_kg.db")
 
 # 验证
@@ -272,8 +272,8 @@ EOF
 # 重启 MCP daemon（如果已运行）
 mcporter daemon restart
 
-# 验证 MFS 工具可用
-mcporter list mfs-memory
+# 验证 Diting 工具可用
+mcporter list diting
 
 # 应该显示 6 个工具：
 # - mfs_read
@@ -315,7 +315,7 @@ EOF
 ### 5.1 迁移脚本
 
 ```bash
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 
 # 运行迁移脚本（使用备份目录）
 python3 scripts/migrate_memory.py
@@ -353,8 +353,8 @@ EOF
 
 ```bash
 # 验证迁移结果
-mcporter call mfs-memory.kg_stats
-mcporter call mfs-memory.mfs_search query="关键记忆"
+mcporter call diting.kg_stats
+mcporter call diting.mfs_search query="关键记忆"
 ```
 
 ---
@@ -366,28 +366,28 @@ mcporter call mfs-memory.mfs_search query="关键记忆"
 ```bash
 # 测试 1: 写入记忆
 echo "=== 测试 1: 写入记忆 ==="
-mcporter call mfs-memory.mfs_write \
+mcporter call diting.mfs_write \
   path="/test/setup_guide.md" \
   type="NOTE" \
   content="安装测试记忆"
 
 # 测试 2: 读取记忆
 echo "=== 测试 2: 读取记忆 ==="
-mcporter call mfs-memory.mfs_read \
+mcporter call diting.mfs_read \
   path="/test/setup_guide.md"
 
 # 测试 3: 搜索记忆
 echo "=== 测试 3: 搜索记忆 ==="
-mcporter call mfs-memory.mfs_search \
+mcporter call diting.mfs_search \
   query="安装测试"
 
 # 测试 4: KG 统计
 echo "=== 测试 4: KG 统计 ==="
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 
 # 测试 5: KG 搜索
 echo "=== 测试 5: KG 搜索 ==="
-mcporter call mfs-memory.kg_search \
+mcporter call diting.kg_search \
   query="测试"
 ```
 
@@ -395,13 +395,13 @@ mcporter call mfs-memory.kg_search \
 
 ```bash
 # 运行完整测试套件
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 python3 -m pytest tests/ -v
 ```
 
 ### 6.3 验证清单
 
-- [ ] MFS 数据库创建成功
+- [ ] Diting 数据库创建成功
 - [ ] MCP 工具全部可用（6 个）
 - [ ] 写入记忆正常
 - [ ] 读取记忆正常
@@ -429,10 +429,10 @@ python3 -m pytest tests/ -v
 mcporter daemon restart
 
 # 验证工具列表
-mcporter list mfs-memory
+mcporter list diting
 
 # 如果仍无，检查 mcp_server.py 是否正确
-python3 -m py_compile /root/.openclaw/workspace/projects/mfs-memory/mfs/mcp_server.py
+python3 -m py_compile /root/.openclaw/workspace/projects/diting/mfs/mcp_server.py
 ```
 
 #### 问题 2: 数据库路径错误
@@ -444,11 +444,11 @@ sqlite3.OperationalError: unable to open database file
 **解决**:
 ```bash
 # 检查目录权限
-ls -la /root/.openclaw/workspace/projects/mfs-memory/
+ls -la /root/.openclaw/workspace/projects/diting/
 
 # 确保目录存在且可写
-mkdir -p /root/.openclaw/workspace/projects/mfs-memory
-chmod 755 /root/.openclaw/workspace/projects/mfs-memory
+mkdir -p /root/.openclaw/workspace/projects/diting
+chmod 755 /root/.openclaw/workspace/projects/diting
 ```
 
 #### 问题 3: 记忆迁移失败
@@ -460,7 +460,7 @@ UNIQUE constraint failed: mft.v_path
 **解决**:
 ```bash
 # 路径冲突，清理测试数据
-cd /root/.openclaw/workspace/projects/mfs-memory
+cd /root/.openclaw/workspace/projects/diting
 rm -f mfs.db mfs_kg.db
 
 # 重新运行迁移
@@ -492,7 +492,7 @@ tail -f /root/.openclaw/logs/mcp*.log
 # OpenClaw 日志
 tail -f /root/.openclaw/logs/openclaw.log
 
-# MFS 调试
+# Diting 调试
 export DEBUG=1
 python3 -m mfs.mcp_server
 ```
@@ -571,7 +571,7 @@ echo "✅ 备份恢复完成"
 
 ### 安装中
 - [ ] 备份完成并验证
-- [ ] MFS 安装成功
+- [ ] Diting 安装成功
 - [ ] MCP 配置正确
 - [ ] 数据库初始化成功
 
@@ -592,7 +592,7 @@ echo "✅ 备份恢复完成"
 ## 📞 获取帮助
 
 **文档**:
-- MFS 使用指南：`docs/DIALOG_MANAGER_USAGE.md`
+- Diting 使用指南：`docs/DIALOG_MANAGER_USAGE.md`
 - KG 集成文档：`docs/KG_INTEGRATION_COMPLETE.md`
 - MCP 工具指南：`docs/MCP_KG_TOOLS_USAGE.md`
 
@@ -605,5 +605,5 @@ echo "✅ 备份恢复完成"
 ---
 
 **最后更新**: 2026-04-15  
-**维护人**: MFS Team  
+**维护人**: Diting Team  
 **版本**: v1.0

@@ -13,7 +13,7 @@ import os
 import time
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from mfs.mft import MFT
+from diting.mft import MFT
 
 
 def write_with_retry(db_path, path, node_type, content, max_retries=3):

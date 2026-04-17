@@ -9,7 +9,7 @@ import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.heat_manager import HeatManager
+from diting.heat_manager import HeatManager
 
 
 def create_test_manager():

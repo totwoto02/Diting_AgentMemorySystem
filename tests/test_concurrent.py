@@ -10,8 +10,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Tuple
 
-from mfs.mft import MFT
-from mfs.errors import MFTException
+from diting.mft import MFT
+from diting.errors import MFTException
 
 
 class TestConcurrentWrite:

@@ -9,10 +9,10 @@ import json
 import time
 import hashlib
 import random
-from mfs.mft import MFT
-from mfs.fts5_search import FTS5Search
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
-from mfs.wal_logger import WALLogger
+from diting.mft import MFT
+from diting.fts5_search import FTS5Search
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.wal_logger import WALLogger
 from tests.test_unified_db import create_unified_db
 
 

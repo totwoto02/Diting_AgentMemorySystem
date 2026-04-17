@@ -6,7 +6,7 @@ MCP Server 边界条件测试
 
 import pytest
 import asyncio
-from mfs.mcp_server import MCPServer
+from diting.mcp_server import MCPServer
 
 
 class TestMCPEdgeCases:

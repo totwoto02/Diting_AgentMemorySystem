@@ -5,8 +5,8 @@ MCP Server 错误路径测试
 """
 
 import pytest
-from mfs.mcp_server import MCPServer
-from mfs.errors import MFTNotFoundError, MFSException
+from diting.mcp_server import MCPServer
+from diting.errors import MFTNotFoundError, MFSException
 
 
 class TestMCPErrorHandling:

@@ -8,7 +8,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.audit_logger import AuditLogger
+from diting.audit_logger import AuditLogger
 
 
 def create_test_logger():

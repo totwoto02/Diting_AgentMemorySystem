@@ -5,7 +5,7 @@
 """
 
 from typing import List, Dict, Any, Optional
-from mfs.mft import MFT
+from diting.mft import MFT
 
 
 class Assembler:

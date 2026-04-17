@@ -143,14 +143,14 @@ anomaly = entropy.detect_entropy_anomaly('slice_001')
 
 ```bash
 # 获取熵统计
-mcporter call mfs-memory.entropy_stats
+mcporter call diting.entropy_stats
 
 # 获取项目熵值
-mcporter call mfs-memory.get_project_entropy \
+mcporter call diting.get_project_entropy \
   project_path="/projects/multimodal"
 
 # 检测异常
-mcporter call mfs-memory.entropy_anomaly \
+mcporter call diting.entropy_anomaly \
   slice_id="abc123..."
 ```
 
@@ -217,6 +217,6 @@ mcporter call mfs-memory.entropy_anomaly \
 
 **熵系统完成！** 🎉
 
-**维护人**: MFS Team  
+**维护人**: Diting Team  
 **版本**: v0.4.0  
 **最后更新**: 2026-04-15 22:56

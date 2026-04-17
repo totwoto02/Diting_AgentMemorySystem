@@ -3,7 +3,7 @@
 """
 
 import pytest
-from mfs.slicers.length import LengthSplitter, Slice
+from diting.slicers.length import LengthSplitter, Slice
 
 
 class TestLengthSplitter:

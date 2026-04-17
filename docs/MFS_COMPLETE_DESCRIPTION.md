@@ -1,10 +1,10 @@
-# MFS 完整代码功能描述
+# Diting 完整代码功能描述
 
 **从 0 到 V1.0.0.0 的完整技术文档**
 
 ---
 
-# MFS (Memory File System) - AI 记忆的 Git + NTFS
+# Diting (Memory File System) - AI 记忆的 Git + NTFS
 
 **为 Agent 时代打造的记忆管理系统**
 
@@ -19,7 +19,7 @@
 ## 📁 核心架构
 
 ```
-MFS V1.0.0.0
+Diting V1.0.0.0
 ├── 文件系统概念
 │   ├── 虚拟路径管理 (如：/person/用户朋友/preferences)
 │   ├── 层级结构 (类似文件夹)
@@ -508,7 +508,7 @@ print(f"可提取：{result['can_extract']}")
 ## 📁 项目结构
 
 ```
-mfs-memory/
+diting/
 ├── mfs/                      # 核心模块
 │   ├── __init__.py           # V1.0.0.0 版本信息
 │   ├── mft.py                # MFT 元数据管理
@@ -537,7 +537,7 @@ mfs-memory/
 
 ## 🎊 总结
 
-**MFS V1.0.0.0** 是一个完整的 AI 记忆管理系统，包含：
+**Diting V1.0.0.0** 是一个完整的 AI 记忆管理系统，包含：
 
 - ✅ **10 个核心模块**
 - ✅ **热力学四系统** (U/T/S/G)
@@ -554,4 +554,4 @@ mfs-memory/
 
 **文档版本**: V1.0.0.0  
 **创建时间**: 2026-04-17  
-**维护人**: MFS Team
+**维护人**: Diting Team

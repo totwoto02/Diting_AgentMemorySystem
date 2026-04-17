@@ -4,7 +4,7 @@
 
 import pytest
 import asyncio
-from mfs.mcp_server import MCPServer
+from diting.mcp_server import MCPServer
 
 
 class TestMCPServerPhase2:

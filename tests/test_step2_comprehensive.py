@@ -15,10 +15,10 @@ import time
 import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mfs.mft import MFT
-from mfs.assembler_v2 import AssemblerV2
-from mfs.integrity_tracker import IntegrityTracker
-from mfs.knowledge_graph_v2 import KnowledgeGraphV2
+from diting.mft import MFT
+from diting.assembler_v2 import AssemblerV2
+from diting.integrity_tracker import IntegrityTracker
+from diting.knowledge_graph_v2 import KnowledgeGraphV2
 
 
 def load_test_data():

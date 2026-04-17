@@ -18,7 +18,7 @@ def test_fts5_search():
     print("测试 1: FTS5 全文检索")
     print("=" * 70)
     
-    from mfs.fts5_search import FTS5Search
+    from diting.fts5_search import FTS5Search
     import tempfile
     
     # 创建临时数据库
@@ -94,7 +94,7 @@ def test_assembler_v2():
     print("测试 2: Assembler V2 拼装优化")
     print("=" * 70)
     
-    from mfs.assembler_v2 import AssemblerV2
+    from diting.assembler_v2 import AssemblerV2
     
     assembler = AssemblerV2()
     
@@ -136,7 +136,7 @@ def test_integrity_tracker():
     print("测试 3: Integrity Tracker 防幻觉")
     print("=" * 70)
     
-    from mfs.integrity_tracker import IntegrityTracker
+    from diting.integrity_tracker import IntegrityTracker
     import tempfile
     
     with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:

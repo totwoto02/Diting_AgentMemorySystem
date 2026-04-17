@@ -321,5 +321,5 @@ except sqlite3.OperationalError:
 ---
 
 **Step 2 完成时间**: 2026-04-15  
-**维护人**: MFS Team  
+**维护人**: Diting Team  
 **版本**: v0.3.0

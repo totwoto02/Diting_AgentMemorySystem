@@ -1,6 +1,6 @@
-# MFS 部署指南
+# Diting 部署指南
 
-本文档提供 MFS (Memory File System) 的完整部署说明，包括环境要求、安装步骤、MCP 配置和常见问题。
+本文档提供 Diting (Memory File System) 的完整部署说明，包括环境要求、安装步骤、MCP 配置和常见问题。
 
 ---
 
@@ -67,16 +67,16 @@ git --version
 #### 方式一：Git 克隆 (推荐)
 
 ```bash
-git clone https://github.com/xxx/mfs-memory.git
-cd mfs-memory
+git clone https://github.com/xxx/diting.git
+cd diting
 ```
 
 #### 方式二：下载 ZIP
 
 ```bash
-wget https://github.com/xxx/mfs-memory/archive/refs/heads/main.zip
+wget https://github.com/xxx/diting/archive/refs/heads/main.zip
 unzip main.zip
-cd mfs-memory-main
+cd diting-main
 ```
 
 ### 2. 创建虚拟环境 (推荐)
@@ -120,7 +120,7 @@ pytest --cov=mfs --cov-report=term-missing
 
 ### 5. 初始化数据库
 
-MFS 会在首次运行时自动创建数据库。
+Diting 会在首次运行时自动创建数据库。
 
 **内存数据库** (临时，重启后数据丢失):
 ```bash
@@ -131,10 +131,10 @@ python -m mfs.mcp_server
 **文件数据库** (持久化，推荐):
 ```bash
 # 设置环境变量
-export MFS_DB_PATH="file:/path/to/mfs_memory.db?mode=rwc"
+export Diting_DB_PATH="file:/path/to/mfs_memory.db?mode=rwc"
 
 # 或使用绝对路径
-export MFS_DB_PATH="/absolute/path/to/mfs_memory.db"
+export Diting_DB_PATH="/absolute/path/to/mfs_memory.db"
 
 # 启动 MCP Server
 python -m mfs.mcp_server
@@ -152,14 +152,14 @@ nohup python -m mfs.mcp_server > mfs.log 2>&1 &
 # 使用 systemd (Linux 生产环境)
 # 创建 /etc/systemd/system/mfs.service
 [Unit]
-Description=MFS MCP Server
+Description=Diting MCP Server
 After=network.target
 
 [Service]
 Type=simple
 User=your_user
-WorkingDirectory=/path/to/mfs-memory
-Environment=MFS_DB_PATH=/path/to/mfs_memory.db
+WorkingDirectory=/path/to/diting
+Environment=Diting_DB_PATH=/path/to/mfs_memory.db
 ExecStart=/path/to/venv/bin/python -m mfs.mcp_server
 Restart=always
 
@@ -179,16 +179,16 @@ sudo systemctl status mfs
 
 ### MCP Server 配置
 
-MFS 通过 MCP (Model Context Protocol) 暴露工具给 AI Agent。
+Diting 通过 MCP (Model Context Protocol) 暴露工具给 AI Agent。
 
 #### 环境变量配置
 
 | 变量 | 说明 | 默认值 | 示例 |
 |------|------|--------|------|
-| `MFS_DB_PATH` | 数据库路径 | `:memory:` | `file:/path/to/mfs.db` |
-| `MFS_CACHE_SIZE` | LRU 缓存大小 | `1000` | `2000` |
-| `MFS_LOG_LEVEL` | 日志级别 | `INFO` | `DEBUG` |
-| `MFS_LOG_FILE` | 日志文件路径 | `None` | `/var/log/mfs.log` |
+| `Diting_DB_PATH` | 数据库路径 | `:memory:` | `file:/path/to/mfs.db` |
+| `Diting_CACHE_SIZE` | LRU 缓存大小 | `1000` | `2000` |
+| `Diting_LOG_LEVEL` | 日志级别 | `INFO` | `DEBUG` |
+| `Diting_LOG_FILE` | 日志文件路径 | `None` | `/var/log/mfs.log` |
 
 #### 配置文件 (可选)
 
@@ -216,7 +216,7 @@ MFS 通过 MCP (Model Context Protocol) 暴露工具给 AI Agent。
 启动时指定配置文件:
 
 ```bash
-MFS_CONFIG=/path/to/mfs_config.json python -m mfs.mcp_server
+Diting_CONFIG=/path/to/mfs_config.json python -m mfs.mcp_server
 ```
 
 ---
@@ -237,9 +237,9 @@ MFS_CONFIG=/path/to/mfs_config.json python -m mfs.mcp_server
     "mfs": {
       "command": "python",
       "args": ["-m", "mfs.mcp_server"],
-      "cwd": "/root/.openclaw/workspace/projects/mfs-memory",
+      "cwd": "/root/.openclaw/workspace/projects/diting",
       "env": {
-        "MFS_DB_PATH": "file:/root/.openclaw/workspace/projects/mfs-memory/mfs_memory.db?mode=rwc"
+        "Diting_DB_PATH": "file:/root/.openclaw/workspace/projects/diting/mfs_memory.db?mode=rwc"
       }
     }
   }
@@ -269,7 +269,7 @@ AI: [调用 mfs_write 工具]
 |------|------|
 | `command` | 启动命令 (python) |
 | `args` | 命令参数 (运行 mcp_server 模块) |
-| `cwd` | 工作目录 (MFS 项目路径) |
+| `cwd` | 工作目录 (Diting 项目路径) |
 | `env` | 环境变量 (数据库路径等) |
 
 ---
@@ -292,9 +292,9 @@ AI: [调用 mfs_write 工具]
         "type": "stdio",
         "command": "python",
         "args": ["-m", "mfs.mcp_server"],
-        "cwd": "/root/.openclaw/workspace/projects/mfs-memory",
+        "cwd": "/root/.openclaw/workspace/projects/diting",
         "env": {
-          "MFS_DB_PATH": "file:/root/.openclaw/workspace/projects/mfs-memory/mfs_memory.db?mode=rwc"
+          "Diting_DB_PATH": "file:/root/.openclaw/workspace/projects/diting/mfs_memory.db?mode=rwc"
         }
       }
     }
@@ -403,10 +403,10 @@ rm mfs_memory.db
 **解决**:
 ```bash
 # 确保在项目根目录运行
-cd /path/to/mfs-memory
+cd /path/to/diting
 
 # 或者将项目添加到 PYTHONPATH
-export PYTHONPATH=/path/to/mfs-memory:$PYTHONPATH
+export PYTHONPATH=/path/to/diting:$PYTHONPATH
 
 # 或者使用 -m 参数运行
 python -m mfs.mcp_server
@@ -423,7 +423,7 @@ python -m mfs.mcp_server
 
 ```bash
 # 手动测试 MCP Server
-cd /path/to/mfs-memory
+cd /path/to/diting
 python -m mfs.mcp_server
 
 # 检查日志
@@ -440,10 +440,10 @@ cat ~/.openclaw/config.json | jq .mcpServers
 **解决**:
 ```bash
 # 1. 增加缓存大小
-export MFS_CACHE_SIZE=2000
+export Diting_CACHE_SIZE=2000
 
 # 2. 使用 SSD 存储数据库
-export MFS_DB_PATH="/path/to/ssd/mfs_memory.db"
+export Diting_DB_PATH="/path/to/ssd/mfs_memory.db"
 
 # 3. 启用 WAL 模式 (已在代码中默认启用)
 # 4. 定期清理已删除的记忆
@@ -464,7 +464,7 @@ python -c "from mfs import MFT; mft = MFT('file:mfs.db'); mft.vacuum()"
 ls -la mfs_memory.db
 
 # 确保使用文件数据库
-export MFS_DB_PATH="file:/absolute/path/to/mfs_memory.db?mode=rwc"
+export Diting_DB_PATH="file:/absolute/path/to/mfs_memory.db?mode=rwc"
 
 # 检查文件权限
 chmod 644 mfs_memory.db

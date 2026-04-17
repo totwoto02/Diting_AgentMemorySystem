@@ -1,6 +1,6 @@
-# MFS 开发者文档
+# Diting 开发者文档
 
-本文档为 MFS (Memory File System) 的开发者提供详细的开发指南，包括代码结构、TDD 开发流程、测试说明、贡献指南和 Git 工作流。
+本文档为 Diting (Memory File System) 的开发者提供详细的开发指南，包括代码结构、TDD 开发流程、测试说明、贡献指南和 Git 工作流。
 
 ---
 
@@ -19,7 +19,7 @@
 ### 目录结构
 
 ```
-mfs-memory/
+diting/
 ├── mfs/                        # 核心模块
 │   ├── __init__.py            # 包初始化 + 导出 MFT 类
 │   ├── mft.py                 # MFT 管理器 (核心数据结构)
@@ -56,9 +56,9 @@ mfs-memory/
 
 ```python
 from .mft import MFT
-from .errors import MFSError, MFSPathNotFoundError, MFSInvalidTypeError
+from .errors import DitingError, DitingPathNotFoundError, DitingInvalidTypeError
 
-__all__ = ['MFT', 'MFSError', 'MFSPathNotFoundError', 'MFSInvalidTypeError']
+__all__ = ['MFT', 'DitingError', 'DitingPathNotFoundError', 'DitingInvalidTypeError']
 __version__ = '0.1.0'
 ```
 
@@ -125,10 +125,10 @@ MCP Server 实现，暴露工具给 AI Agent。
 自定义异常。
 
 **异常类型**:
-- `MFSError` - 基础异常
-- `MFSPathNotFoundError` - 路径不存在
-- `MFSInvalidTypeError` - 类型无效
-- `MFSContentTooLargeError` - 内容过大
+- `DitingError` - 基础异常
+- `DitingPathNotFoundError` - 路径不存在
+- `DitingInvalidTypeError` - 类型无效
+- `DitingContentTooLargeError` - 内容过大
 
 ---
 
@@ -161,7 +161,7 @@ MCP Server 实现，暴露工具给 AI Agent。
 
 ```python
 import pytest
-from mfs import MFT, MFSInvalidTypeError
+from mfs import MFT, DitingInvalidTypeError
 
 def test_create_basic():
     """测试基本创建功能"""
@@ -179,7 +179,7 @@ def test_create_duplicate_path():
 def test_create_invalid_type():
     """测试无效类型"""
     mft = MFT(':memory:')
-    with pytest.raises(MFSInvalidTypeError):
+    with pytest.raises(DitingInvalidTypeError):
         mft.create('/test/rules', 'INVALID', '内容')
 ```
 
@@ -205,7 +205,7 @@ class MFT:
     
     def create(self, v_path, type, content):
         if type not in self.VALID_TYPES:
-            raise MFSInvalidTypeError(f"无效类型：{type}")
+            raise DitingInvalidTypeError(f"无效类型：{type}")
         
         cursor = self.db.cursor()
         cursor.execute(
@@ -231,10 +231,10 @@ pytest tests/test_mft.py::test_create_basic -v
 # 改进：添加路径验证、错误处理、日志
 def create(self, v_path, type, content):
     if not v_path or not v_path.startswith('/'):
-        raise MFSInvalidPathError(f"无效路径：{v_path}")
+        raise DitingInvalidPathError(f"无效路径：{v_path}")
     
     if type not in self.VALID_TYPES:
-        raise MFSInvalidTypeError(f"无效类型：{type}")
+        raise DitingInvalidTypeError(f"无效类型：{type}")
     
     try:
         cursor = self.db.cursor()
@@ -246,7 +246,7 @@ def create(self, v_path, type, content):
         logger.info(f"创建成功：{v_path}")
         return cursor.lastrowid
     except sqlite3.IntegrityError as e:
-        raise MFSPathNotFoundError(f"路径已存在：{v_path}") from e
+        raise DitingPathNotFoundError(f"路径已存在：{v_path}") from e
 ```
 
 运行所有测试 (保持通过):
@@ -401,13 +401,13 @@ def test_create(mft):
 
 2. **克隆 Fork**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/mfs-memory.git
-   cd mfs-memory
+   git clone https://github.com/YOUR_USERNAME/diting.git
+   cd diting
    ```
 
 3. **添加上游仓库**
    ```bash
-   git remote add upstream https://github.com/xxx/mfs-memory.git
+   git remote add upstream https://github.com/xxx/diting.git
    ```
 
 4. **创建功能分支**

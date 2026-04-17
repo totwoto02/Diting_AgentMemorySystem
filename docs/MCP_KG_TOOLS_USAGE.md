@@ -16,8 +16,8 @@
 
 **示例**:
 ```bash
-mcporter call mfs-memory.kg_search query="用户朋友"
-mcporter call mfs-memory.kg_search query="游戏" max_depth=3
+mcporter call diting.kg_search query="用户朋友"
+mcporter call diting.kg_search query="游戏" max_depth=3
 ```
 
 **返回**:
@@ -46,8 +46,8 @@ mcporter call mfs-memory.kg_search query="游戏" max_depth=3
 
 **示例**:
 ```bash
-mcporter call mfs-memory.kg_get_related concept="用户朋友"
-mcporter call mfs-memory.kg_get_related concept="游戏" top_k=10
+mcporter call diting.kg_get_related concept="用户朋友"
+mcporter call diting.kg_get_related concept="游戏" top_k=10
 ```
 
 **返回**:
@@ -71,7 +71,7 @@ mcporter call mfs-memory.kg_get_related concept="游戏" top_k=10
 
 **示例**:
 ```bash
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 ```
 
 **返回**:
@@ -91,10 +91,10 @@ mcporter call mfs-memory.kg_stats
 
 ```bash
 # 普通搜索
-mcporter call mfs-memory.mfs_search query="用户朋友"
+mcporter call diting.mfs_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call mfs-memory.kg_search query="用户朋友"
+mcporter call diting.kg_search query="用户朋友"
 # 自动推荐相关概念，帮助发现更多相关记忆
 ```
 
@@ -102,7 +102,7 @@ mcporter call mfs-memory.kg_search query="用户朋友"
 
 ```bash
 # 查看"游戏"的关联
-mcporter call mfs-memory.kg_get_related concept="游戏"
+mcporter call diting.kg_get_related concept="游戏"
 
 # 可能发现：游戏角色、另一个角色、恋与制作人等相关概念
 ```
@@ -111,7 +111,7 @@ mcporter call mfs-memory.kg_get_related concept="游戏"
 
 ```bash
 # 定期检查图谱规模
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 
 # 输出示例：
 # 概念数：1,234
@@ -123,40 +123,40 @@ mcporter call mfs-memory.kg_stats
 
 ## 💡 最佳实践
 
-### 1. 配合 MFS 写入使用
+### 1. 配合 Diting 写入使用
 
 ```bash
 # 写入记忆（自动建图）
-mcporter call mfs-memory.mfs_write \
+mcporter call diting.mfs_write \
   path="/memory/doc.md" \
   type="NOTE" \
   content="用户朋友 游戏 游戏角色"
 
 # 查看图谱增长
-mcporter call mfs-memory.kg_stats
+mcporter call diting.kg_stats
 ```
 
 ### 2. 深度探索概念
 
 ```bash
 # 第一层扩展
-mcporter call mfs-memory.kg_search query="用户朋友" max_depth=1
+mcporter call diting.kg_search query="用户朋友" max_depth=1
 
 # 第二层扩展（默认）
-mcporter call mfs-memory.kg_search query="用户朋友" max_depth=2
+mcporter call diting.kg_search query="用户朋友" max_depth=2
 
 # 第三层扩展（更深入）
-mcporter call mfs-memory.kg_search query="用户朋友" max_depth=3
+mcporter call diting.kg_search query="用户朋友" max_depth=3
 ```
 
 ### 3. 权重过滤
 
 ```bash
 # 获取高权重关联（top_k 小）
-mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=3
+mcporter call diting.kg_get_related concept="用户朋友" top_k=3
 
 # 获取全部关联（top_k 大）
-mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=20
+mcporter call diting.kg_get_related concept="用户朋友" top_k=20
 ```
 
 ---
