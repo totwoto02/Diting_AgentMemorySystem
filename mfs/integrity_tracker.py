@@ -4,10 +4,9 @@
 追踪所有修改，防止 AI 幻觉篡改记忆
 """
 
-import json
 import hashlib
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import sqlite3
 
 

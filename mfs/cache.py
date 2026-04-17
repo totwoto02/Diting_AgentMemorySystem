@@ -6,7 +6,6 @@
 
 import sqlite3
 import threading
-import time
 from typing import Any, Optional, Dict, List
 from collections import OrderedDict
 from contextlib import contextmanager
@@ -173,7 +172,7 @@ class ConnectionPool:
         # 放回池
         try:
             self.available.put_nowait(conn)
-        except:
+        except Exception:
             # 池已满，关闭连接
             conn.close()
 

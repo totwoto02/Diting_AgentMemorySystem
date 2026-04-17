@@ -8,7 +8,6 @@ Usage:
     mfs-version --check <version>
 """
 
-import sys
 import mfs
 
 def main():

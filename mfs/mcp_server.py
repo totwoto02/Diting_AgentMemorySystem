@@ -12,8 +12,6 @@ from mcp.types import Tool, TextContent
 
 from .mft import MFT
 from .errors import MFTNotFoundError, MFSException
-from .knowledge_graph_v2 import KnowledgeGraphV2
-from .entropy_manager import EntropyManager
 
 
 class MCPServer:

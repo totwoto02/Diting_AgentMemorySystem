@@ -7,7 +7,7 @@
 - 冷数据：重要对话，永久保存
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, List, Dict, Any
 from .mft import MFT
 
@@ -175,10 +175,6 @@ class DialogManager:
             "hot_to_warm": 0,
             "warm_deleted": 0
         }
-        
-        now = datetime.now()
-        hot_threshold = now - timedelta(days=self.hot_days)
-        warm_threshold = now - timedelta(days=self.warm_days)
         
         # TODO: 扫描热数据区，超过 7 天的移到温数据区
         # TODO: 扫描温数据区，超过 30 天的删除

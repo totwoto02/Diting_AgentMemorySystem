@@ -5,7 +5,7 @@
 """
 
 import sqlite3
-from typing import Optional
+
 
 
 def migrate_add_lcn_pointers(db_path: str) -> bool:
@@ -25,7 +25,7 @@ def migrate_add_lcn_pointers(db_path: str) -> bool:
         columns = [row[1] for row in cursor.fetchall()]
         
         if 'lcn_pointers' in columns:
-            print(f"✓ lcn_pointers 字段已存在，跳过迁移")
+            print("✓ lcn_pointers 字段已存在，跳过迁移")
             return True
         
         # 添加 lcn_pointers 字段 (JSON 格式存储)
@@ -40,7 +40,7 @@ def migrate_add_lcn_pointers(db_path: str) -> bool:
         """)
         
         conn.commit()
-        print(f"✓ 成功添加 lcn_pointers 字段到 MFT 表")
+        print("✓ 成功添加 lcn_pointers 字段到 MFT 表")
         return True
         
     except sqlite3.Error as e:
@@ -67,10 +67,10 @@ def verify_migration(db_path: str) -> bool:
         columns = [row[1] for row in cursor.fetchall()]
         
         if 'lcn_pointers' not in columns:
-            print(f"✗ 验证失败：lcn_pointers 字段不存在")
+            print("✗ 验证失败：lcn_pointers 字段不存在")
             return False
         
-        print(f"✓ 验证通过：lcn_pointers 字段存在")
+        print("✓ 验证通过：lcn_pointers 字段存在")
         return True
         
     except sqlite3.Error as e:

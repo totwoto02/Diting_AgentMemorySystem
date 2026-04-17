@@ -9,9 +9,8 @@ import json
 import uuid
 import hashlib
 import sqlite3
-import base64
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Optional
 from pathlib import Path
 
 
@@ -123,7 +122,7 @@ class MultimodalMemoryManager:
         
         # 6. 创建切片记录
         slice_id = str(uuid.uuid4())
-        cursor = self.db.execute("""
+        self.db.execute("""
             INSERT INTO multimodal_slices (
                 slice_id, memory_path, file_hash, file_type, file_size,
                 file_extension, storage_path, original_filename,
@@ -221,7 +220,7 @@ class MultimodalMemoryManager:
         
         # 6. 创建切片记录
         slice_id = str(uuid.uuid4())
-        cursor = self.db.execute("""
+        self.db.execute("""
             INSERT INTO multimodal_slices (
                 slice_id, memory_path, file_hash, file_type, file_size,
                 file_extension, storage_path, original_filename,

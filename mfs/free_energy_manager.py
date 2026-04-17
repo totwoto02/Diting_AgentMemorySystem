@@ -16,8 +16,8 @@
 
 import sqlite3
 import re
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+import json
+from typing import Dict, List, Optional
 
 
 class FreeEnergyManager:
@@ -293,7 +293,7 @@ class FreeEnergyManager:
             
             return bm25_normalized
             
-        except Exception as e:
+        except Exception:
             # FTS5 查询失败，回退到类 BM25 算法
             return self._match_bm25_fallback(slice_id, context)
     
@@ -482,7 +482,7 @@ class FreeEnergyManager:
             try:
                 kw_list = json.loads(ai_keywords)
                 keywords.extend(kw_list)
-            except:
+            except (json.JSONDecodeError, TypeError):
                 keywords.append(ai_keywords)
         
         return [kw.lower() for kw in keywords if kw]

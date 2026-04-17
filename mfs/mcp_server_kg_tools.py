@@ -4,6 +4,9 @@ MCP Server KG 工具实现
 添加到 mcp_server.py 中的 KG 工具方法
 """
 
+from typing import Dict, Any
+from mcp.types import TextContent
+
 # ========== Phase 2: KG 工具实现 ==========
 
 async def _kg_search(self, arguments: Dict[str, Any]) -> list[TextContent]:

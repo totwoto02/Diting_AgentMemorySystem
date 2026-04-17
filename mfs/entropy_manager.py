@@ -143,7 +143,7 @@ class EntropyManager:
                 entropy += 15
             elif len(keyword_list) < 3:
                 entropy -= 10
-        except:
+        except (json.JSONDecodeError, TypeError):
             pass
         
         # 5. 检测分歧
@@ -339,7 +339,6 @@ class EntropyManager:
         entropy = memory.get('entropy', 50)
         level = memory.get('entropy_level', 'medium')
         trend = memory.get('entropy_trend', 'stable')
-        status = memory.get('iteration_status', 'active')
         
         # 异常 1: 低熵方案熵值突然升高（可能有人翻旧账）
         if level == 'low' and trend == 'increasing':

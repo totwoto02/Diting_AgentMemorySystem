@@ -17,9 +17,8 @@
 
 import sqlite3
 import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-from enum import Enum
+from datetime import datetime
+from typing import Dict, List, Optional
 
 
 # 热度评分说明（0-100 数值，代表内能 U 的代理）
@@ -349,7 +348,7 @@ class HeatManager:
         ai_keywords = memory.get('ai_keywords', '[]')
         try:
             keywords = json.loads(ai_keywords)
-        except:
+        except (json.JSONDecodeError, TypeError):
             keywords = []
         
         # 查找相关的冻结记忆
@@ -358,7 +357,7 @@ class HeatManager:
         if triggered_by == 'user':
             # 用户主动提到 → 升温，不报警
             if frozen_related:
-                self.heat(slice_id, f"用户主动提及淘汰方案", 'user')
+                self.heat(slice_id, "用户主动提及淘汰方案", 'user')
             return {
                 'is_zombie': False,
                 'triggered_by': 'user',

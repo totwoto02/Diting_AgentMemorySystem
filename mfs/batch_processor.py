@@ -154,7 +154,7 @@ class BatchProcessor:
                     WHERE id = ?
                 """, (datetime.now(), task.id))
                 
-            except:
+            except Exception:
                 break
         
         self.db.commit()

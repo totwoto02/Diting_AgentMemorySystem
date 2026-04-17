@@ -8,8 +8,7 @@ import sqlite3
 import json
 import csv
 import io
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List
 from enum import Enum
 
 
@@ -154,7 +153,7 @@ class AuditLogger:
         else:
             time_param = '-24 hours'
         
-        conditions = [f"timestamp > datetime('now', ?)"]
+        conditions = ["timestamp > datetime('now', ?)"]
         params = [time_param]
         
         if user_id:
@@ -205,7 +204,7 @@ class AuditLogger:
         else:
             time_param = '-24 hours'
         
-        conditions = [f"timestamp > datetime('now', ?)"]
+        conditions = ["timestamp > datetime('now', ?)"]
         params = [time_param]
         
         if component:

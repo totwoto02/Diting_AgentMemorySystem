@@ -6,9 +6,8 @@
 
 import sqlite3
 import psutil
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Dict, List
 from dataclasses import dataclass
 from enum import Enum
 
@@ -280,7 +279,6 @@ class MonitorDashboard:
 if __name__ == '__main__':
     import tempfile
     import os
-    import time
     
     # 创建测试数据库
     db_fd, db_path = tempfile.mkstemp(suffix='.db')

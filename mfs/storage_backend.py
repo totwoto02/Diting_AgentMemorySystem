@@ -4,10 +4,9 @@
 支持本地文件系统、S3、OSS、COS 等多种存储后端
 """
 
-import os
 import shutil
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict
 from abc import ABC, abstractmethod
 
 
@@ -219,7 +218,6 @@ class StorageManager:
 # 使用示例
 if __name__ == '__main__':
     import tempfile
-    import os
     
     # 创建临时目录
     temp_dir = tempfile.mkdtemp()
@@ -245,13 +243,13 @@ if __name__ == '__main__':
     
     # 测试存在检查
     exists = storage.exists('test/file.txt')
-    assert exists == True
+    assert exists
     print(f"✅ 文件存在：{exists}")
     
     # 测试删除
     storage.delete('test/file.txt')
     exists = storage.exists('test/file.txt')
-    assert exists == False
+    assert not exists
     print(f"✅ 删除文件：{exists}")
     
     # 清理

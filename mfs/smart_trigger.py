@@ -4,9 +4,6 @@
 根据文件类型、大小、用户标记等条件，智能决定是否调用 AI 生成概括
 """
 
-import os
-import json
-from datetime import datetime
 from typing import Dict, Optional
 
 

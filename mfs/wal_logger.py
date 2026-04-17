@@ -5,7 +5,6 @@ WAL 日志模块（防幻觉盾牌）
 """
 
 import sqlite3
-import json
 import time
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
