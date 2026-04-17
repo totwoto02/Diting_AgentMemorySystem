@@ -33,10 +33,10 @@ from mfs.fts5_search import FTS5Search
 fts = FTS5Search('mfs.db')
 
 # 搜索
-results = fts.search("九斤", scope="/agent", top_k=20)
+results = fts.search("用户朋友", scope="/agent", top_k=20)
 
 # 高亮
-highlight = fts.search_highlight("九斤", content)
+highlight = fts.search_highlight("用户朋友", content)
 
 # 统计
 stats = fts.get_search_stats()
@@ -88,7 +88,7 @@ print(f"相似度：{verification['similarity']}%")
 
 ### 测试结果
 ```
-✅ 拼装结果：九斤 乙女游戏 柏源柏源 忠犬 男主男主 漫展模特
+✅ 拼装结果：用户朋友 游戏 游戏角色游戏角色 忠犬 男主男主 活动朋友
 📊 统计:
    切片：3 → 合并：3
    去重：0 字符

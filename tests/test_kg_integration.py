@@ -25,7 +25,7 @@ class TestMFTKGIntegration:
         
         # 创建记忆
         try:
-            mft.create("/test/doc1", "NOTE", "九斤 乙女游戏 柏源 忠犬")
+            mft.create("/test/doc1", "NOTE", "测试用户 video game 测试角色 loyal")
         except Exception:
             # 如果路径已存在，忽略（可能是重复测试）
             pass
@@ -42,11 +42,11 @@ class TestMFTKGIntegration:
         mft = MFT(db_path=":memory:", kg_db_path=":memory:")
         
         # 创建记忆
-        mft.create("/test/doc1", "NOTE", "九斤 乙女游戏 柏源")
-        mft.create("/test/doc2", "NOTE", "柏源 忠犬 男主")
+        mft.create("/test/doc1", "NOTE", "测试用户 video game 测试角色")
+        mft.create("/test/doc2", "NOTE", "测试角色 loyal male lead")
         
         # 测试带 KG 扩展的搜索
-        result = mft.search_with_kg("九斤")
+        result = mft.search_with_kg("测试用户")
         
         # 验证搜索结果
         assert "search_results" in result
@@ -61,11 +61,11 @@ class TestMFTKGIntegration:
         """测试关键词提取"""
         mft = MFT(db_path=":memory:")
         
-        text = "九斤 乙女游戏 柏源 忠犬 男主"
+        text = "测试用户 video game 测试角色 loyal male lead"
         keywords = mft._extract_keywords(text, top_k=5)
         
         assert len(keywords) > 0
-        assert "九斤" in keywords or "乙女游戏" in keywords
+        assert "测试用户" in keywords or "video game" in keywords
         
         print(f"✅ 关键词提取成功：{keywords}")
 

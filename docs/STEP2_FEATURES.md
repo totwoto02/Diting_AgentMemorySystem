@@ -24,16 +24,16 @@ from mfs.fts5_search import FTS5Search
 fts5 = FTS5Search(db_path=":memory:")
 
 # 插入文档
-fts5.insert("/test/doc1", "九斤 喜欢 乙女游戏", "NOTE")
-fts5.insert("/test/doc2", "柏源 是 乙女游戏 角色", "NOTE")
+fts5.insert("/test/doc1", "用户朋友 喜欢 游戏", "NOTE")
+fts5.insert("/test/doc2", "游戏角色 是 游戏 角色", "NOTE")
 
 # 搜索
-results = fts5.search("乙女游戏")
+results = fts5.search("游戏")
 for r in results:
     print(f"- {r['v_path']}: {r['content']}")
 
 # 范围搜索
-results = fts5.search("九斤", scope="/test")
+results = fts5.search("用户朋友", scope="/test")
 ```
 
 **性能指标**：
@@ -57,21 +57,21 @@ from mfs.knowledge_graph_v2 import KnowledgeGraphV2
 kg = KnowledgeGraphV2(db_path=":memory:")
 
 # 添加概念
-kg.add_concept("九斤", "person", aliases=["小九", "JJ"])
-kg.add_concept("乙女游戏", "category")
-kg.add_concept("柏源", "character")
+kg.add_concept("用户朋友", "person", aliases=["小九", "JJ"])
+kg.add_concept("游戏", "category")
+kg.add_concept("游戏角色", "character")
 
 # 添加关联
-kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
-kg.add_edge("乙女游戏", "柏源", "contains", weight=0.8)
+kg.add_edge("用户朋友", "游戏", "likes", weight=0.9)
+kg.add_edge("游戏", "游戏角色", "contains", weight=0.8)
 
 # 获取相关概念
-related = kg.get_related_concepts("九斤", top_k=3)
+related = kg.get_related_concepts("用户朋友", top_k=3)
 for r in related:
     print(f"- {r['concept']}: {r['weight']}")
 
 # 搜索扩展
-expansion = kg.search_with_expansion("九斤", max_depth=2)
+expansion = kg.search_with_expansion("用户朋友", max_depth=2)
 print(expansion["expanded_concepts"])
 ```
 

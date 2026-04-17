@@ -55,7 +55,7 @@ class TestFTS5Search:
             # 插入文档
             doc_id = fts5.insert(
                 v_path="/test/doc1",
-                content="九斤喜欢乙女游戏",
+                content="测试用户喜欢video game",
                 type="NOTE"
             )
             
@@ -72,9 +72,9 @@ class TestFTS5Search:
         fts5 = self.create_fresh_fts5()
         try:
             # 插入多个文档（使用空格分词）
-            fts5.insert("/test/doc1", "九斤 喜欢 乙女 游戏", "NOTE")
-            fts5.insert("/test/doc2", "柏源 是 乙女 游戏 角色", "NOTE")
-            fts5.insert("/test/doc3", "忠犬 类型 很 受欢迎", "NOTE")
+            fts5.insert("/test/doc1", "测试用户 喜欢 乙女 游戏", "NOTE")
+            fts5.insert("/test/doc2", "测试角色 是 乙女 游戏 角色", "NOTE")
+            fts5.insert("/test/doc3", "loyal 类型 很 受欢迎", "NOTE")
             
             # 搜索"乙女"
             results = fts5.search("乙女")
@@ -89,8 +89,8 @@ class TestFTS5Search:
         """测试短语搜索"""
         fts5 = self.create_fresh_fts5()
         try:
-            fts5.insert("/test/doc1", "九斤 乙女 游戏 爱好者", "NOTE")
-            fts5.insert("/test/doc2", "九斤 喜欢 乙女 游戏", "NOTE")
+            fts5.insert("/test/doc1", "测试用户 乙女 游戏 爱好者", "NOTE")
+            fts5.insert("/test/doc2", "测试用户 喜欢 乙女 游戏", "NOTE")
             
             # 搜索多个词
             results = fts5.search("乙女 游戏")
@@ -104,12 +104,12 @@ class TestFTS5Search:
         """测试多关键词搜索"""
         fts5 = self.create_fresh_fts5()
         try:
-            fts5.insert("/test/doc1", "九斤 乙女游戏 柏源", "NOTE")
-            fts5.insert("/test/doc2", "九斤 忠犬", "NOTE")
-            fts5.insert("/test/doc3", "柏源 忠犬", "NOTE")
+            fts5.insert("/test/doc1", "测试用户 video game 测试角色", "NOTE")
+            fts5.insert("/test/doc2", "测试用户 loyal", "NOTE")
+            fts5.insert("/test/doc3", "测试角色 loyal", "NOTE")
             
             # 多关键词搜索（AND）
-            results = fts5.search("九斤 忠犬")
+            results = fts5.search("测试用户 loyal")
             
             # 应该匹配包含两个词的文档
             assert len(results) >= 1
@@ -120,12 +120,12 @@ class TestFTS5Search:
         """测试范围搜索"""
         fts5 = self.create_fresh_fts5()
         try:
-            fts5.insert("/person/九斤/doc1", "九斤的资料", "CONTACT")
-            fts5.insert("/person/九斤/doc2", "九斤的偏好", "NOTE")
+            fts5.insert("/person/测试用户/doc1", "测试用户的资料", "CONTACT")
+            fts5.insert("/person/测试用户/doc2", "测试用户的偏好", "NOTE")
             fts5.insert("/work/project/doc1", "项目文档", "CODE")
             
             # 范围搜索（只搜索/person 路径）
-            results = fts5.search("九斤", scope="/person")
+            results = fts5.search("测试用户", scope="/person")
             
             # 应该只返回/person 下的结果
             for r in results:
@@ -167,10 +167,10 @@ class TestFTS5Search:
         fts5 = self.create_fresh_fts5()
         try:
             # 插入不同相关度的文档
-            fts5.insert("/test/doc1", "乙女游戏 乙女游戏 乙女游戏", "NOTE")  # 高频
-            fts5.insert("/test/doc2", "乙女游戏", "NOTE")  # 低频
+            fts5.insert("/test/doc1", "video game video game video game", "NOTE")  # 高频
+            fts5.insert("/test/doc2", "video game", "NOTE")  # 低频
             
-            results = fts5.search("乙女游戏")
+            results = fts5.search("video game")
             
             # 验证 BM25 排序（高频在前）
             assert len(results) == 2

@@ -171,8 +171,8 @@ def test_hallucination_detection(data):
         
         # 测试 1: 正常修改追踪
         print("\n[1] 正常修改追踪...")
-        original = "九斤 乙女游戏 柏源 忠犬"
-        modified = "九斤 乙女游戏 柏源 忠犬 男主"
+        original = "测试用户 video game 测试角色 loyal"
+        modified = "测试用户 video game 测试角色 loyal male lead"
         
         tracker.track_create("/test/doc1", original, "AI")
         tracker.track_update("/test/doc1", original, modified, "添加信息", "AI")

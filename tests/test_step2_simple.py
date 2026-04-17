@@ -19,9 +19,9 @@ def test_assembler_v2():
     
     # 测试去重拼装
     slices = [
-        {"content": "九斤 乙女游戏 柏源", "offset": 0, "length": 10},
-        {"content": "柏源 忠犬 男主", "offset": 8, "length": 10},
-        {"content": "男主 漫展模特", "offset": 16, "length": 10}
+        {"content": "测试用户 video game 测试角色", "offset": 0, "length": 10},
+        {"content": "测试角色 loyal male lead", "offset": 8, "length": 10},
+        {"content": "male lead 活动朋友", "offset": 16, "length": 10}
     ]
     
     full_text, stats = assembler.assemble_with_dedup(slices)

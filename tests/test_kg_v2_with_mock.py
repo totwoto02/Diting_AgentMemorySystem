@@ -32,41 +32,41 @@ def test_kg_v2_basic():
     
     # 测试添加概念
     print("\n1. 添加概念测试...")
-    kg.add_concept("九斤", "person", ["模特", "乙游玩家"])
-    kg.add_concept("乙女游戏", "game", ["乙游", "恋爱游戏"])
-    kg.add_concept("柏源", "character", ["忠犬", "男主"])
+    kg.add_concept("测试用户", "person", ["朋友", "乙游玩家"])
+    kg.add_concept("video game", "game", ["乙游", "romance game"])
+    kg.add_concept("测试角色", "character", ["loyal", "male lead"])
     
     # 测试查询概念
     print("2. 查询概念测试...")
-    concept = kg.get_concept_by_name("九斤")
-    assert concept is not None, "概念'九斤'应该存在"
-    assert concept["name"] == "九斤", "概念名称应该是'九斤'"
-    assert "模特" in concept["aliases"], "应该有别名'模特'"
+    concept = kg.get_concept_by_name("测试用户")
+    assert concept is not None, "概念'测试用户'应该存在"
+    assert concept["name"] == "测试用户", "概念名称应该是'测试用户'"
+    assert "朋友" in concept["aliases"], "应该有别名'朋友'"
     print(f"   ✅ 查询成功：{concept['name']} (别名：{concept['aliases']})")
     
     # 测试别名查询
     print("3. 别名查询测试...")
-    concept_by_alias = kg.get_concept_by_name("模特")
-    assert concept_by_alias is not None, "通过别名'模特'应该能找到'九斤'"
-    assert concept_by_alias["name"] == "九斤", "应该返回'九斤'"
-    print(f"   ✅ 别名查询成功：模特 → {concept_by_alias['name']}")
+    concept_by_alias = kg.get_concept_by_name("朋友")
+    assert concept_by_alias is not None, "通过别名'朋友'应该能找到'测试用户'"
+    assert concept_by_alias["name"] == "测试用户", "应该返回'测试用户'"
+    print(f"   ✅ 别名查询成功：朋友 → {concept_by_alias['name']}")
     
     # 测试添加边
     print("4. 添加边测试...")
-    kg.add_edge("九斤", "乙女游戏", "likes", 1.0)
-    kg.add_edge("九斤", "柏源", "favorite", 2.0)
-    kg.add_edge("乙女游戏", "柏源", "contains", 1.5)
+    kg.add_edge("测试用户", "video game", "likes", 1.0)
+    kg.add_edge("测试用户", "测试角色", "favorite", 2.0)
+    kg.add_edge("video game", "测试角色", "contains", 1.5)
     
     # 测试获取关联概念
     print("5. 关联概念查询测试...")
-    related = kg.get_related_concepts("九斤", top_k=5)
+    related = kg.get_related_concepts("测试用户", top_k=5)
     assert len(related) > 0, "应该有相关概念"
-    print(f"   ✅ '九斤'的关联概念：{[(r['concept'], r['weight']) for r in related]}")
+    print(f"   ✅ '测试用户'的关联概念：{[(r['concept'], r['weight']) for r in related]}")
     
     # 测试搜索扩展
     print("6. 搜索扩展测试...")
-    result = kg.search_with_expansion("九斤", max_depth=2)
-    assert result["found"] is True, "应该找到'九斤'"
+    result = kg.search_with_expansion("测试用户", max_depth=2)
+    assert result["found"] is True, "应该找到'测试用户'"
     assert len(result["expanded_concepts"]) > 0, "应该有扩展概念"
     print(f"   ✅ 扩展概念：{result['expanded_concepts']}")
     print(f"   💡 建议：{result['suggestion']}")

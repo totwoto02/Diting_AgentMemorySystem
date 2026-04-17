@@ -21,7 +21,7 @@
 ```
 MFS V1.0.0.0
 ├── 文件系统概念
-│   ├── 虚拟路径管理 (如：/person/九斤/preferences)
+│   ├── 虚拟路径管理 (如：/person/用户朋友/preferences)
 │   ├── 层级结构 (类似文件夹)
 │   └── 类型系统 (NOTE/RULE/CODE/TASK/CONTACT/EVENT)
 ├── 自动切片还原
@@ -459,28 +459,28 @@ kg = KnowledgeGraphV2(db_path="mfs_kg.db")
 wal = WALLogger(db_path="mfs.db")
 
 # CREATE - 写入记忆
-mft.create("/person/九斤/preferences", "NOTE", "九斤喜欢乙女游戏")
-fts5.insert("/person/九斤/preferences", "九斤喜欢乙女游戏", "NOTE")
-wal.log_operation("CREATE", "/person/九斤/preferences", "九斤喜欢乙女游戏", "main")
+mft.create("/person/用户朋友/preferences", "NOTE", "用户朋友喜欢游戏")
+fts5.insert("/person/用户朋友/preferences", "用户朋友喜欢游戏", "NOTE")
+wal.log_operation("CREATE", "/person/用户朋友/preferences", "用户朋友喜欢游戏", "main")
 
 # READ - 读取记忆
-result = mft.read("/person/九斤/preferences")
+result = mft.read("/person/用户朋友/preferences")
 print(result["content"])
 
 # UPDATE - 更新记忆
-mft.update("/person/九斤/preferences", content="九斤喜欢乙女游戏和摄影")
+mft.update("/person/用户朋友/preferences", content="用户朋友喜欢游戏和拍照")
 
 # SEARCH - 搜索记忆
-results = fts5.search("乙女游戏")
+results = fts5.search("游戏")
 for r in results:
     print(f"- {r['v_path']}: {r['content']}")
 
 # 知识图谱
-kg.add_concept("九斤", "person")
-kg.add_concept("乙女游戏", "category")
-kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
+kg.add_concept("用户朋友", "person")
+kg.add_concept("游戏", "category")
+kg.add_edge("用户朋友", "游戏", "likes", weight=0.9)
 
-related = kg.get_related_concepts("九斤")
+related = kg.get_related_concepts("用户朋友")
 print(related)
 ```
 

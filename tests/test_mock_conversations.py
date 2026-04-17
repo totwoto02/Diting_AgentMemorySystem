@@ -151,7 +151,7 @@ class TestMockConversations:
         kg = mfs_system["kg"]
         
         # 先插入一些测试数据
-        test_keywords = ["乙女游戏", "柏源", "九斤", "摄影", "漫展", "技术", "AI", "Python"]
+        test_keywords = ["video game", "测试角色", "测试用户", "拍照", "活动", "技术", "AI", "Python"]
         for i, keyword in enumerate(test_keywords):
             fts5.insert(f"/test/keyword_{i}", f"关于{keyword}的内容 " * 10, "NOTE")
             kg.add_concept(keyword, "topic")
@@ -172,8 +172,8 @@ class TestMockConversations:
                         results = fts5.search(query)
                         
                         # 知识图谱扩展
-                        if "九斤" in query or "柏源" in query:
-                            expansion = kg.search_with_expansion("九斤")
+                        if "测试用户" in query or "测试角色" in query:
+                            expansion = kg.search_with_expansion("测试用户")
                         
                         success_count += 1
                     except Exception as e:

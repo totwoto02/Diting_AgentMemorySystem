@@ -24,18 +24,18 @@ class TestKnowledgeGraphV2:
         try:
             # 添加概念
             concept_id = kg.add_concept(
-                name="乙女游戏",
+                name="video game",
                 type="category",
-                aliases=["恋爱游戏", "女性向游戏"]
+                aliases=["romance game", "女性向游戏"]
             )
             
             assert concept_id > 0
             
             # 验证概念存在
-            concept = kg.get_concept_by_name("乙女游戏")
+            concept = kg.get_concept_by_name("video game")
             assert concept is not None
-            assert concept["name"] == "乙女游戏"
-            assert "恋爱游戏" in concept["aliases"]
+            assert concept["name"] == "video game"
+            assert "romance game" in concept["aliases"]
         finally:
             kg.close()
 
@@ -43,21 +43,21 @@ class TestKnowledgeGraphV2:
         """测试添加别名"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
+            kg.add_concept("测试用户", "person")
             
             # 添加别名
-            kg.add_alias("九斤", "小九")
-            kg.add_alias("九斤", "JJ")
+            kg.add_alias("测试用户", "小九")
+            kg.add_alias("测试用户", "JJ")
             
             # 验证别名
-            concept = kg.get_concept_by_name("九斤")
+            concept = kg.get_concept_by_name("测试用户")
             assert "小九" in concept["aliases"]
             assert "JJ" in concept["aliases"]
             
             # 通过别名查找
             concept_by_alias = kg.get_concept_by_name("小九")
             assert concept_by_alias is not None
-            assert concept_by_alias["name"] == "九斤"
+            assert concept_by_alias["name"] == "测试用户"
         finally:
             kg.close()
 
@@ -65,13 +65,13 @@ class TestKnowledgeGraphV2:
         """测试添加带权重的边"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
             
             # 添加边（带权重）
             edge_id = kg.add_edge(
-                from_concept="九斤",
-                to_concept="乙女游戏",
+                from_concept="测试用户",
+                to_concept="video game",
                 relation="likes",
                 weight=0.8
             )
@@ -79,9 +79,9 @@ class TestKnowledgeGraphV2:
             assert edge_id > 0
             
             # 验证边
-            edges = kg.get_edges("九斤")
+            edges = kg.get_edges("测试用户")
             assert len(edges) > 0
-            assert edges[0]["to_concept"] == "乙女游戏"
+            assert edges[0]["to_concept"] == "video game"
             # 允许时间衰减导致的微小差异
             assert abs(edges[0]["weight"] - 0.8) < 0.1
         finally:
@@ -91,17 +91,17 @@ class TestKnowledgeGraphV2:
         """测试更新边权重"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
             
             # 初始权重
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.5)
+            kg.add_edge("测试用户", "video game", "likes", weight=0.5)
             
             # 更新权重
-            kg.update_edge_weight("九斤", "乙女游戏", 0.9)
+            kg.update_edge_weight("测试用户", "video game", 0.9)
             
             # 验证更新
-            edges = kg.get_edges("九斤")
+            edges = kg.get_edges("测试用户")
             # 允许时间衰减导致的微小差异
             assert abs(edges[0]["weight"] - 0.9) < 0.1
         finally:
@@ -111,25 +111,25 @@ class TestKnowledgeGraphV2:
         """测试获取加权相关概念"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
-            kg.add_concept("柏源", "character")
-            kg.add_concept("忠犬", "type")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
+            kg.add_concept("测试角色", "character")
+            kg.add_concept("loyal", "type")
             
             # 添加不同权重的边
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
-            kg.add_edge("九斤", "柏源", "favorite", weight=0.7)
-            kg.add_edge("九斤", "忠犬", "prefers", weight=0.5)
+            kg.add_edge("测试用户", "video game", "likes", weight=0.9)
+            kg.add_edge("测试用户", "测试角色", "favorite", weight=0.7)
+            kg.add_edge("测试用户", "loyal", "prefers", weight=0.5)
             
             # 获取相关概念（按权重排序）
-            related = kg.get_related_concepts("九斤", top_k=3)
+            related = kg.get_related_concepts("测试用户", top_k=3)
             
             assert len(related) == 3
             # 验证按权重排序
-            assert related[0]["concept"] == "乙女游戏"
+            assert related[0]["concept"] == "video game"
             # 允许时间衰减导致的微小差异
             assert abs(related[0]["weight"] - 0.9) < 0.1
-            assert related[1]["concept"] == "柏源"
+            assert related[1]["concept"] == "测试角色"
         finally:
             kg.close()
 
@@ -137,20 +137,20 @@ class TestKnowledgeGraphV2:
         """测试图谱扩展搜索"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
-            kg.add_concept("柏源", "character")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
+            kg.add_concept("测试角色", "character")
             
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
-            kg.add_edge("乙女游戏", "柏源", "contains", weight=0.8)
+            kg.add_edge("测试用户", "video game", "likes", weight=0.9)
+            kg.add_edge("video game", "测试角色", "contains", weight=0.8)
             
-            # 搜索"九斤"，扩展到相关概念
-            result = kg.search_with_expansion("九斤", max_depth=2)
+            # 搜索"测试用户"，扩展到相关概念
+            result = kg.search_with_expansion("测试用户", max_depth=2)
             
             assert result["found"] is True
-            assert "乙女游戏" in result["expanded_concepts"]
+            assert "video game" in result["expanded_concepts"]
             # 二层扩展
-            assert "柏源" in result["expanded_concepts"]
+            assert "测试角色" in result["expanded_concepts"]
         finally:
             kg.close()
 
@@ -158,16 +158,16 @@ class TestKnowledgeGraphV2:
         """测试时间衰减权重"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
             
             # 添加边（带时间戳）
             import time
             old_time = time.time() - 86400 * 30  # 30 天前
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9, timestamp=old_time)
+            kg.add_edge("测试用户", "video game", "likes", weight=0.9, timestamp=old_time)
             
             # 获取衰减后的权重
-            edges = kg.get_edges("九斤")
+            edges = kg.get_edges("测试用户")
             assert len(edges) > 0
             # 验证权重衰减（30 天后应该降低）
             assert edges[0]["weight"] < 0.9
@@ -178,9 +178,9 @@ class TestKnowledgeGraphV2:
         """测试获取统计信息"""
         kg = self.create_fresh_kg()
         try:
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
-            kg.add_edge("九斤", "乙女游戏", "likes")
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
+            kg.add_edge("测试用户", "video game", "likes")
             
             stats = kg.get_stats()
             

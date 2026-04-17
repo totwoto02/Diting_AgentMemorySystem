@@ -512,7 +512,7 @@ class MFT:
         Args:
             path_pattern: GLOB 路径模式，例如：
                 - "/person/*" 匹配所有/person/下的路径
-                - "*/九斤/*" 匹配包含/九斤/的路径
+                - "*/朋友/*" 匹配包含/朋友/的路径
                 - "/location/[A-M]*" 匹配 A-M 开头的 location
             type: 类型过滤（可选）
         

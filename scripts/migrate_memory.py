@@ -123,7 +123,7 @@ def main():
     
     print("\n✅ 验证方法:")
     print("   # 使用 MCP 工具搜索记忆")
-    print("   mcporter call mfs-memory.mfs_search query=\"九斤\"")
+    print("   mcporter call mfs-memory.mfs_search query=\"朋友\"")
     print("   mcporter call mfs-memory.kg_stats")
     print("   mcporter call mfs-memory.kg_search query=\"拍照\"")
     

@@ -25,24 +25,24 @@ class TestStep2Integration:
         
         try:
             # 插入文档到 FTS5
-            fts5.insert("/test/doc1", "九斤 喜欢 乙女游戏", "NOTE")
-            fts5.insert("/test/doc2", "柏源 是 乙女游戏 角色", "NOTE")
+            fts5.insert("/test/doc1", "测试用户 喜欢 video game", "NOTE")
+            fts5.insert("/test/doc2", "测试角色 是 video game 角色", "NOTE")
             
             # 构建知识图谱
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
-            kg.add_concept("柏源", "character")
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
-            kg.add_edge("乙女游戏", "柏源", "contains", weight=0.8)
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
+            kg.add_concept("测试角色", "character")
+            kg.add_edge("测试用户", "video game", "likes", weight=0.9)
+            kg.add_edge("video game", "测试角色", "contains", weight=0.8)
             
             # FTS5 搜索
-            fts5_results = fts5.search("乙女游戏")
+            fts5_results = fts5.search("video game")
             assert len(fts5_results) >= 2
             
             # 知识图谱扩展
-            expansion = kg.search_with_expansion("九斤", max_depth=2)
+            expansion = kg.search_with_expansion("测试用户", max_depth=2)
             assert expansion["found"] is True
-            assert "乙女游戏" in expansion["expanded_concepts"]
+            assert "video game" in expansion["expanded_concepts"]
             
             print(f"✅ FTS5+ 知识图谱联合搜索测试通过")
             
@@ -112,7 +112,7 @@ class TestStep2Integration:
         
         try:
             # 1. 写入长文本（带 WAL 日志）
-            long_content = "九斤 喜欢 乙女游戏 柏源 忠犬 " * 100
+            long_content = "测试用户 喜欢 video game 测试角色 loyal " * 100
             wal.log_operation(
                 operation="CREATE",
                 v_path="/test/long_doc",
@@ -126,17 +126,17 @@ class TestStep2Integration:
             fts5.insert("/test/long_doc", long_content, "NOTE")
             
             # 3. 构建知识图谱
-            kg.add_concept("九斤", "person")
-            kg.add_concept("乙女游戏", "category")
-            kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
+            kg.add_concept("测试用户", "person")
+            kg.add_concept("video game", "category")
+            kg.add_edge("测试用户", "video game", "likes", weight=0.9)
             
             # 4. FTS5 搜索
-            search_results = fts5.search("乙女游戏")
+            search_results = fts5.search("video game")
             assert len(search_results) >= 1
             
             # 5. 知识图谱扩展
-            expansion = kg.search_with_expansion("九斤")
-            assert "乙女游戏" in expansion["expanded_concepts"]
+            expansion = kg.search_with_expansion("测试用户")
+            assert "video game" in expansion["expanded_concepts"]
             
             # 6. WAL 审计
             audit = wal.get_audit_trail()

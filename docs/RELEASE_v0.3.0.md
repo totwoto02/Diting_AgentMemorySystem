@@ -203,15 +203,15 @@ dm.cleanup_old_dialogs()
 
 ```bash
 mcporter call mfs-memory.mfs_write \
-  path="/memory/九斤拍照约定.md" \
+  path="/memory/用户朋友拍照约定.md" \
   type="NOTE" \
-  content="4 月 12 日与九斤约定拍照，地点荷兰花卉小镇，下午 3 点集合"
+  content="4 月 12 日与用户朋友约定拍照，地点约定地点，下午 3 点集合"
 ```
 
 **自动效果**:
 - ✅ 记忆存储到 MFS
-- ✅ 自动提取概念：九斤、拍照、约定、荷兰花卉小镇
-- ✅ 自动建立关联：九斤↔拍照↔约定↔地点
+- ✅ 自动提取概念：用户朋友、拍照、约定、约定地点
+- ✅ 自动建立关联：用户朋友↔拍照↔约定↔地点
 
 ---
 
@@ -219,11 +219,11 @@ mcporter call mfs-memory.mfs_write \
 
 ```bash
 # 普通搜索
-mcporter call mfs-memory.mfs_search query="九斤"
+mcporter call mfs-memory.mfs_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call mfs-memory.kg_search query="九斤"
-# 返回：九斤 + 关联概念（乙女游戏、柏源、忠犬...）
+mcporter call mfs-memory.kg_search query="用户朋友"
+# 返回：用户朋友 + 关联概念（游戏、游戏角色、忠犬...）
 ```
 
 ---

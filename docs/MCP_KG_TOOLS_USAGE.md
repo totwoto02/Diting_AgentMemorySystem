@@ -16,22 +16,22 @@
 
 **示例**:
 ```bash
-mcporter call mfs-memory.kg_search query="九斤"
-mcporter call mfs-memory.kg_search query="乙女游戏" max_depth=3
+mcporter call mfs-memory.kg_search query="用户朋友"
+mcporter call mfs-memory.kg_search query="游戏" max_depth=3
 ```
 
 **返回**:
 ```
-✅ 找到概念：九斤
+✅ 找到概念：用户朋友
 
 🔗 关联概念 (5 个):
-  - 乙女游戏
-  - 柏源
+  - 游戏
+  - 游戏角色
   - 忠犬
-  - 漫展
-  - 摄影
+  - 活动
+  - 拍照
 
-💡 搜索 '九斤' 时，可能也关心：乙女游戏，柏源，忠犬
+💡 搜索 '用户朋友' 时，可能也关心：游戏，游戏角色，忠犬
 ```
 
 ---
@@ -46,19 +46,19 @@ mcporter call mfs-memory.kg_search query="乙女游戏" max_depth=3
 
 **示例**:
 ```bash
-mcporter call mfs-memory.kg_get_related concept="九斤"
-mcporter call mfs-memory.kg_get_related concept="乙女游戏" top_k=10
+mcporter call mfs-memory.kg_get_related concept="用户朋友"
+mcporter call mfs-memory.kg_get_related concept="游戏" top_k=10
 ```
 
 **返回**:
 ```
-🔗 '九斤' 的关联概念:
+🔗 '用户朋友' 的关联概念:
 
-  - 乙女游戏 (权重：1.00)
-  - 柏源 (权重：1.00)
+  - 游戏 (权重：1.00)
+  - 游戏角色 (权重：1.00)
   - 忠犬 (权重：0.95)
-  - 漫展 (权重：0.80)
-  - 摄影 (权重：0.75)
+  - 活动 (权重：0.80)
+  - 拍照 (权重：0.75)
 ```
 
 ---
@@ -91,20 +91,20 @@ mcporter call mfs-memory.kg_stats
 
 ```bash
 # 普通搜索
-mcporter call mfs-memory.mfs_search query="九斤"
+mcporter call mfs-memory.mfs_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call mfs-memory.kg_search query="九斤"
+mcporter call mfs-memory.kg_search query="用户朋友"
 # 自动推荐相关概念，帮助发现更多相关记忆
 ```
 
 ### 场景 2: 探索概念关联
 
 ```bash
-# 查看"乙女游戏"的关联
-mcporter call mfs-memory.kg_get_related concept="乙女游戏"
+# 查看"游戏"的关联
+mcporter call mfs-memory.kg_get_related concept="游戏"
 
-# 可能发现：柏源、牧四诚、恋与制作人等相关概念
+# 可能发现：游戏角色、另一个角色、恋与制作人等相关概念
 ```
 
 ### 场景 3: 监控图谱增长
@@ -130,7 +130,7 @@ mcporter call mfs-memory.kg_stats
 mcporter call mfs-memory.mfs_write \
   path="/memory/doc.md" \
   type="NOTE" \
-  content="九斤 乙女游戏 柏源"
+  content="用户朋友 游戏 游戏角色"
 
 # 查看图谱增长
 mcporter call mfs-memory.kg_stats
@@ -140,23 +140,23 @@ mcporter call mfs-memory.kg_stats
 
 ```bash
 # 第一层扩展
-mcporter call mfs-memory.kg_search query="九斤" max_depth=1
+mcporter call mfs-memory.kg_search query="用户朋友" max_depth=1
 
 # 第二层扩展（默认）
-mcporter call mfs-memory.kg_search query="九斤" max_depth=2
+mcporter call mfs-memory.kg_search query="用户朋友" max_depth=2
 
 # 第三层扩展（更深入）
-mcporter call mfs-memory.kg_search query="九斤" max_depth=3
+mcporter call mfs-memory.kg_search query="用户朋友" max_depth=3
 ```
 
 ### 3. 权重过滤
 
 ```bash
 # 获取高权重关联（top_k 小）
-mcporter call mfs-memory.kg_get_related concept="九斤" top_k=3
+mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=3
 
 # 获取全部关联（top_k 大）
-mcporter call mfs-memory.kg_get_related concept="九斤" top_k=20
+mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=20
 ```
 
 ---

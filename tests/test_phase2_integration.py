@@ -63,19 +63,19 @@ class TestPhase2Integration:
         kg = KnowledgeGraph()
         
         # 添加多个记忆
-        kg.add_memory("/test/doc1", "九斤 乙女游戏 柏源")
-        kg.add_memory("/test/doc2", "九斤 忠犬 柏源")
-        kg.add_memory("/test/doc3", "乙女游戏 恋爱 模拟")
+        kg.add_memory("/test/doc1", "测试用户 video game 测试角色")
+        kg.add_memory("/test/doc2", "测试用户 loyal 测试角色")
+        kg.add_memory("/test/doc3", "video game 恋爱 模拟")
         
         # 验证节点
         assert len(kg.nodes) > 0
         
         # 验证关联
-        related = kg.get_related_concepts("九斤")
+        related = kg.get_related_concepts("测试用户")
         assert len(related) > 0
         
         # 验证搜索扩展
-        result = kg.search_with_expansion("九斤")
+        result = kg.search_with_expansion("测试用户")
         assert result["found"] is True
         assert result["suggestion"] is not None
         

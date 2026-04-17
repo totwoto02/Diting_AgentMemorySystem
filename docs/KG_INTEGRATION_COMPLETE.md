@@ -66,8 +66,8 @@
 **测试结果**:
 ```
 ✅ 自动建图成功：5 个概念，6 条边
-✅ KG 扩展成功：['忠犬', '九斤', '乙女游戏', '男主', '柏源']
-✅ 关键词提取成功：['九斤', '乙女游戏', '柏源']
+✅ KG 扩展成功：['忠犬', '用户朋友', '游戏', '男主', '游戏角色']
+✅ 关键词提取成功：['用户朋友', '游戏', '游戏角色']
 ✅ 不带 KG 的 MFT 正常工作
 ```
 
@@ -84,17 +84,17 @@ from mfs.mft import MFT
 mft = MFT(db_path='mfs.db', kg_db_path='mfs_kg.db')
 
 # 创建记忆（自动建图）
-mft.create('/memory/doc1', 'NOTE', '九斤 乙女游戏 柏源')
-mft.create('/memory/doc2', 'NOTE', '柏源 忠犬 男主')
+mft.create('/memory/doc1', 'NOTE', '用户朋友 游戏 游戏角色')
+mft.create('/memory/doc2', 'NOTE', '游戏角色 忠犬 男主')
 
 # 搜索带 KG 扩展
-result = mft.search_with_kg('九斤')
+result = mft.search_with_kg('用户朋友')
 print(result['kg_expansion'])
 # 输出：
 # {
-#   'concept': '九斤',
-#   'expanded_concepts': ['忠犬', '乙女游戏', '柏源'],
-#   'suggestion': "搜索 '九斤' 时，可能也关心：忠犬，乙女游戏"
+#   'concept': '用户朋友',
+#   'expanded_concepts': ['忠犬', '游戏', '游戏角色'],
+#   'suggestion': "搜索 '用户朋友' 时，可能也关心：忠犬，游戏"
 # }
 ```
 
@@ -105,7 +105,7 @@ print(result['kg_expansion'])
 mcporter call mfs-memory.mfs_write \
   path="/test/doc.md" \
   type="NOTE" \
-  content="九斤 乙女游戏 柏源"
+  content="用户朋友 游戏 游戏角色"
 
 # 查看图谱统计
 mcporter call mfs-memory.kg_stats
@@ -116,21 +116,21 @@ mcporter call mfs-memory.kg_stats
 #   平均每概念边数：1.00
 
 # 搜索概念
-mcporter call mfs-memory.kg_search query="九斤"
+mcporter call mfs-memory.kg_search query="用户朋友"
 # 输出：
-# ✅ 找到概念：九斤
+# ✅ 找到概念：用户朋友
 # 🔗 关联概念 (3 个):
-#   - 乙女游戏
-#   - 柏源
+#   - 游戏
+#   - 游戏角色
 #   - ...
-# 💡 搜索 '九斤' 时，可能也关心：乙女游戏，柏源
+# 💡 搜索 '用户朋友' 时，可能也关心：游戏，游戏角色
 
 # 获取相关概念
-mcporter call mfs-memory.kg_get_related concept="九斤" top_k=5
+mcporter call mfs-memory.kg_get_related concept="用户朋友" top_k=5
 # 输出：
-# 🔗 '九斤' 的关联概念:
-#   - 乙女游戏 (权重：1.00)
-#   - 柏源 (权重：1.00)
+# 🔗 '用户朋友' 的关联概念:
+#   - 游戏 (权重：1.00)
+#   - 游戏角色 (权重：1.00)
 ```
 
 ---

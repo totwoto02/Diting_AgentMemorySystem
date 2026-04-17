@@ -47,16 +47,16 @@ def test_fts5_search():
         # 模拟插入测试数据
         fts.conn.execute("""
             INSERT INTO mft (v_path, type, content) VALUES
-            ('/test/doc1', 'NOTE', '九斤 乙女游戏 柏源'),
-            ('/test/doc2', 'NOTE', '漫展 摄影 模特'),
-            ('/test/doc3', 'NOTE', '拍照 约定 荷兰花卉小镇')
+            ('/test/doc1', 'NOTE', '测试用户 video game 测试角色'),
+            ('/test/doc2', 'NOTE', '活动 拍照 朋友'),
+            ('/test/doc3', 'NOTE', '拍照 约定 测试地点')
         """)
         fts.conn.commit()
         
         # 测试搜索（使用 LIKE 回退模式，避免 bm2d 错误）
         try:
-            results = fts.search("九斤")
-            print(f"\n✅ 搜索'九斤' 找到 {len(results)} 条结果")
+            results = fts.search("测试用户")
+            print(f"\n✅ 搜索'测试用户' 找到 {len(results)} 条结果")
             for r in results:
                 print(f"   - {r['v_path']}: {r['content'][:50]}...")
             
@@ -69,9 +69,9 @@ def test_fts5_search():
                 # 直接查询 mft 表
                 results = fts.conn.execute(
                     "SELECT v_path, content FROM mft WHERE content LIKE ?",
-                    ("%九斤%",)
+                    ("%测试用户%",)
                 ).fetchall()
-                print(f"\n✅ 搜索'九斤' 找到 {len(results)} 条结果")
+                print(f"\n✅ 搜索'测试用户' 找到 {len(results)} 条结果")
                 for r in results:
                     print(f"   - {r[0]}: {r[1][:50]}...")
         
@@ -100,9 +100,9 @@ def test_assembler_v2():
     
     # 测试去重拼装
     slices = [
-        {"content": "九斤 乙女游戏 柏源", "offset": 0, "length": 10},
-        {"content": "柏源 忠犬 男主", "offset": 8, "length": 10},  # 有重叠
-        {"content": "男主 漫展模特", "offset": 16, "length": 10}
+        {"content": "测试用户 video game 测试角色", "offset": 0, "length": 10},
+        {"content": "测试角色 loyal male lead", "offset": 8, "length": 10},  # 有重叠
+        {"content": "male lead 活动朋友", "offset": 16, "length": 10}
     ]
     
     full_text, stats = assembler.assemble_with_dedup(slices)
@@ -121,7 +121,7 @@ def test_assembler_v2():
         print(f"   问题：{', '.join(result['issues'])}")
     
     # 测试完整性验证
-    original = "九斤 乙女游戏 柏源 忠犬 男主 漫展模特"
+    original = "测试用户 video game 测试角色 loyal male lead 活动朋友"
     verification = assembler.verify_integrity(full_text, original)
     print(f"\n✅ 完整性验证:")
     print(f"   相似度：{verification['similarity']:.1f}%")
@@ -149,7 +149,7 @@ def test_integrity_tracker():
         print("\n[1] 追踪创建...")
         create_record = tracker.track_create(
             "/test/doc.md",
-            "九斤 乙女游戏 柏源",
+            "测试用户 video game 测试角色",
             operator="AI"
         )
         print(f"   ✅ 创建追踪：{create_record['v_path']}")
@@ -159,8 +159,8 @@ def test_integrity_tracker():
         print("\n[2] 追踪更新...")
         update_record = tracker.track_update(
             "/test/doc.md",
-            "九斤 乙女游戏 柏源",
-            "九斤 乙女游戏 柏源 忠犬",
+            "测试用户 video game 测试角色",
+            "测试用户 video game 测试角色 loyal",
             reason="添加更多信息",
             operator="AI"
         )
@@ -172,7 +172,7 @@ def test_integrity_tracker():
         print("\n[3] 验证完整性...")
         verification = tracker.verify_integrity(
             "/test/doc.md",
-            "九斤 乙女游戏 柏源 忠犬"
+            "测试用户 video game 测试角色 loyal"
         )
         print(f"   ✅ 验证结果：{verification['warning']}")
         print(f"      存储哈希：{verification['stored_hash']}")

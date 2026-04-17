@@ -432,9 +432,9 @@ class FreeEnergyManager:
         路径匹配：检查记忆路径是否与上下文相关
         
         例如：
-        - 记忆路径：/person/九斤/preferences
-        - 上下文："约九斤拍照"
-        - 匹配："九斤" 在路径和上下文中都出现 → 高分
+        - 记忆路径：/person/朋友/preferences
+        - 上下文："约朋友拍照"
+        - 匹配："朋友" 在路径和上下文中都出现 → 高分
         
         Returns:
             匹配度 (0-1)

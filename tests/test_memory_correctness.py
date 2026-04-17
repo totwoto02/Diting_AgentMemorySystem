@@ -55,7 +55,7 @@ class TestMemoryCorrectness:
             ("/test/doc1", "NOTE", "简单内容"),
             ("/test/doc2", "NOTE", "规则内容 " * 100),
             ("/test/doc3", "CODE", "def test():\n    return True\n" * 50),
-            ("/person/九斤", "CONTACT", "九斤喜欢乙女游戏,特别是柏源"),
+            ("/person/测试用户", "CONTACT", "测试用户喜欢video game,特别是测试角色"),
             ("/work/mfs", "NOTE", "MFS 是一个记忆文件系统"),
         ]
 
@@ -103,10 +103,10 @@ class TestMemoryCorrectness:
 
         # 插入测试数据
         test_data = [
-            ("/test/doc1", "九斤喜欢乙女游戏", "NOTE"),
-            ("/test/doc2", "柏源是乙女游戏的角色", "NOTE"),
-            ("/test/doc3", "忠犬类型很受欢迎", "NOTE"),
-            ("/test/doc4", "九斤也喜欢摄影", "NOTE"),
+            ("/test/doc1", "测试用户喜欢video game", "NOTE"),
+            ("/test/doc2", "测试角色是video game的角色", "NOTE"),
+            ("/test/doc3", "loyal类型很受欢迎", "NOTE"),
+            ("/test/doc4", "测试用户也喜欢拍照", "NOTE"),
         ]
 
         for path, content, type_ in test_data:
@@ -125,35 +125,35 @@ class TestMemoryCorrectness:
         kg = mfs_system["kg"]
 
         # 添加概念
-        kg.add_concept("九斤", "person", aliases=["小九"])
-        kg.add_concept("乙女游戏", "category")
-        kg.add_concept("柏源", "character")
+        kg.add_concept("测试用户", "person", aliases=["小九"])
+        kg.add_concept("video game", "category")
+        kg.add_concept("测试角色", "character")
 
         # 添加关联
-        kg.add_edge("九斤", "乙女游戏", "likes", weight=0.9)
-        kg.add_edge("乙女游戏", "柏源", "contains", weight=0.8)
+        kg.add_edge("测试用户", "video game", "likes", weight=0.9)
+        kg.add_edge("video game", "测试角色", "contains", weight=0.8)
 
         # 验证概念存在
-        concept = kg.get_concept_by_name("九斤")
+        concept = kg.get_concept_by_name("测试用户")
         assert concept is not None
-        assert concept["name"] == "九斤"
+        assert concept["name"] == "测试用户"
 
         # 验证别名
         concept_by_alias = kg.get_concept_by_name("小九")
         assert concept_by_alias is not None
-        assert concept_by_alias["name"] == "九斤"
+        assert concept_by_alias["name"] == "测试用户"
 
         # 验证关联
-        related = kg.get_related_concepts("九斤")
+        related = kg.get_related_concepts("测试用户")
         assert len(related) > 0
-        assert related[0]["concept"] == "乙女游戏"
+        assert related[0]["concept"] == "video game"
         # 允许时间衰减导致的微小差异
         assert abs(related[0]["weight"] - 0.9) < 0.1
 
         # 验证搜索扩展
-        expansion = kg.search_with_expansion("九斤", max_depth=2)
+        expansion = kg.search_with_expansion("测试用户", max_depth=2)
         assert expansion["found"] is True
-        assert "乙女游戏" in expansion["expanded_concepts"]
+        assert "video game" in expansion["expanded_concepts"]
 
         print(f"✅ 知识图谱准确性测试通过")
 
