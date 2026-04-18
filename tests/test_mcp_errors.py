@@ -6,7 +6,7 @@ MCP Server 错误路径测试
 
 import pytest
 from diting.mcp_server import MCPServer
-from diting.errors import MFTNotFoundError, DITING_Exception
+from diting.errors import MFTNotFoundError, MFSException
 
 
 class TestMCPErrorHandling:
@@ -156,7 +156,7 @@ class TestMCPErrorHandling:
         """测试 call_tool 通用错误处理"""
         server = MCPServer(db_path=":memory:")
         
-        # 模拟一个会抛出 DITING_Exception 的场景
+        # 模拟一个会抛出 MFSException 的场景
         # 这里通过 call_tool 捕获异常
         result = await server.call_tool("diting_read", {"path": "/nonexistent"})
         

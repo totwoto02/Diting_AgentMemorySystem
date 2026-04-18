@@ -7,7 +7,7 @@ MCP Server 异常覆盖测试
 import pytest
 from unittest.mock import patch, MagicMock
 from diting.mcp_server import MCPServer
-from diting.errors import MFTNotFoundError, DITING_Exception
+from diting.errors import MFTNotFoundError, MFSException
 
 
 class TestMCPExceptionCoverage:
@@ -15,11 +15,11 @@ class TestMCPExceptionCoverage:
     
     @pytest.mark.asyncio
     async def test_call_tool_diting_exception(self):
-        """测试 call_tool 捕获 DITING_Exception"""
+        """测试 call_tool 捕获 MFSException"""
         server = MCPServer(db_path="file:test_diting_exc?mode=memory&cache=private")
         
-        # 模拟 MFT 抛出 DITING_Exception
-        with patch.object(server.mft, 'read', side_effect=DITING_Exception("模拟 DITING_ 错误")):
+        # 模拟 MFT 抛出 MFSException
+        with patch.object(server.mft, 'read', side_effect=MFSException("模拟 DITING_ 错误")):
             result = await server.call_tool("diting_read", {"path": "/test"})
             
             assert len(result) == 1

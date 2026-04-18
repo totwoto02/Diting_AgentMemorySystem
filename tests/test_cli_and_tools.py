@@ -94,7 +94,7 @@ class TestInstallCheck:
         
         captured = capsys.readouterr()
         assert "✅" in captured.out
-        assert "DITING_ 可正常导入" in captured.out
+        assert "Diting 可正常导入" in captured.out
     
     def test_check_diting_import_failure(self, capsys):
         """测试 DITING_ 导入检查（失败情况）"""
