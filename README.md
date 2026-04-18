@@ -109,10 +109,6 @@ mft.delete("/user/preferences")
 
 | 热力学 / Thermodynamics | 谛听记忆系统 / Diting Memory System | 说明 / Description |
 |--------|------------|------|
-| **能量 (U) / Energy** | 访问次数 / Access Count | 记忆被访问的总次数 / Total accesses to memory |
-| **热度 (H) / Heat** | 热度评分 / Heat Score | 近期访问频率 (0-100) / Recent access frequency (0-100) |
-| **温度 (T) / Temperature** | 关联度 / Relevance | 与当前上下文的关联程度 / Relevance to current context |
-| **熵 (S) / Entropy** | 争议性 / Controversy | 矛盾/不确定性水平 / Contradiction/uncertainty level |
 | **内能 (U) / Internal Energy** | 访问次数 / Access Count | 记忆被访问的总次数（积累的能量）/ Total accesses (accumulated energy) |
 | **热度 (H) / Heat** | 热度评分 / Heat Score | 近期访问频率，U 的 0-100 标准化 / Recent access frequency, 0-100 normalized U |
 | **温度 (T) / Temperature** | 关联度 / Relevance | 与当前上下文的关联程度 (0-1) / Relevance to current context (0-1) |
