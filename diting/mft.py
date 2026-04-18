@@ -15,6 +15,8 @@ from .config import Config
 from .errors import MFTInvalidPathError
 
 # 延迟导入知识图谱（避免循环依赖）
+
+
 def _get_kg_class():
     from .knowledge_graph_v2 import KnowledgeGraphV2
     return KnowledgeGraphV2
@@ -118,8 +120,11 @@ class MFT:
     提供记忆文件的 CRUD 操作，类似文件系统的 inode 管理
     """
 
-    def __init__(self, db_path: Optional[str] = None, cache_capacity: int = 100, 
-                 kg_db_path: Optional[str] = None):
+    def __init__(
+            self,
+            db_path: Optional[str] = None,
+            cache_capacity: int = 100,
+            kg_db_path: Optional[str] = None):
         """
         初始化 MFT 管理器
 
@@ -131,13 +136,14 @@ class MFT:
         if db_path is None:
             db_path = ":memory:"
 
-        self.config = Config(db_path=db_path) if db_path != ":memory:" else None
+        self.config = Config(
+            db_path=db_path) if db_path != ":memory:" else None
         self.db = Database(self.config) if self.config else Database()
         self._init_schema()
 
         # 初始化 LRU 缓存
         self.cache = LRUCache(capacity=cache_capacity)
-        
+
         # 初始化知识图谱（Phase 2 集成）
         self.kg = None
         if kg_db_path:
@@ -188,7 +194,8 @@ class MFT:
         """
         self.db.init_schema(schema)
 
-    def create(self, v_path: str, type: str, content: str, status: str = 'active') -> int:
+    def create(self, v_path: str, type: str, content: str,
+               status: str = 'active') -> int:
         """
         创建记忆文件
 
@@ -213,7 +220,8 @@ class MFT:
                 INSERT INTO mft (v_path, type, status, content, create_ts, update_ts)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """,
-                (v_path, type, status, content, datetime.now().isoformat(), datetime.now().isoformat())
+                (v_path, type, status, content, datetime.now(
+                ).isoformat(), datetime.now().isoformat())
             )
             conn.commit()
             inode = cursor.lastrowid
@@ -229,7 +237,7 @@ class MFT:
                 'update_ts': datetime.now()
             }
             self.cache.put(v_path, result)
-            
+
             # Phase 2: 知识图谱自动建图
             if self.kg:
                 self._auto_build_kg(v_path, content)
@@ -358,7 +366,8 @@ class MFT:
 
             return success
 
-    def search(self, query: str, scope: Optional[str] = None) -> List[Dict[str, Any]]:
+    def search(self, query: str,
+               scope: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         搜索记忆文件 (使用 LIKE 模糊匹配)
 
@@ -437,7 +446,8 @@ class MFT:
             )
             return [dict(row) for row in cursor.fetchall()]
 
-    def search_by_type(self, type: str, query: Optional[str] = None) -> List[Dict[str, Any]]:
+    def search_by_type(
+            self, type: str, query: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         按类型搜索记忆文件
 
@@ -495,27 +505,27 @@ class MFT:
             ).fetchall()
 
             return {
-                "total": total,
-                "by_type": {row["type"]: row["count"] for row in type_stats},
-                "by_status": {row["status"]: row["count"] for row in status_stats}
-            }
-    
-    def search_by_path_glob(self, path_pattern: str, type: Optional[str] = None) -> List[Dict[str, Any]]:
+                "total": total, "by_type": {
+                    row["type"]: row["count"] for row in type_stats}, "by_status": {
+                    row["status"]: row["count"] for row in status_stats}}
+
+    def search_by_path_glob(self, path_pattern: str,
+                            type: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         使用 GLOB 模式搜索路径（替代正则，性能提升 3-5 倍）
-        
+
         GLOB 模式说明:
         - * 匹配任意数量字符
         - ? 匹配单个字符
         - [] 匹配字符集
-        
+
         Args:
             path_pattern: GLOB 路径模式，例如：
                 - "/person/*" 匹配所有/person/下的路径
                 - "*/朋友/*" 匹配包含/朋友/的路径
                 - "/location/[A-M]*" 匹配 A-M 开头的 location
             type: 类型过滤（可选）
-        
+
         Returns:
             匹配的记忆文件列表
         """
@@ -534,20 +544,20 @@ class MFT:
                     WHERE v_path GLOB ? AND deleted = 0
                     ORDER BY update_ts DESC
                 """, (path_pattern,))
-            
+
             return [dict(row) for row in cursor.fetchall()]
-    
+
     def get_json_field(self, v_path: str, json_path: str) -> Optional[Any]:
         """
         使用 SQLite JSON 扩展提取 JSON 字段（替代 Python json.loads，性能提升 3-5 倍）
-        
+
         Args:
             v_path: 虚拟路径
             json_path: JSON 路径，例如：
                 - '$.key' 提取顶层 key
                 - '$.person.name' 提取嵌套字段
                 - '$.tags[0]' 提取数组元素
-        
+
         Returns:
             JSON 字段值，未找到返回 None
         """
@@ -557,18 +567,19 @@ class MFT:
                 FROM mft
                 WHERE v_path = ? AND deleted = 0
             """, (json_path, v_path))
-            
+
             row = cursor.fetchone()
             return row['value'] if row else None
-    
-    def search_by_json(self, json_path: str, value: Any) -> List[Dict[str, Any]]:
+
+    def search_by_json(self, json_path: str,
+                       value: Any) -> List[Dict[str, Any]]:
         """
         使用 SQLite JSON 扩展搜索包含特定 JSON 值的记录
-        
+
         Args:
             json_path: JSON 路径
             value: 要搜索的值
-        
+
         Returns:
             匹配的记忆文件列表
         """
@@ -579,7 +590,7 @@ class MFT:
                 WHERE json_extract(content, ?) = ? AND deleted = 0
                 ORDER BY update_ts DESC
             """, (json_path, value))
-            
+
             return [dict(row) for row in cursor.fetchall()]
 
     def get_cache_stats(self) -> Dict[str, Any]:
@@ -662,80 +673,105 @@ class MFT:
         return pointers is not None and len(pointers) > 0
 
     # ========== Phase 2: 知识图谱集成 ==========
-    
+
     def _extract_keywords(self, text: str, top_k: int = 10) -> List[str]:
         """
         从文本提取关键词（简化版：按 2-4 字连续词提取）
-        
+
         Args:
             text: 输入文本
             top_k: 返回前 K 个关键词
-            
+
         Returns:
             关键词列表
         """
         # 移除标点和停用词
         text_clean = re.sub(r'[,.!?;:,\s]+', ' ', text)
         words = text_clean.split()
-        
+
         # 过滤停用词
-        stopwords = {'的', '了', '是', '在', '我', '有', '和', '就', '不', '人', '都', '一', 
-                     '一个', '特别', '这个', '角色', '类型', 'to', 'the', 'a', 'an', 'is', 'are'}
+        stopwords = {
+            '的',
+            '了',
+            '是',
+            '在',
+            '我',
+            '有',
+            '和',
+            '就',
+            '不',
+            '人',
+            '都',
+            '一',
+            '一个',
+            '特别',
+            '这个',
+            '角色',
+            '类型',
+            'to',
+            'the',
+            'a',
+            'an',
+            'is',
+            'are'}
         filtered_words = [
-            w for w in words 
+            w for w in words
             if len(w) >= 2 and len(w) <= 4 and w not in stopwords
         ]
-        
+
         # 统计词频
         word_freq = {}
         for word in filtered_words:
             word_freq[word] = word_freq.get(word, 0) + 1
-        
+
         # 按频率排序
-        sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
-        
+        sorted_words = sorted(
+            word_freq.items(),
+            key=lambda x: x[1],
+            reverse=True)
+
         return [word for word, freq in sorted_words[:top_k]]
-    
+
     def _auto_build_kg(self, v_path: str, content: str):
         """
         自动构建知识图谱
-        
+
         Args:
             v_path: 虚拟路径
             content: 内容
         """
         if not self.kg:
             return
-        
+
         try:
             # 提取关键词
             keywords = self._extract_keywords(content, top_k=10)
-            
+
             # 添加概念
             for kw in keywords:
                 self.kg.add_concept(kw, "keyword")
-            
+
             # 建立共现关系
             for i, kw1 in enumerate(keywords):
-                for kw2 in keywords[i+1:]:
+                for kw2 in keywords[i + 1:]:
                     self.kg.add_edge(kw1, kw2, "co_occurrence", 1.0)
         except Exception as e:
             # KG 构建失败不影响主流程
             print(f"[KG Build Warning] {e}")
-    
+
     def search_with_kg(self, query: str) -> Dict[str, Any]:
         """
         搜索并获取知识图谱扩展
-        
+
         Args:
             query: 搜索词
-            
+
         Returns:
             搜索结果和 KG 扩展
         """
         # 普通搜索
         results = self.search(query)
-        
+
         # KG 扩展
         kg_expansion = None
         if self.kg:
@@ -743,10 +779,11 @@ class MFT:
             if kg_result["found"]:
                 kg_expansion = {
                     "concept": kg_result.get("concept"),
-                    "expanded_concepts": kg_result.get("expanded_concepts", []),
-                    "suggestion": kg_result.get("suggestion")
-                }
-        
+                    "expanded_concepts": kg_result.get(
+                        "expanded_concepts",
+                        []),
+                    "suggestion": kg_result.get("suggestion")}
+
         return {
             "search_results": results,
             "kg_expansion": kg_expansion

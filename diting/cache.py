@@ -15,7 +15,7 @@ from queue import Queue, Empty
 class LRUCache:
     """
     LRU 缓存实现
-    
+
     用于缓存频繁访问的数据
     """
 
@@ -91,17 +91,17 @@ class LRUCache:
             total = self.hits + self.misses
             return {
                 "capacity": self.capacity,
-                "size": len(self.cache),
+                "size": len(
+                    self.cache),
                 "hits": self.hits,
                 "misses": self.misses,
-                "hit_rate": f"{(self.hits / total * 100) if total > 0 else 0:.2f}%"
-            }
+                "hit_rate": f"{(self.hits / total * 100) if total > 0 else 0:.2f}%"}
 
 
 class ConnectionPool:
     """
     SQLite 连接池
-    
+
     复用数据库连接，减少连接开销
     """
 
@@ -168,7 +168,7 @@ class ConnectionPool:
             if conn in self.active:
                 self.active.remove(conn)
                 self.total_released += 1
-        
+
         # 放回池
         try:
             self.available.put_nowait(conn)
@@ -180,7 +180,7 @@ class ConnectionPool:
     def get_connection(self):
         """
         获取连接的上下文管理器
-        
+
         Usage:
             with pool.get_connection() as conn:
                 conn.execute("SELECT ...")
@@ -210,6 +210,6 @@ class ConnectionPool:
         while not self.available.empty():
             conn = self.available.get()
             conn.close()
-        
+
         with self.lock:
             self.active.clear()

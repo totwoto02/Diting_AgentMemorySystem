@@ -72,20 +72,23 @@ class LengthSplitter:
         while current_pos < len(text):
             # 计算当前切片的结束位置
             remaining = len(text) - current_pos
-            
+
             if remaining <= self.max_chunk_size:
                 # 最后一片，包含所有剩余内容
                 chunk_content = text[current_pos:]
                 chunk_length = len(chunk_content)
             else:
                 # 中间片，取最大切片大小
-                chunk_content = text[current_pos:current_pos + self.max_chunk_size]
+                chunk_content = text[current_pos:current_pos +
+                                     self.max_chunk_size]
                 chunk_length = self.max_chunk_size
 
             # 计算重叠部分（从下一片开始位置回退）
             if chunk_id > 1 and overlap_size > 0:
                 # 包含前一片的重叠部分
-                chunk_content = text[current_pos - overlap_size:current_pos + self.max_chunk_size]
+                chunk_content = text[current_pos -
+                                     overlap_size:current_pos +
+                                     self.max_chunk_size]
                 chunk_length = len(chunk_content)
 
             # 创建切片

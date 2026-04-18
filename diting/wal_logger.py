@@ -62,9 +62,12 @@ class WALLogger:
         """)
 
         # 索引
-        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_wal_path ON wal_log(v_path)")
-        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_wal_timestamp ON wal_log(timestamp)")
-        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_wal_status ON wal_log(status)")
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_wal_path ON wal_log(v_path)")
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_wal_timestamp ON wal_log(timestamp)")
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_wal_status ON wal_log(status)")
 
         self.conn.commit()
 
@@ -178,7 +181,8 @@ class WALLogger:
             self.conn.commit()
             return cursor.rowcount > 0
 
-    def get_version(self, v_path: str, version: int) -> Optional[Dict[str, Any]]:
+    def get_version(self, v_path: str,
+                    version: int) -> Optional[Dict[str, Any]]:
         """
         获取指定版本
 
@@ -316,7 +320,8 @@ class WALLogger:
             for op in operations:
                 cursor = self.conn.execute("""
                     INSERT INTO wal_log
-                    (operation, v_path, content, source_agent, evidence, confidence, timestamp, version, status)
+                    (operation, v_path, content, source_agent,
+                     evidence, confidence, timestamp, version, status)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'COMMITTED')
                 """, (
                     op['operation'],

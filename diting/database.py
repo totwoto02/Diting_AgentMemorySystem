@@ -73,7 +73,8 @@ class Database:
         # 分割 SQL 语句并逐个执行（避免 executescript 的问题）
         with self.get_connection() as conn:
             # 按分号分割语句
-            statements = [stmt.strip() for stmt in schema_sql.split(';') if stmt.strip()]
+            statements = [stmt.strip()
+                          for stmt in schema_sql.split(';') if stmt.strip()]
             for statement in statements:
                 conn.execute(statement)
             conn.commit()

@@ -86,16 +86,16 @@ class IntegrityTracker:
 
         # 记录修改历史
         self.conn.execute("""
-            INSERT INTO integrity_log 
-            (v_path, action, old_content_hash, new_content_hash, 
+            INSERT INTO integrity_log
+            (v_path, action, old_content_hash, new_content_hash,
              old_content, new_content, reason, operator)
             VALUES (?, 'UPDATE', ?, ?, ?, ?, ?, ?)
-        """, (v_path, old_hash, new_hash, old_content[:1000], 
+        """, (v_path, old_hash, new_hash, old_content[:1000],
               new_content[:1000], reason, operator))
 
         # 更新哈希表
         self.conn.execute("""
-            INSERT OR REPLACE INTO content_hashes 
+            INSERT OR REPLACE INTO content_hashes
             (v_path, content_hash, content_snapshot, last_verified)
             VALUES (?, ?, ?, strftime('%s', 'now'))
         """, (v_path, new_hash, new_content[:500]))
@@ -116,7 +116,7 @@ class IntegrityTracker:
             "timestamp": datetime.now().isoformat()
         }
 
-    def track_create(self, v_path: str, content: str, 
+    def track_create(self, v_path: str, content: str,
                      operator: str = "AI") -> Dict[str, Any]:
         """
         追踪创建操作
@@ -133,14 +133,14 @@ class IntegrityTracker:
 
         # 记录创建历史
         self.conn.execute("""
-            INSERT INTO integrity_log 
+            INSERT INTO integrity_log
             (v_path, action, new_content_hash, new_content, operator)
             VALUES (?, 'CREATE', ?, ?, ?)
         """, (v_path, content_hash, content[:1000], operator))
 
         # 更新哈希表
         self.conn.execute("""
-            INSERT OR REPLACE INTO content_hashes 
+            INSERT OR REPLACE INTO content_hashes
             (v_path, content_hash, content_snapshot, last_verified)
             VALUES (?, ?, ?, strftime('%s', 'now'))
         """, (v_path, content_hash, content[:500]))
@@ -171,7 +171,7 @@ class IntegrityTracker:
         old_hash = self._compute_hash(old_content)
 
         self.conn.execute("""
-            INSERT INTO integrity_log 
+            INSERT INTO integrity_log
             (v_path, action, old_content_hash, old_content, reason)
             VALUES (?, 'DELETE', ?, ?, ?)
         """, (v_path, old_hash, old_content[:1000], reason))
@@ -192,7 +192,8 @@ class IntegrityTracker:
             "timestamp": datetime.now().isoformat()
         }
 
-    def verify_integrity(self, v_path: str, current_content: str) -> Dict[str, Any]:
+    def verify_integrity(
+            self, v_path: str, current_content: str) -> Dict[str, Any]:
         """
         验证内容完整性
 
@@ -232,7 +233,8 @@ class IntegrityTracker:
             "warning": "⚠️ 内容可能被篡改！" if is_tampered else "✅ 内容完整"
         }
 
-    def get_history(self, v_path: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_history(self, v_path: str,
+                    limit: int = 10) -> List[Dict[str, Any]]:
         """
         获取修改历史
 
@@ -244,7 +246,7 @@ class IntegrityTracker:
             历史记录列表
         """
         cursor = self.conn.execute("""
-            SELECT action, old_content_hash, new_content_hash, 
+            SELECT action, old_content_hash, new_content_hash,
                    reason, operator, timestamp
             FROM integrity_log
             WHERE v_path = ?
@@ -278,8 +280,8 @@ class IntegrityTracker:
         tracked_files = cursor.fetchone()[0]
 
         cursor = self.conn.execute("""
-            SELECT action, COUNT(*) 
-            FROM integrity_log 
+            SELECT action, COUNT(*)
+            FROM integrity_log
             GROUP BY action
         """)
         by_action = dict(cursor.fetchall())

@@ -16,12 +16,12 @@ class Slice:
     offset: int
     length: int
     content: str
-    
+
     @property
     def end_pos(self) -> int:
         """结束位置"""
         return self.offset + self.length
-    
+
     def get(self, key: str, default=None):
         """兼容字典访问"""
         if key == 'content':
@@ -33,7 +33,7 @@ class Slice:
         elif key == 'chunk_id':
             return self.chunk_id
         return default
-    
+
     def __getitem__(self, key: str):
         """支持下标访问"""
         if key == 'content':
@@ -61,7 +61,8 @@ class AssemblerV2:
         self.overlap_threshold = overlap_threshold
         self.min_overlap = min_overlap
 
-    def assemble_with_dedup(self, slices: List[Dict[str, Any]]) -> Tuple[str, Dict]:
+    def assemble_with_dedup(
+            self, slices: List[Dict[str, Any]]) -> Tuple[str, Dict]:
         """
         拼装切片并去重
 
@@ -149,8 +150,11 @@ class AssemblerV2:
 
         return 0
 
-    def assemble_with_quality(self, slices: List[Dict[str, Any]], 
-                              expected_length: Optional[int] = None) -> Dict[str, Any]:
+    def assemble_with_quality(self,
+                              slices: List[Dict[str,
+                                                Any]],
+                              expected_length: Optional[int] = None) -> Dict[str,
+                                                                             Any]:
         """
         拼装并评估质量
 
@@ -205,10 +209,11 @@ class AssemblerV2:
         sorted_slices = sorted(slices, key=lambda x: x.get('offset', 0))
 
         for i in range(1, len(sorted_slices)):
-            prev = sorted_slices[i-1]
+            prev = sorted_slices[i - 1]
             curr = sorted_slices[i]
 
-            prev_end = prev.get('offset', 0) + prev.get('length', len(prev.get('content', '')))
+            prev_end = prev.get('offset', 0) + \
+                prev.get('length', len(prev.get('content', '')))
             curr_start = curr.get('offset', 0)
 
             # 检查是否有间隙
@@ -217,7 +222,8 @@ class AssemblerV2:
 
         return False
 
-    def verify_integrity(self, assembled: str, original: str) -> Dict[str, Any]:
+    def verify_integrity(self, assembled: str,
+                         original: str) -> Dict[str, Any]:
         """
         验证拼装完整性
 
@@ -243,23 +249,23 @@ class AssemblerV2:
             "missing_chars": len(original) - len(assembled),
             "extra_chars": len(assembled) - len(original)
         }
-    
+
     def close(self):
         """关闭拼装器（清理资源）"""
         pass  # AssemblerV2 不需要特殊清理
-    
+
     def cache_slice(self, slice_id: str, content: str):
         """缓存切片（简化实现）"""
         if not hasattr(self, '_cache'):
             self._cache = {}
         self._cache[slice_id] = content
-    
+
     def get_cached_slice(self, slice_id: str) -> str:
         """获取缓存的切片"""
         if not hasattr(self, '_cache'):
             self._cache = {}
         return self._cache.get(slice_id)
-    
+
     def get_cache_stats(self) -> dict:
         """获取缓存统计"""
         if not hasattr(self, '_cache'):

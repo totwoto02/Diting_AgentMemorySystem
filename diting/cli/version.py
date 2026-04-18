@@ -10,6 +10,7 @@ Usage:
 
 import diting
 
+
 def main():
     print("=" * 60)
     print("Diting (谛听) 版本信息")
@@ -31,6 +32,7 @@ def main():
     print()
     print("性能提升：30-50%")
     print("=" * 60)
+
 
 if __name__ == '__main__':
     main()

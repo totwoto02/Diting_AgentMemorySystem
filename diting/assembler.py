@@ -36,7 +36,7 @@ class Assembler:
         """
         # 获取切片指针
         pointers = self.mft.get_lcn_pointers(v_path)
-        
+
         if not pointers:
             # 没有切片，直接读取原文
             record = self.mft.read(v_path)
@@ -51,7 +51,7 @@ class Assembler:
         # 注意：实际实现中，切片内容应存储在单独的 chunk 表中
         # 这里简化处理：假设 content 字段存储完整原文
         # Phase 2 后续会实现真正的 chunk 存储
-        
+
         # 临时方案：直接返回主记录内容
         # TODO: 实现真正的 chunk 捞取和拼装
         return main_record.get('content')
@@ -76,7 +76,7 @@ class Assembler:
 
         # 按 chunk_id 排序
         sorted_pointers = sorted(pointers, key=lambda p: p['chunk_id'])
-        
+
         # 捞取切片并拼装
         slices = []
         for ptr in sorted_pointers:
@@ -101,7 +101,8 @@ class Assembler:
         """
         return assembled == expected
 
-    def get_assembly_stats(self, pointers: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def get_assembly_stats(
+            self, pointers: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         获取拼装统计信息
 
@@ -115,7 +116,6 @@ class Assembler:
             return {"chunk_count": 0, "total_length": 0}
 
         return {
-            "chunk_count": len(pointers),
-            "total_length": sum(p['length'] for p in pointers),
-            "avg_chunk_size": sum(p['length'] for p in pointers) / len(pointers)
-        }
+            "chunk_count": len(pointers), "total_length": sum(
+                p['length'] for p in pointers), "avg_chunk_size": sum(
+                p['length'] for p in pointers) / len(pointers)}

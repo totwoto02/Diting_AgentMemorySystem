@@ -64,7 +64,7 @@ class FTS5Search:
 
         self.conn.commit()
 
-    def search(self, query: str, scope: Optional[str] = None, 
+    def search(self, query: str, scope: Optional[str] = None,
                top_k: int = 20) -> List[Dict[str, Any]]:
         """
         全文搜索
@@ -80,7 +80,7 @@ class FTS5Search:
         # 构建查询
         if scope:
             sql = """
-                SELECT m.inode, m.v_path, m.type, m.content, 
+                SELECT m.inode, m.v_path, m.type, m.content,
                        m.create_ts, m.update_ts,
                        bm2d(mft_fts5) AS rank
                 FROM mft_fts5 f
@@ -139,7 +139,7 @@ class FTS5Search:
                           AND deleted = 0
                     """
                     params = (f"%{query}%",)
-                
+
                 cursor = self.conn.execute(sql, params)
                 results = []
                 for row in cursor.fetchall():
@@ -205,12 +205,12 @@ class FTS5Search:
     def insert(self, v_path: str, content: str, type: str = "NOTE") -> int:
         """
         插入文档到 FTS5 索引
-        
+
         Args:
             v_path: 虚拟路径
             content: 内容
             type: 类型
-            
+
         Returns:
             插入的文档 ID
         """
@@ -221,40 +221,40 @@ class FTS5Search:
         """, (v_path, type, content))
         self.conn.commit()
         return cursor.lastrowid
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """获取 FTS5 统计信息"""
         # 检查表是否存在
         cursor = self.conn.execute("""
-            SELECT name FROM sqlite_master 
+            SELECT name FROM sqlite_master
             WHERE type='table' AND name='mft_fts5'
         """)
         table_exists = cursor.fetchone() is not None
-        
+
         if not table_exists:
             return {
                 'table_exists': False,
                 'doc_count': 0,
                 'indexed_docs': 0
             }
-        
+
         # 获取文档数量
         cursor = self.conn.execute("SELECT COUNT(*) FROM mft_fts5")
         doc_count = cursor.fetchone()[0]
-        
+
         return {
             'table_exists': True,
             'doc_count': doc_count,
             'indexed_docs': doc_count
         }
-    
+
     def delete(self, v_path: str) -> bool:
         """
         删除文档
-        
+
         Args:
             v_path: 虚拟路径
-            
+
         Returns:
             是否删除成功
         """
@@ -264,7 +264,7 @@ class FTS5Search:
         """, (v_path,))
         self.conn.commit()
         return cursor.rowcount > 0
-    
+
     def close(self):
         """关闭连接"""
         self.conn.close()

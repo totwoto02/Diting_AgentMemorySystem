@@ -28,12 +28,15 @@ class MCPServer:
         if db_path is None:
             db_path = os.environ.get('DITING_DB_PATH', None)
             if not db_path:
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                base_dir = os.path.dirname(
+                    os.path.dirname(os.path.abspath(__file__)))
                 db_path = os.path.join(base_dir, 'diting.db')
-        
+
         # KG 数据库路径
-        kg_db_path = os.path.join(os.path.dirname(db_path), 'diting_kg.db') if db_path != ':memory:' else None
-        
+        kg_db_path = os.path.join(
+            os.path.dirname(db_path),
+            'diting_kg.db') if db_path != ':memory:' else None
+
         self.mft = MFT(db_path=db_path, kg_db_path=kg_db_path)
         self.server = Server("diting")
         self._register_tools()
@@ -184,10 +187,12 @@ class MCPServer:
             ]
 
         @self.server.call_tool()
-        async def _handle_call_tool(name: str, arguments: Dict[str, Any]) -> list[TextContent]:
+        async def _handle_call_tool(
+                name: str, arguments: Dict[str, Any]) -> list[TextContent]:
             return await self.call_tool(name, arguments)
 
-    async def call_tool(self, name: str, arguments: Dict[str, Any]) -> list[TextContent]:
+    async def call_tool(
+            self, name: str, arguments: Dict[str, Any]) -> list[TextContent]:
         """MCP 工具调用入口"""
         try:
             if name == "diting_read":
@@ -219,7 +224,8 @@ class MCPServer:
         except Exception as e:
             return [TextContent(type="text", text=f"系统错误：{str(e)}")]
 
-    async def _diting_read(self, arguments: Dict[str, Any]) -> list[TextContent]:
+    async def _diting_read(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """diting_read 工具实现"""
         path = arguments.get("path")
         if not path:
@@ -227,21 +233,23 @@ class MCPServer:
 
         result = self.mft.read(path)
         if result:
-            return [TextContent(
-                type="text",
-                text=f"路径：{result['v_path']}\n类型：{result['type']}\n内容：{result['content']}"
-            )]
+            return [
+                TextContent(
+                    type="text",
+                    text=f"路径：{result['v_path']}\n类型：{result['type']}\n内容：{result['content']}")]
         else:
             raise MFTNotFoundError(f"未找到路径：{path}")
 
-    async def _diting_write(self, arguments: Dict[str, Any]) -> list[TextContent]:
+    async def _diting_write(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """diting_write 工具实现"""
         path = arguments.get("path")
         type_ = arguments.get("type")
         content = arguments.get("content")
 
         if not all([path, type_, content]):
-            return [TextContent(type="text", text="错误：缺少必需参数 (path, type, content)")]
+            return [TextContent(
+                type="text", text="错误：缺少必需参数 (path, type, content)")]
 
         # 检查是否已存在
         existing = self.mft.read(path)
@@ -252,9 +260,11 @@ class MCPServer:
         else:
             # 创建
             inode = self.mft.create(path, type_, content)
-            return [TextContent(type="text", text=f"已创建：{path} (inode={inode})")]
+            return [TextContent(
+                type="text", text=f"已创建：{path} (inode={inode})")]
 
-    async def _diting_search(self, arguments: Dict[str, Any]) -> list[TextContent]:
+    async def _diting_search(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """diting_search 工具实现"""
         query = arguments.get("query")
         scope = arguments.get("scope")
@@ -272,25 +282,24 @@ class MCPServer:
 
         return [TextContent(type="text", text=output)]
 
-
     # ========== Phase 2: KG 工具实现 ==========
-    
+
     async def _kg_search(self, arguments: Dict[str, Any]) -> list[TextContent]:
         """kg_search 工具实现"""
         query = arguments.get("query")
         max_depth = arguments.get("max_depth", 2)
-        
+
         if not query:
             return [TextContent(type="text", text="错误：缺少 query 参数")]
-        
+
         if not self.mft.kg:
             return [TextContent(type="text", text="错误：知识图谱未启用")]
-        
+
         result = self.mft.kg.search_with_expansion(query, max_depth)
-        
+
         if not result["found"]:
             return [TextContent(type="text", text=f"未找到概念：'{query}'")]
-        
+
         output = f"✅ 找到概念：{result.get('concept', query)}\n\n"
         if result.get("expanded_concepts"):
             output += f"🔗 关联概念 ({len(result['expanded_concepts'])} 个):\n"
@@ -298,43 +307,44 @@ class MCPServer:
                 output += f"  - {concept}\n"
         if result.get("suggestion"):
             output += f"\n💡 {result['suggestion']}"
-        
+
         return [TextContent(type="text", text=output)]
-    
-    async def _kg_get_related(self, arguments: Dict[str, Any]) -> list[TextContent]:
+
+    async def _kg_get_related(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """kg_get_related 工具实现"""
         concept = arguments.get("concept")
         top_k = arguments.get("top_k", 5)
-        
+
         if not concept:
             return [TextContent(type="text", text="错误：缺少 concept 参数")]
-        
+
         if not self.mft.kg:
             return [TextContent(type="text", text="错误：知识图谱未启用")]
-        
+
         related = self.mft.kg.get_related_concepts(concept, top_k)
-        
+
         if not related:
             return [TextContent(type="text", text=f"'{concept}' 没有关联概念")]
-        
+
         output = f"🔗 '{concept}' 的关联概念:\n\n"
         for r in related:
             output += f"  - {r['concept']} (权重：{r['weight']:.2f})\n"
-        
+
         return [TextContent(type="text", text=output)]
-    
+
     async def _kg_stats(self, arguments: Dict[str, Any]) -> list[TextContent]:
         """kg_stats 工具实现"""
         if not self.mft.kg:
             return [TextContent(type="text", text="错误：知识图谱未启用")]
-        
+
         stats = self.mft.kg.get_stats()
-        
+
         output = "📊 知识图谱统计:\n\n"
         output += f"  概念数：{stats['concept_count']:,}\n"
         output += f"  边数：{stats['edge_count']:,}\n"
         output += f"  平均每概念边数：{stats['avg_edges_per_concept']:.2f}\n"
-        
+
         return [TextContent(type="text", text=output)]
 
     async def run(self):
@@ -346,72 +356,73 @@ class MCPServer:
                 self.server.create_initialization_options()
             )
 
-
-    async def _entropy_stats(self, arguments: Dict[str, Any]) -> list[TextContent]:
+    async def _entropy_stats(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """entropy_stats 工具实现"""
         if not self.mft.entropy or not self.mft.entropy.is_enabled():
             return [TextContent(type="text", text="熵系统未启用")]
-        
+
         stats = self.mft.entropy.recalculate_all()
-        
+
         if 'error' in stats:
             return [TextContent(type="text", text=f"错误：{stats['error']}")]
-        
+
         output = "📊 熵系统统计:\n\n"
         output += f"  高熵记忆：{stats.get('high', 0)}\n"
         output += f"  中熵记忆：{stats.get('medium', 0)}\n"
         output += f"  低熵记忆：{stats.get('low', 0)}\n"
-        
+
         return [TextContent(type="text", text=output)]
-    
-    async def _get_project_entropy(self, arguments: Dict[str, Any]) -> list[TextContent]:
+
+    async def _get_project_entropy(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """get_project_entropy 工具实现"""
         if not self.mft.entropy or not self.mft.entropy.is_enabled():
             return [TextContent(type="text", text="熵系统未启用")]
-        
+
         project_path = arguments.get("project_path")
         if not project_path:
             return [TextContent(type="text", text="错误：缺少 project_path 参数")]
-        
+
         result = self.mft.entropy.get_project_entropy(project_path)
-        
+
         if 'error' in result:
             return [TextContent(type="text", text=f"错误：{result['error']}")]
-        
+
         output = f"📊 项目熵值：{project_path}\n\n"
         output += f"  平均熵值：{result['avg_entropy']:.1f}\n"
         output += f"  熵级：{result['level']}\n"
         output += f"  记忆数：{result['memory_count']}\n"
         output += f"  趋势：{result.get('trend', 'stable')}\n"
-        
+
         if result.get('high_entropy_ratio', 0) > 0.5:
             output += "\n⚠️ 警告：超过 50% 的记忆处于高熵状态，建议尽快决策"
-        
+
         return [TextContent(type="text", text=output)]
-    
-    async def _entropy_anomaly(self, arguments: Dict[str, Any]) -> list[TextContent]:
+
+    async def _entropy_anomaly(
+            self, arguments: Dict[str, Any]) -> list[TextContent]:
         """entropy_anomaly 工具实现"""
         if not self.mft.entropy or not self.mft.entropy.is_enabled():
             return [TextContent(type="text", text="熵系统未启用")]
-        
+
         slice_id = arguments.get("slice_id")
         if not slice_id:
             return [TextContent(type="text", text="错误：缺少 slice_id 参数")]
-        
+
         result = self.mft.entropy.detect_entropy_anomaly(slice_id)
-        
+
         if 'error' in result:
             return [TextContent(type="text", text=f"错误：{result['error']}")]
-        
+
         if not result['has_anomaly']:
             return [TextContent(type="text", text="✅ 未检测到熵值异常")]
-        
+
         output = "⚠️ 检测到熵值异常:\n\n"
         for anomaly in result['anomalies']:
             output += f"  - {anomaly['type']}: {anomaly['message']}\n"
-        
-        return [TextContent(type="text", text=output)]
 
+        return [TextContent(type="text", text=output)]
 
     def close(self):
         """关闭服务器"""

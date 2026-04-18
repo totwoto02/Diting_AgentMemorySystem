@@ -38,7 +38,7 @@ def check_mcp_registration():
         os.path.expanduser("~/.config/openclaw/mcp_config.json"),
         "/etc/openclaw/mcp_config.json",
     ]
-    
+
     for config_path in config_paths:
         if os.path.exists(config_path):
             print(f"✅ 找到 OpenClaw MCP 配置文件：{config_path}")
@@ -58,7 +58,7 @@ def check_mcp_registration():
             except Exception as e:
                 print(f"⚠️ 读取配置文件失败：{e}")
                 return False
-    
+
     print("⚠️ 未找到 OpenClaw MCP 配置文件")
     print("   MFS 可能未正确安装或未配置 OpenClaw")
     return False
@@ -70,7 +70,7 @@ def check_dependencies():
         "mcp",
         "sqlite3",
     ]
-    
+
     missing = []
     for package in required_packages:
         try:
@@ -79,11 +79,11 @@ def check_dependencies():
         except ImportError:
             print(f"❌ {package} 未安装")
             missing.append(package)
-    
+
     if missing:
         print(f"\n请安装缺失的依赖：pip install {' '.join(missing)}")
         return False
-    
+
     return True
 
 
@@ -93,14 +93,14 @@ def main():
     print("Diting 安装验证工具")
     print("=" * 60)
     print()
-    
+
     checks = [
         ("Python 版本", check_python_version),
         ("依赖检查", check_dependencies),
         ("Diting 导入", check_diting_import),
         ("MCP 注册", check_mcp_registration),
     ]
-    
+
     results = []
     for name, check_func in checks:
         print(f"\n正在检查：{name}")
@@ -108,19 +108,19 @@ def main():
         result = check_func()
         results.append((name, result))
         print()
-    
+
     # 汇总结果
     print("=" * 60)
     print("检查结果汇总")
     print("=" * 60)
-    
+
     all_passed = True
     for name, result in results:
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{name}: {status}")
         if not result:
             all_passed = False
-    
+
     print()
     if all_passed:
         print("🎉 所有检查通过！MFS 已正确安装。")
