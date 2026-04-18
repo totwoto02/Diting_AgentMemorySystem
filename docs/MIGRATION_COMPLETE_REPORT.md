@@ -33,9 +33,9 @@
 ### 2. MCP 工具名称
 
 **修改前**:
-- `mfs_read`
-- `mfs_write`
-- `mfs_search`
+- `diting_read`
+- `diting_write`
+- `diting_search`
 
 **修改后**:
 - `diting_read`
@@ -54,12 +54,12 @@
 
 ### 4. 环境变量
 
-**修改前**: `MFS_DB_PATH`, `MFS_LOG_LEVEL`  
+**修改前**: `DITING_DB_PATH`, `DITING_LOG_LEVEL`  
 **修改后**: `DITING_DB_PATH`, `DITING_LOG_LEVEL`
 
 ### 5. 数据库路径
 
-**修改前**: `mfs.db`, `mfs_kg.db`, `~/.mfs/memory.db`  
+**修改前**: `mfs.db`, `mfs_kg.db`, `~/.diting/memory.db`  
 **修改后**: `diting.db`, `diting_kg.db`, `~/.diting/memory.db`
 
 ### 6. 项目路径

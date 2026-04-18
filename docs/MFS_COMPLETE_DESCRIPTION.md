@@ -414,16 +414,16 @@ class ConnectionPool:
 
 **功能**:
 - ✅ MCP 协议实现
-- ✅ 工具暴露 (mfs_read, mfs_write, mfs_search)
+- ✅ 工具暴露 (diting_read, diting_write, diting_search)
 - ✅ 错误处理
 - ✅ 多客户端支持
 
 **工具列表**:
 ```python
 [
-    Tool(name="mfs_read", description="读取记忆文件内容"),
-    Tool(name="mfs_write", description="写入或更新记忆文件"),
-    Tool(name="mfs_search", description="搜索记忆文件")
+    Tool(name="diting_read", description="读取记忆文件内容"),
+    Tool(name="diting_write", description="写入或更新记忆文件"),
+    Tool(name="diting_search", description="搜索记忆文件")
 ]
 ```
 

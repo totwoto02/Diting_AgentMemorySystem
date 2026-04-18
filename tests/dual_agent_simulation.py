@@ -1,7 +1,7 @@
 """
 Dual Agent Simulation Test
 
-Simulates human-AI interaction for MFS testing purposes.
+Simulates human-AI interaction for DITING_ testing purposes.
 Uses generic test data without any personal information.
 """
 

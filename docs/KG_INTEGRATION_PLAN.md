@@ -8,7 +8,7 @@
 ## 🎯 集成目标
 
 1. **MFT 深度集成** - 写入时自动建图，搜索时智能扩展
-2. **MCP 工具暴露** - 3 个新工具：kg_search, kg_get_related, kg_stats
+2. **MCP 工具暴露** - 3 个新工具：diting_kg_search, diting_kg_get_related, diting_kg_stats
 3. **性能保障** - 保持查询延迟 <1ms
 
 ---
@@ -61,28 +61,28 @@ def search(self, query):
 
 **新增工具**:
 
-#### 1. kg_search
+#### 1. diting_kg_search
 ```python
 @self.server.call_tool()
-async def kg_search(query, max_depth=2):
+async def diting_kg_search(query, max_depth=2):
     """搜索概念并获取关联扩展"""
     result = self.kg.search_with_expansion(query, max_depth)
     return [TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
 ```
 
-#### 2. kg_get_related
+#### 2. diting_kg_get_related
 ```python
 @self.server.call_tool()
-async def kg_get_related(concept, top_k=5):
+async def diting_kg_get_related(concept, top_k=5):
     """获取相关概念"""
     related = self.kg.get_related_concepts(concept, top_k)
     return [TextContent(type="text", text=json.dumps(related, ensure_ascii=False))]
 ```
 
-#### 3. kg_stats
+#### 3. diting_kg_stats
 ```python
 @self.server.call_tool()
-async def kg_stats():
+async def diting_kg_stats():
     """获取图谱统计信息"""
     stats = self.kg.get_stats()
     return [TextContent(type="text", text=json.dumps(stats, ensure_ascii=False))]
@@ -97,9 +97,9 @@ async def kg_stats():
 **测试用例**:
 - ✅ MFT create 自动建图
 - ✅ MFT search KG 扩展
-- ✅ MCP kg_search 工具
-- ✅ MCP kg_get_related 工具
-- ✅ MCP kg_stats 工具
+- ✅ MCP diting_kg_search 工具
+- ✅ MCP diting_kg_get_related 工具
+- ✅ MCP diting_kg_stats 工具
 - ✅ 集成性能测试
 
 ---
@@ -110,9 +110,9 @@ async def kg_stats():
 |------|---------|------|
 | MFT create 自动建图 | 写入后 KG 有对应概念 | ⏳ |
 | MFT search KG 扩展 | 搜索结果包含相关概念 | ⏳ |
-| MCP kg_search | 工具可用，返回正确 | ⏳ |
-| MCP kg_get_related | 工具可用，按权重排序 | ⏳ |
-| MCP kg_stats | 工具可用，统计准确 | ⏳ |
+| MCP diting_kg_search | 工具可用，返回正确 | ⏳ |
+| MCP diting_kg_get_related | 工具可用，按权重排序 | ⏳ |
+| MCP diting_kg_stats | 工具可用，统计准确 | ⏳ |
 | 性能 | 查询延迟 <1ms | ⏳ |
 
 ---

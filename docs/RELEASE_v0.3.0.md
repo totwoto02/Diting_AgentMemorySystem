@@ -47,24 +47,24 @@ mft.create('/memory/doc', 'NOTE', '内容')
 
 **新增工具** (3 个):
 
-#### kg_search
+#### diting_kg_search
 - **功能**: 搜索概念并获取关联扩展
 - **参数**: query, max_depth
 - **返回**: 概念、关联列表、智能建议
 
-#### kg_get_related
+#### diting_kg_get_related
 - **功能**: 获取相关概念（按权重排序）
 - **参数**: concept, top_k
 - **返回**: 相关概念列表
 
-#### kg_stats
+#### diting_kg_stats
 - **功能**: 获取图谱统计信息
 - **参数**: 无
 - **返回**: 概念数、边数、平均边数
 
 **总工具数**: 6 个
-- 原有：mfs_read, mfs_write, mfs_search
-- 新增：kg_search, kg_get_related, kg_stats
+- 原有：diting_read, diting_write, diting_search
+- 新增：diting_kg_search, diting_kg_get_related, diting_kg_stats
 
 ---
 
@@ -152,9 +152,9 @@ dm.cleanup_old_dialogs()
 
 | 工具 | 平均延迟 | 吞吐量 |
 |------|---------|--------|
-| kg_stats | <0.01ms | 10 万+/秒 |
-| kg_get_related | <0.05ms | 2 万+/秒 |
-| kg_search | <0.1ms | 1 万+/秒 |
+| diting_kg_stats | <0.01ms | 10 万+/秒 |
+| diting_kg_get_related | <0.05ms | 2 万+/秒 |
+| diting_kg_search | <0.1ms | 1 万+/秒 |
 
 ---
 
@@ -202,7 +202,7 @@ dm.cleanup_old_dialogs()
 ### 1. 写入记忆（自动建图）
 
 ```bash
-mcporter call diting.mfs_write \
+mcporter call diting.diting_write \
   path="/memory/用户朋友拍照约定.md" \
   type="NOTE" \
   content="4 月 12 日与用户朋友约定拍照，地点约定地点，下午 3 点集合"
@@ -219,10 +219,10 @@ mcporter call diting.mfs_write \
 
 ```bash
 # 普通搜索
-mcporter call diting.mfs_search query="用户朋友"
+mcporter call diting.diting_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call diting.kg_search query="用户朋友"
+mcporter call diting.diting_kg_search query="用户朋友"
 # 返回：用户朋友 + 关联概念（游戏、游戏角色、忠犬...）
 ```
 
@@ -231,7 +231,7 @@ mcporter call diting.kg_search query="用户朋友"
 ### 3. 查看图谱
 
 ```bash
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 # 📊 知识图谱统计:
 #   概念数：59
 #   边数：291

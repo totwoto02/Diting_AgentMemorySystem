@@ -9,7 +9,7 @@
 ### 1. 构建产物（应该被 .gitignore 忽略）
 
 ```
-build/lib/mfs/
+build/lib/diting/
 mfs_memory.egg-info/
 ```
 
@@ -45,7 +45,7 @@ os.chdir("/root/.openclaw/workspace/projects/mfs-memory")
 #### `scripts/migrate_memory.py`
 ```python
 sys.path.insert(0, '/root/.openclaw/workspace/projects/mfs-memory')
-mfs_db = "/root/.openclaw/workspace/projects/mfs-memory/diting.db"
+mfs_db = "/root/.openclaw/workspace/projects/Diting/diting.db"
 ```
 **修复**: 改为 `diting`
 
@@ -74,7 +74,7 @@ mfs_db = "/root/.openclaw/workspace/projects/mfs-memory/diting.db"
 #### `docs/AI_AGENT_SETUP_GUIDE.md`
 ```python
 from diting.mft import MFT
-python3 -m py_compile /root/.openclaw/workspace/projects/diting/mfs/mcp_server.py
+python3 -m py_compile /root/.openclaw/workspace/projects/diting/diting/mcp_server.py
 ```
 **修复**: 导入改为 `diting`，路径删除 `mfs/`
 
@@ -129,7 +129,7 @@ def mfs_system(self):
 ### 7. MCP 工具名称（保留）
 
 ```python
-mfs_read, mfs_write, mfs_search
+diting_read, diting_write, diting_search
 ```
 **保留原因**: 这是公开的 API 名称，更改会破坏现有集成
 
@@ -143,7 +143,7 @@ diting.db, diting_kg.db
 ### 9. 默认存储路径（保留）
 
 ```
-~/.mfs/memory.db
+~/.diting/memory.db
 /tmp/mfs-storage
 ```
 **保留原因**: 向后兼容
@@ -197,4 +197,4 @@ grep -r "mfs" --include="*.py" --include="*.md" --include="*.json" . \
   | grep -v ".egg-info"
 ```
 
-**预期结果**: 只包含 `mfs_read`, `mfs_write`, `mfs_search`, `diting.db` 等合理引用
+**预期结果**: 只包含 `diting_read`, `diting_write`, `diting_search`, `diting.db` 等合理引用

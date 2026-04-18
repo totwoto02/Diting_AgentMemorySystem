@@ -18,7 +18,7 @@ class TestMCPEdgeCases:
         server = MCPServer(db_path=":memory:")
         
         # 写入空内容
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": "/test/empty",
             "type": "NOTE",
             "content": ""
@@ -38,7 +38,7 @@ class TestMCPEdgeCases:
         # 创建超长路径（1000 字符）
         long_path = "/test/" + "a" * 1000
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": long_path,
             "type": "NOTE",
             "content": "测试内容"
@@ -57,7 +57,7 @@ class TestMCPEdgeCases:
         # 包含特殊字符的路径
         special_path = "/test/special-chars_123!@#"
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": special_path,
             "type": "NOTE",
             "content": "测试内容"
@@ -69,7 +69,7 @@ class TestMCPEdgeCases:
         assert "已创建" in result[0].text or "已更新" in result[0].text
         
         # 尝试读取
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": special_path
         })
         
@@ -85,7 +85,7 @@ class TestMCPEdgeCases:
         # 包含多种语言的 Unicode 内容
         unicode_content = "你好世界！Hello World! 🌍 Привет мир! مرحبا"
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": "/test/unicode",
             "type": "NOTE",
             "content": unicode_content
@@ -96,7 +96,7 @@ class TestMCPEdgeCases:
         assert "已创建" in result[0].text or "已更新" in result[0].text
         
         # 读取验证
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": "/test/unicode"
         })
         
@@ -113,7 +113,7 @@ class TestMCPEdgeCases:
         
         # 并发写入多个文件
         async def write_task(i):
-            return await server._mfs_write({
+            return await server._diting_write({
                 "path": f"/test/concurrent/{i}",
                 "type": "NOTE",
                 "content": f"并发测试内容 {i}"
@@ -132,7 +132,7 @@ class TestMCPEdgeCases:
         
         # 验证所有数据都正确写入
         for i in range(10):
-            read_result = await server._mfs_read({
+            read_result = await server._diting_read({
                 "path": f"/test/concurrent/{i}"
             })
             assert f"并发测试内容 {i}" in read_result[0].text
@@ -147,7 +147,7 @@ class TestMCPEdgeCases:
         # 创建超长内容（10000 字符）
         long_content = "x" * 10000
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": "/test/long_content",
             "type": "NOTE",
             "content": long_content
@@ -158,7 +158,7 @@ class TestMCPEdgeCases:
         assert "已创建" in result[0].text or "已更新" in result[0].text
         
         # 读取验证
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": "/test/long_content"
         })
         
@@ -177,7 +177,7 @@ class TestMCPEdgeCases:
         test_types = ["NOTE", "RULE", "CODE", "TASK", "CONTACT", "EVENT"]
         
         for idx, type_val in enumerate(test_types):
-            result = await server._mfs_write({
+            result = await server._diting_write({
                 "path": f"/test/type_{idx}",
                 "type": type_val,
                 "content": f"测试类型：{type_val}"
@@ -198,7 +198,7 @@ class TestMCPEdgeCases:
         # 包含空格的路径
         path_with_spaces = "/test/path_with_spaces/file"
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": path_with_spaces,
             "type": "NOTE",
             "content": "测试空格路径"
@@ -209,7 +209,7 @@ class TestMCPEdgeCases:
         assert "已创建" in result[0].text or "已更新" in result[0].text
         
         # 读取验证
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": path_with_spaces
         })
         
@@ -227,7 +227,7 @@ class TestMCPEdgeCases:
         # 深层嵌套路径
         deep_path = "/level1/level2/level3/level4/level5/file"
         
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": deep_path,
             "type": "NOTE",
             "content": "深层嵌套测试"
@@ -238,7 +238,7 @@ class TestMCPEdgeCases:
         assert "已创建" in result[0].text or "已更新" in result[0].text
         
         # 读取验证
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": deep_path
         })
         
@@ -253,14 +253,14 @@ class TestMCPEdgeCases:
         server = MCPServer(db_path=":memory:")
         
         # 写入一些数据
-        await server._mfs_write({
+        await server._diting_write({
             "path": "/test/search_empty",
             "type": "NOTE",
             "content": "测试内容"
         })
         
         # 空查询
-        result = await server._mfs_search({
+        result = await server._diting_search({
             "query": ""
         })
         

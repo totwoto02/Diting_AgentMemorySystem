@@ -17,8 +17,8 @@ class TestMCPServerPhase2:
         yield server
         server.close()
 
-    def test_mfs_write_auto_slice(self, server):
-        """测试 mfs_write 自动切片（长文本）"""
+    def test_diting_write_auto_slice(self, server):
+        """测试 diting_write 自动切片（长文本）"""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -34,7 +34,7 @@ class TestMCPServerPhase2:
                 "content": long_content
             }
             
-            result = loop.run_until_complete(server._mfs_write(arguments))
+            result = loop.run_until_complete(server._diting_write(arguments))
             
             # 验证返回消息提到切片
             assert "自动切片" in result[0].text
@@ -46,8 +46,8 @@ class TestMCPServerPhase2:
         finally:
             loop.close()
 
-    def test_mfs_write_no_slice(self, server):
-        """测试 mfs_write 不切片（短文本）"""
+    def test_diting_write_no_slice(self, server):
+        """测试 diting_write 不切片（短文本）"""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -60,7 +60,7 @@ class TestMCPServerPhase2:
                 "content": short_content
             }
             
-            result = loop.run_until_complete(server._mfs_write(arguments))
+            result = loop.run_until_complete(server._diting_write(arguments))
             
             # 验证返回消息没有提到切片
             assert "自动切片" not in result[0].text
@@ -71,8 +71,8 @@ class TestMCPServerPhase2:
         finally:
             loop.close()
 
-    def test_mfs_read_auto_assemble(self, server):
-        """测试 mfs_read 自动还原"""
+    def test_diting_read_auto_assemble(self, server):
+        """测试 diting_read 自动还原"""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -83,11 +83,11 @@ class TestMCPServerPhase2:
                 "type": "NOTE",
                 "content": long_content
             }
-            loop.run_until_complete(server._mfs_write(write_args))
+            loop.run_until_complete(server._diting_write(write_args))
             
             # 读取
             read_args = {"path": "/test/long_read"}
-            result = loop.run_until_complete(server._mfs_read(read_args))
+            result = loop.run_until_complete(server._diting_read(read_args))
             
             # 验证返回完整内容
             assert f"内容：{long_content}" in result[0].text

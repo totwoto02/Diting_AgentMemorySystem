@@ -127,10 +127,10 @@ After installation, AI Agent can use the following tools:
 
 | 工具 / Tool | 功能 / Function | 示例 / Example |
 |------|--------|------|
-| `mfs_read` | 读取记忆 / Read memory | `mfs_read(path="/user/preferences")` |
-| `mfs_write` | 创建/更新记忆 / Create/Update memory | `mfs_write(path="/user/name", content="Alice")` |
-| `mfs_search` | 搜索记忆 / Search memory | `mfs_search(query="preferences")` |
-| `mfs_list` | 列出记忆 / List memories | `mfs_list(type="NOTE")` |
+| `diting_read` | 读取记忆 / Read memory | `diting_read(path="/user/preferences")` |
+| `diting_write` | 创建/更新记忆 / Create/Update memory | `diting_write(path="/user/name", content="Alice")` |
+| `diting_search` | 搜索记忆 / Search memory | `diting_search(query="preferences")` |
+| `diting_list` | 列出记忆 / List memories | `diting_list(type="NOTE")` |
 
 ### 8️⃣ 故障排除 / Troubleshooting
 

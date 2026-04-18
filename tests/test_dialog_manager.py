@@ -21,8 +21,8 @@ def test_dialog_manager():
     dm = DialogManager(mft)
     
     print("\n[测试 1] 添加对话（热数据）...")
-    path1 = dm.add_dialog("session_001", "user", "你好，我想了解一下 MFS 项目")
-    path2 = dm.add_dialog("session_001", "assistant", "MFS 是 Memory File System 的缩写...")
+    path1 = dm.add_dialog("session_001", "user", "你好，我想了解一下 DITING_ 项目")
+    path2 = dm.add_dialog("session_001", "assistant", "DITING_ 是 Memory File System 的缩写...")
     path3 = dm.add_dialog("session_001", "user", "与测试用户约定的拍照时间是哪天？")
     
     print(f"   ✅ 添加 3 条对话到热数据区")

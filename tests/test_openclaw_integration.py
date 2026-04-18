@@ -1,7 +1,7 @@
 """
 OpenClaw 集成测试
 
-测试 OpenClaw 通过 MCP 与 MFS 的集成：
+测试 OpenClaw 通过 MCP 与 DITING_ 的集成：
 - memory_search 工具
 - memory_get 工具  
 - memory_write 工具
@@ -239,7 +239,7 @@ class TestMCPServerIntegration:
         
         assert server.server is not None
         assert server.mft is not None
-        assert server.server.name == "mfs-memory"
+        assert server.server.name == "diting"
     
     def test_mcp_server_tools_available(self, memory_mft):
         """测试 MCP 工具可用性"""

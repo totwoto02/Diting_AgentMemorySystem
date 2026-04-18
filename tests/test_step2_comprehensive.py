@@ -327,7 +327,7 @@ def test_stress(data):
         kg_size = os.path.getsize(db_path + '_kg') / 1024 / 1024 if os.path.exists(db_path + '_kg') else 0
         
         print(f"\n[2] 数据库大小:")
-        print(f"   MFS 数据库：{db_size:.2f} MB")
+        print(f"   DITING_ 数据库：{db_size:.2f} MB")
         print(f"   KG 数据库：{kg_size:.2f} MB")
         
         # 统计

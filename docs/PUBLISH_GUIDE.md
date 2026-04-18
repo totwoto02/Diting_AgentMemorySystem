@@ -221,7 +221,7 @@ twine upload dist/*
 pip install diting
 
 # 验证版本
-python -c "import mfs; print(mfs.__version__)"
+python -c "import diting; print(mfs.__version__)"
 ```
 
 ---
@@ -404,7 +404,7 @@ twine upload --repository testpypi dist/*
 
 # ✅ 测试安装
 pip install diting
-python -c "import mfs; print(mfs.__version__)"
+python -c "import diting; print(mfs.__version__)"
 
 # ✅ 检查 CI/CD
 # 访问 Actions 页面，确认测试通过

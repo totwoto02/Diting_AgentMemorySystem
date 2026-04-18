@@ -14,7 +14,7 @@ with open(FILE_PATH, 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 print('='*70)
-print('MFS 系统高压测试 - 超长对话数据验证报告')
+print('DITING_ 系统高压测试 - 超长对话数据验证报告')
 print('='*70)
 print()
 

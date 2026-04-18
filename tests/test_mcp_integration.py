@@ -18,7 +18,7 @@ class TestMCPIntegration:
         server = MCPServer(db_path="file:test_workflow?mode=memory&cache=private")
         
         # 1. 正常写入
-        write_result = await server._mfs_write({
+        write_result = await server._diting_write({
             "path": "/workflow/test",
             "type": "RULE",
             "content": "初始规则"
@@ -27,7 +27,7 @@ class TestMCPIntegration:
         assert "已创建" in write_result[0].text or "已更新" in write_result[0].text
         
         # 2. 正常读取
-        read_result = await server._mfs_read({
+        read_result = await server._diting_read({
             "path": "/workflow/test"
         })
         assert len(read_result) == 1
@@ -35,19 +35,19 @@ class TestMCPIntegration:
         
         # 3. 尝试读取不存在的路径（错误场景）
         with pytest.raises(MFTNotFoundError):
-            await server._mfs_read({
+            await server._diting_read({
                 "path": "/nonexistent"
             })
         
         # 4. 搜索
-        search_result = await server._mfs_search({
+        search_result = await server._diting_search({
             "query": "规则"
         })
         assert len(search_result) == 1
         assert "1 条结果" in search_result[0].text
         
         # 5. 更新
-        update_result = await server._mfs_write({
+        update_result = await server._diting_write({
             "path": "/workflow/test",
             "type": "RULE",
             "content": "更新后的规则"
@@ -56,14 +56,14 @@ class TestMCPIntegration:
         assert "已更新" in update_result[0].text
         
         # 6. 验证更新
-        final_read = await server._mfs_read({
+        final_read = await server._diting_read({
             "path": "/workflow/test"
         })
         assert len(final_read) == 1
         assert "更新后的规则" in final_read[0].text
         
         # 7. 错误恢复：尝试写入缺少参数
-        error_result = await server._mfs_write({
+        error_result = await server._diting_write({
             "path": "/workflow/error"
             # 缺少 type 和 content
         })
@@ -71,7 +71,7 @@ class TestMCPIntegration:
         assert "错误" in error_result[0].text
         
         # 8. 验证错误后系统仍然正常工作
-        recovery_read = await server._mfs_read({
+        recovery_read = await server._diting_read({
             "path": "/workflow/test"
         })
         assert len(recovery_read) == 1
@@ -85,14 +85,14 @@ class TestMCPIntegration:
         server = MCPServer(db_path="file:test_rollback?mode=memory&cache=private")
         
         # 1. 创建初始数据
-        await server._mfs_write({
+        await server._diting_write({
             "path": "/transaction/data",
             "type": "NOTE",
             "content": "原始数据"
         })
         
         # 2. 验证原始数据
-        original = await server._mfs_read({
+        original = await server._diting_read({
             "path": "/transaction/data"
         })
         assert "原始数据" in original[0].text
@@ -100,14 +100,14 @@ class TestMCPIntegration:
         # 3. 尝试更新（模拟事务）
         try:
             # 先更新
-            await server._mfs_write({
+            await server._diting_write({
                 "path": "/transaction/data",
                 "type": "NOTE",
                 "content": "新数据"
             })
             
             # 检查更新后的数据
-            updated = await server._mfs_read({
+            updated = await server._diting_read({
                 "path": "/transaction/data"
             })
             assert "新数据" in updated[0].text
@@ -117,14 +117,14 @@ class TestMCPIntegration:
             
         except Exception:
             # 回滚：恢复原始数据
-            await server._mfs_write({
+            await server._diting_write({
                 "path": "/transaction/data",
                 "type": "NOTE",
                 "content": "原始数据"
             })
         
         # 4. 验证回滚后的数据
-        rolled_back = await server._mfs_read({
+        rolled_back = await server._diting_read({
             "path": "/transaction/data"
         })
         assert len(rolled_back) == 1
@@ -140,18 +140,18 @@ class TestMCPIntegration:
         
         # 连续执行多个操作
         operations = [
-            ("创建", await server._mfs_write({
+            ("创建", await server._diting_write({
                 "path": "/seq/item1",
                 "type": "NOTE",
                 "content": "项目 1"
             })),
-            ("创建", await server._mfs_write({
+            ("创建", await server._diting_write({
                 "path": "/seq/item2",
                 "type": "NOTE",
                 "content": "项目 2"
             })),
-            ("读取", await server._mfs_read({"path": "/seq/item1"})),
-            ("搜索", await server._mfs_search({"query": "项目"})),
+            ("读取", await server._diting_read({"path": "/seq/item1"})),
+            ("搜索", await server._diting_search({"query": "项目"})),
         ]
         
         # 验证所有操作都成功
@@ -169,7 +169,7 @@ class TestMCPIntegration:
         server = MCPServer(db_path="file:test_error_prop?mode=memory&cache=private")
         
         # 通过 call_tool 调用，测试错误是否正确传播
-        result = await server.call_tool("mfs_read", {"path": "/nonexistent"})
+        result = await server.call_tool("diting_read", {"path": "/nonexistent"})
         
         # 应该返回错误消息
         assert len(result) == 1
@@ -189,7 +189,7 @@ class TestMCPIntegration:
         
         # 写入大量数据
         for i in range(20):
-            await server._mfs_write({
+            await server._diting_write({
                 "path": f"/consistency/item_{i}",
                 "type": "NOTE",
                 "content": f"内容_{i}"
@@ -197,14 +197,14 @@ class TestMCPIntegration:
         
         # 验证所有数据都可读
         for i in range(20):
-            result = await server._mfs_read({
+            result = await server._diting_read({
                 "path": f"/consistency/item_{i}"
             })
             assert len(result) == 1
             assert f"内容_{i}" in result[0].text
         
         # 搜索验证
-        search_result = await server._mfs_search({
+        search_result = await server._diting_search({
             "query": "内容"
         })
         assert len(search_result) == 1

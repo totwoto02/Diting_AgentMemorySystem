@@ -112,7 +112,7 @@ twine upload dist/*
   - 支持类型约束 (NOTE/RULE/CODE/TASK/CONTACT/EVENT)
   - 支持 LRU 缓存优化
 - MCP Server 实现
-  - mfs_read/mfs_write/mfs_search 工具
+  - diting_read/diting_write/diting_search 工具
   - 错误处理和异常传播
 - 测试套件
   - 单元测试 (101 个)
@@ -170,24 +170,24 @@ twine upload dist/*
 
 ### 日志
 
-日志文件位置：`~/.mfs/logs/`
+日志文件位置：`~/.diting/logs/`
 
 ```bash
 # 查看最新日志
-tail -f ~/.mfs/logs/mfs.log
+tail -f ~/.diting/logs/mfs.log
 
 # 清理旧日志
-find ~/.mfs/logs/ -name "*.log" -mtime +7 -delete
+find ~/.diting/logs/ -name "*.log" -mtime +7 -delete
 ```
 
 ### 备份
 
 ```bash
 # 备份 Diting 数据库
-cp ~/.mfs/diting.db ~/.mfs/backup/mfs_$(date +%Y%m%d).db
+cp ~/.diting/diting.db ~/.diting/backup/mfs_$(date +%Y%m%d).db
 
 # 定期备份 (cron)
-0 2 * * * cp ~/.mfs/diting.db ~/.mfs/backup/mfs_$(date +\%Y\%m\%d).db
+0 2 * * * cp ~/.diting/diting.db ~/.diting/backup/mfs_$(date +\%Y\%m\%d).db
 ```
 
 ### 监控
@@ -197,7 +197,7 @@ cp ~/.mfs/diting.db ~/.mfs/backup/mfs_$(date +%Y%m%d).db
 ps aux | grep mfs
 
 # 检查数据库大小
-du -sh ~/.mfs/diting.db
+du -sh ~/.diting/diting.db
 
 # 检查测试覆盖率
 pytest --cov=diting --cov-report=term

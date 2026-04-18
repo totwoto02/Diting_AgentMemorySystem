@@ -84,28 +84,28 @@ class TestInstallCheck:
         assert "❌" in captured.out
         assert "版本过低" in captured.out
     
-    def test_check_mfs_import_success(self, capsys):
-        """测试 MFS 导入检查（成功情况）"""
-        from diting.cli.install_check import check_mfs_import
+    def test_check_diting_import_success(self, capsys):
+        """测试 DITING_ 导入检查（成功情况）"""
+        from diting.cli.install_check import check_diting_import
         
         with patch.dict('sys.modules', {'mfs': MagicMock(__version__='1.0.0')}):
-            result = check_mfs_import()
+            result = check_diting_import()
             assert result is True
         
         captured = capsys.readouterr()
         assert "✅" in captured.out
-        assert "MFS 可正常导入" in captured.out
+        assert "DITING_ 可正常导入" in captured.out
     
-    def test_check_mfs_import_failure(self, capsys):
-        """测试 MFS 导入检查（失败情况）"""
-        from diting.cli.install_check import check_mfs_import
+    def test_check_diting_import_failure(self, capsys):
+        """测试 DITING_ 导入检查（失败情况）"""
+        from diting.cli.install_check import check_diting_import
         
         with patch.dict('sys.modules', {'mfs': None}, clear=False):
             if 'mfs' in sys.modules:
                 del sys.modules['mfs']
             
             with patch('builtins.__import__', side_effect=ImportError("No module named 'mfs'")):
-                result = check_mfs_import()
+                result = check_diting_import()
                 assert result is False
         
         captured = capsys.readouterr()
@@ -120,8 +120,8 @@ class TestInstallCheck:
         config_file = tmp_path / "mcp_config.json"
         config_data = {
             "mcpServers": {
-                "mfs-memory": {
-                    "command": "mfs-mcp",
+                "diting": {
+                    "command": "diting-mcp",
                     "args": []
                 }
             }
@@ -137,11 +137,11 @@ class TestInstallCheck:
         assert "已注册" in captured.out
     
     def test_check_mcp_registration_not_found(self, capsys, tmp_path):
-        """测试 MCP 注册检查（配置文件中无 mfs-memory）"""
+        """测试 MCP 注册检查（配置文件中无 diting）"""
         from diting.cli.install_check import check_mcp_registration
         import json
         
-        # 创建临时配置文件（不含 mfs-memory）
+        # 创建临时配置文件（不含 diting）
         config_file = tmp_path / "mcp_config.json"
         config_data = {"mcpServers": {}}
         config_file.write_text(json.dumps(config_data))
@@ -182,7 +182,7 @@ class TestInstallCheck:
         
         with patch('diting.cli.install_check.check_python_version', return_value=True), \
              patch('diting.cli.install_check.check_dependencies', return_value=True), \
-             patch('diting.cli.install_check.check_mfs_import', return_value=True), \
+             patch('diting.cli.install_check.check_diting_import', return_value=True), \
              patch('diting.cli.install_check.check_mcp_registration', return_value=True):
             
             result = main()
@@ -198,7 +198,7 @@ class TestInstallCheck:
         
         with patch('diting.cli.install_check.check_python_version', return_value=False), \
              patch('diting.cli.install_check.check_dependencies', return_value=True), \
-             patch('diting.cli.install_check.check_mfs_import', return_value=True), \
+             patch('diting.cli.install_check.check_diting_import', return_value=True), \
              patch('diting.cli.install_check.check_mcp_registration', return_value=True):
             
             result = main()

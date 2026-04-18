@@ -11,7 +11,7 @@ import time
 
 def create_unified_db(db_id: str) -> str:
     """
-    创建统一数据库（包含所有 MFS 表）
+    创建统一数据库（包含所有 DITING_ 表）
     
     Args:
         db_id: 数据库 ID

@@ -1,7 +1,7 @@
 """
 记忆正确性测试
 
-验证 MFS 系统记忆内容的准确性、一致性和完整性
+验证 DITING_ 系统记忆内容的准确性、一致性和完整性
 """
 
 import pytest
@@ -20,8 +20,8 @@ class TestMemoryCorrectness:
     """记忆正确性测试"""
 
     @pytest.fixture(scope="function")
-    def mfs_system(self):
-        """初始化完整的 MFS 系统(统一数据库)"""
+    def diting_system(self):
+        """初始化完整的 DITING_ 系统(统一数据库)"""
         import random
         db_id = f"memdb_correctness_{int(time.time()*1000)}_{random.randint(0, 10000)}"
 
@@ -47,16 +47,16 @@ class TestMemoryCorrectness:
         kg.close()
         wal.close()
 
-    def test_write_read_consistency(self, mfs_system):
+    def test_write_read_consistency(self, diting_system):
         """测试写入读取一致性"""
-        mft = mfs_system["mft"]
+        mft = diting_system["mft"]
 
         test_cases = [
             ("/test/doc1", "NOTE", "简单内容"),
             ("/test/doc2", "NOTE", "规则内容 " * 100),
             ("/test/doc3", "CODE", "def test():\n    return True\n" * 50),
             ("/person/测试用户", "CONTACT", "测试用户喜欢video game,特别是测试角色"),
-            ("/work/mfs", "NOTE", "MFS 是一个记忆文件系统"),
+            ("/work/diting", "NOTE", "DITING_ 是一个记忆文件系统"),
         ]
 
         for path, type_, content in test_cases:
@@ -74,9 +74,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 写入读取一致性测试通过({len(test_cases)}个测试用例)")
 
-    def test_update_correctness(self, mfs_system):
+    def test_update_correctness(self, diting_system):
         """测试更新正确性"""
-        mft = mfs_system["mft"]
+        mft = diting_system["mft"]
 
         # 初始内容
         original_content = "初始内容"
@@ -97,9 +97,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 更新正确性测试通过")
 
-    def test_search_accuracy(self, mfs_system):
+    def test_search_accuracy(self, diting_system):
         """测试搜索准确性"""
-        fts5 = mfs_system["fts5"]
+        fts5 = diting_system["fts5"]
 
         # 插入测试数据
         test_data = [
@@ -120,9 +120,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 搜索准确性测试通过(找到 {len(results)} 条结果)")
 
-    def test_knowledge_graph_accuracy(self, mfs_system):
+    def test_knowledge_graph_accuracy(self, diting_system):
         """测试知识图谱准确性"""
-        kg = mfs_system["kg"]
+        kg = diting_system["kg"]
 
         # 添加概念
         kg.add_concept("测试用户", "person", aliases=["小九"])
@@ -157,9 +157,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 知识图谱准确性测试通过")
 
-    def test_wal_audit_correctness(self, mfs_system):
+    def test_wal_audit_correctness(self, diting_system):
         """测试 WAL 审计正确性"""
-        wal = mfs_system["wal"]
+        wal = diting_system["wal"]
 
         # 记录操作
         wal.log_operation(
@@ -206,10 +206,10 @@ class TestMemoryCorrectness:
 
         print(f"✅ WAL 审计正确性测试通过")
 
-    def test_content_integrity(self, mfs_system):
+    def test_content_integrity(self, diting_system):
         """测试内容完整性(防篡改)"""
-        mft = mfs_system["mft"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        wal = diting_system["wal"]
 
         # 原始内容
         original_content = "这是原始内容,包含特殊字符:!@#$%^&*()_+-=[]{}|;':\",./<>?"
@@ -239,10 +239,10 @@ class TestMemoryCorrectness:
 
         print(f"✅ 内容完整性测试通过(MD5: {content_hash[:16]}...)")
 
-    def test_special_characters_handling(self, mfs_system):
+    def test_special_characters_handling(self, diting_system):
         """测试特殊字符处理正确性"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
         import time
         ts = int(time.time() * 1000)
 
@@ -274,9 +274,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 特殊字符处理正确性测试通过")
 
-    def test_large_content_correctness(self, mfs_system):
+    def test_large_content_correctness(self, diting_system):
         """测试大内容正确性"""
-        mft = mfs_system["mft"]
+        mft = diting_system["mft"]
 
         # 生成大内容(10 万字)
         large_content = "这是测试内容。" * 6000  # 约 10 万字
@@ -294,11 +294,11 @@ class TestMemoryCorrectness:
 
         print(f"✅ 大内容正确性测试通过({len(large_content):,}字,MD5: {content_hash[:16]}...)")
 
-    def test_concurrent_write_correctness(self, mfs_system):
+    def test_concurrent_write_correctness(self, diting_system):
         """测试并发写入正确性"""
         import threading
 
-        mft = mfs_system["mft"]
+        mft = diting_system["mft"]
 
         results = {"success": 0, "errors": []}
         lock = threading.Lock()
@@ -336,9 +336,9 @@ class TestMemoryCorrectness:
 
         print(f"✅ 并发写入正确性测试通过(10 线程全部成功)")
 
-    def test_memory_versioning_correctness(self, mfs_system):
+    def test_memory_versioning_correctness(self, diting_system):
         """测试记忆版本控制正确性"""
-        wal = mfs_system["wal"]
+        wal = diting_system["wal"]
 
         # V1
         wal.log_operation("CREATE", "/test/versioned", "V1 内容", "test", "conv_1")
@@ -374,12 +374,12 @@ class TestMemoryCorrectness:
 
         print(f"✅ 记忆版本控制正确性测试通过(3 个版本)")
 
-    def test_full_pipeline_correctness(self, mfs_system):
+    def test_full_pipeline_correctness(self, diting_system):
         """测试完整流程正确性"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        kg = mfs_system["kg"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        kg = diting_system["kg"]
+        wal = diting_system["wal"]
         import time
         ts = int(time.time() * 1000)
         
@@ -425,7 +425,7 @@ class TestMemoryCorrectness:
 
         print(f"✅ 完整流程正确性测试通过(CREATE→READ→UPDATE→SEARCH)")
 
-    def test_correctness_summary(self, mfs_system):
+    def test_correctness_summary(self, diting_system):
         """输出正确性测试汇总"""
         print("=" * 70)
         print("📊 记忆正确性测试汇总")

@@ -1,11 +1,11 @@
 """
 OpenCode 集成测试
 
-测试 OpenCode 通过 MCP 与 MFS 的集成：
+测试 OpenCode 通过 MCP 与 DITING_ 的集成：
 - MCP 配置测试
-- mfs_read 工具
-- mfs_write 工具
-- mfs_search 工具
+- diting_read 工具
+- diting_write 工具
+- diting_search 工具
 """
 
 import pytest
@@ -27,7 +27,7 @@ class TestOpenCodeMCPConfig:
         
         assert server.server is not None
         assert server.mft is not None
-        assert server.server.name == "mfs-memory"
+        assert server.server.name == "diting"
     
     def test_mcp_server_with_custom_db(self):
         """测试 MCP Server 自定义数据库路径"""
@@ -59,14 +59,14 @@ class TestOpenCodeMCPConfig:
         server = MCPServer(db_path=None)
         
         # 验证工具定义完整
-        tools = ["mfs_read", "mfs_write", "mfs_search"]
+        tools = ["diting_read", "diting_write", "diting_search"]
         # 通过 server 获取工具信息 (需要异步)
         # 这里做基本验证
         assert server.mft is not None
 
 
-class TestOpenCodeMFSRead:
-    """测试 mfs_read 工具"""
+class TestOpenCodeDITING_Read:
+    """测试 diting_read 工具"""
     
     def test_read_basic(self, memory_mft):
         """测试基本读取"""
@@ -118,8 +118,8 @@ class TestOpenCodeMFSRead:
         assert "status" in result
 
 
-class TestOpenCodeMFSWrite:
-    """测试 mfs_write 工具"""
+class TestOpenCodeDITING_Write:
+    """测试 diting_write 工具"""
     
     def test_write_basic(self, memory_mft):
         """测试基本写入"""
@@ -196,8 +196,8 @@ class TestOpenCodeMFSWrite:
             memory_mft.create("/opencode/duplicate", "NOTE", "内容 2")
 
 
-class TestOpenCodeMFSSearch:
-    """测试 mfs_search 工具"""
+class TestOpenCodeDITING_Search:
+    """测试 diting_search 工具"""
     
     def test_search_exact_keyword(self, memory_mft):
         """测试精确关键词搜索"""

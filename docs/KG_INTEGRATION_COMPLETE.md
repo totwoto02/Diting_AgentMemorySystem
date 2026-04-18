@@ -32,24 +32,24 @@
 
 **新增工具**:
 
-#### kg_search
+#### diting_kg_search
 - **描述**: 搜索知识图谱概念并获取关联扩展
 - **参数**: query (必填), max_depth (可选，默认 2)
 - **返回**: 概念名称、关联概念列表、搜索建议
 
-#### kg_get_related
+#### diting_kg_get_related
 - **描述**: 获取相关概念（按权重排序）
 - **参数**: concept (必填), top_k (可选，默认 5)
 - **返回**: 相关概念列表（含权重）
 
-#### kg_stats
+#### diting_kg_stats
 - **描述**: 获取知识图谱统计信息
 - **参数**: 无
 - **返回**: 概念数、边数、平均每概念边数
 
 **工具注册**:
 - 在 list_tools() 中添加 3 个新工具定义
-- 在 call_tool() 中添加路由：`_kg_search`, `_kg_get_related`, `_kg_stats`
+- 在 call_tool() 中添加路由：`_diting_kg_search`, `_diting_kg_get_related`, `_diting_kg_stats`
 
 ---
 
@@ -102,13 +102,13 @@ print(result['kg_expansion'])
 
 ```bash
 # 写入记忆（自动建图）
-mcporter call diting.mfs_write \
+mcporter call diting.diting_write \
   path="/test/doc.md" \
   type="NOTE" \
   content="用户朋友 游戏 游戏角色"
 
 # 查看图谱统计
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 # 输出：
 # 📊 知识图谱统计:
 #   概念数：3
@@ -116,7 +116,7 @@ mcporter call diting.kg_stats
 #   平均每概念边数：1.00
 
 # 搜索概念
-mcporter call diting.kg_search query="用户朋友"
+mcporter call diting.diting_kg_search query="用户朋友"
 # 输出：
 # ✅ 找到概念：用户朋友
 # 🔗 关联概念 (3 个):
@@ -126,7 +126,7 @@ mcporter call diting.kg_search query="用户朋友"
 # 💡 搜索 '用户朋友' 时，可能也关心：游戏，游戏角色
 
 # 获取相关概念
-mcporter call diting.kg_get_related concept="用户朋友" top_k=5
+mcporter call diting.diting_kg_get_related concept="用户朋友" top_k=5
 # 输出：
 # 🔗 '用户朋友' 的关联概念:
 #   - 游戏 (权重：1.00)
@@ -152,9 +152,9 @@ mcporter call diting.kg_get_related concept="用户朋友" top_k=5
 |------|---------|------|
 | MFT create 自动建图 | 写入后 KG 有对应概念 | ✅ |
 | MFT search KG 扩展 | 搜索结果包含相关概念 | ✅ |
-| MCP kg_search | 工具可用，返回正确 | ✅ |
-| MCP kg_get_related | 工具可用，按权重排序 | ✅ |
-| MCP kg_stats | 工具可用，统计准确 | ✅ |
+| MCP diting_kg_search | 工具可用，返回正确 | ✅ |
+| MCP diting_kg_get_related | 工具可用，按权重排序 | ✅ |
+| MCP diting_kg_stats | 工具可用，统计准确 | ✅ |
 | 性能 | 查询延迟 <1ms | ✅ |
 
 ---

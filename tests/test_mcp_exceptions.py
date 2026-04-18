@@ -7,23 +7,23 @@ MCP Server 异常覆盖测试
 import pytest
 from unittest.mock import patch, MagicMock
 from diting.mcp_server import MCPServer
-from diting.errors import MFTNotFoundError, MFSException
+from diting.errors import MFTNotFoundError, DITING_Exception
 
 
 class TestMCPExceptionCoverage:
     """测试异常处理覆盖率"""
     
     @pytest.mark.asyncio
-    async def test_call_tool_mfs_exception(self):
-        """测试 call_tool 捕获 MFSException"""
-        server = MCPServer(db_path="file:test_mfs_exc?mode=memory&cache=private")
+    async def test_call_tool_diting_exception(self):
+        """测试 call_tool 捕获 DITING_Exception"""
+        server = MCPServer(db_path="file:test_diting_exc?mode=memory&cache=private")
         
-        # 模拟 MFT 抛出 MFSException
-        with patch.object(server.mft, 'read', side_effect=MFSException("模拟 MFS 错误")):
-            result = await server.call_tool("mfs_read", {"path": "/test"})
+        # 模拟 MFT 抛出 DITING_Exception
+        with patch.object(server.mft, 'read', side_effect=DITING_Exception("模拟 DITING_ 错误")):
+            result = await server.call_tool("diting_read", {"path": "/test"})
             
             assert len(result) == 1
-            assert "MFS 错误" in result[0].text
+            assert "DITING_ 错误" in result[0].text
         
         server.close()
     
@@ -34,7 +34,7 @@ class TestMCPExceptionCoverage:
         
         # 模拟抛出通用异常
         with patch.object(server.mft, 'read', side_effect=Exception("模拟系统错误")):
-            result = await server.call_tool("mfs_read", {"path": "/test"})
+            result = await server.call_tool("diting_read", {"path": "/test"})
             
             assert len(result) == 1
             assert "系统错误" in result[0].text
@@ -42,12 +42,12 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_read_path_is_none(self):
-        """测试 mfs_read path 为 None"""
+    async def test_diting_read_path_is_none(self):
+        """测试 diting_read path 为 None"""
         server = MCPServer(db_path="file:test_none_path?mode=memory&cache=private")
         
         # path 为 None
-        result = await server._mfs_read({"path": None})
+        result = await server._diting_read({"path": None})
         
         assert len(result) == 1
         assert "错误" in result[0].text
@@ -56,12 +56,12 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_write_path_is_none(self):
-        """测试 mfs_write path 为 None"""
+    async def test_diting_write_path_is_none(self):
+        """测试 diting_write path 为 None"""
         server = MCPServer(db_path="file:test_none_write?mode=memory&cache=private")
         
         # path 为 None
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": None,
             "type": "NOTE",
             "content": "测试"
@@ -73,12 +73,12 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_write_type_is_none(self):
-        """测试 mfs_write type 为 None"""
+    async def test_diting_write_type_is_none(self):
+        """测试 diting_write type 为 None"""
         server = MCPServer(db_path="file:test_none_type?mode=memory&cache=private")
         
         # type 为 None
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": "/test",
             "type": None,
             "content": "测试"
@@ -90,12 +90,12 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_write_content_is_none(self):
-        """测试 mfs_write content 为 None"""
+    async def test_diting_write_content_is_none(self):
+        """测试 diting_write content 为 None"""
         server = MCPServer(db_path="file:test_none_content?mode=memory&cache=private")
         
         # content 为 None
-        result = await server._mfs_write({
+        result = await server._diting_write({
             "path": "/test",
             "type": "NOTE",
             "content": None
@@ -107,12 +107,12 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_search_query_is_none(self):
-        """测试 mfs_search query 为 None"""
+    async def test_diting_search_query_is_none(self):
+        """测试 diting_search query 为 None"""
         server = MCPServer(db_path="file:test_none_query?mode=memory&cache=private")
         
         # query 为 None
-        result = await server._mfs_search({"query": None})
+        result = await server._diting_search({"query": None})
         
         assert len(result) == 1
         assert "错误" in result[0].text
@@ -121,19 +121,19 @@ class TestMCPExceptionCoverage:
         server.close()
     
     @pytest.mark.asyncio
-    async def test_mfs_search_with_none_scope(self):
-        """测试 mfs_search scope 为 None（应该正常工作）"""
+    async def test_diting_search_with_none_scope(self):
+        """测试 diting_search scope 为 None（应该正常工作）"""
         server = MCPServer(db_path="file:test_none_scope?mode=memory&cache=private")
         
         # 写入数据
-        await server._mfs_write({
+        await server._diting_write({
             "path": "/test/scope_none",
             "type": "NOTE",
             "content": "测试内容"
         })
         
         # scope 为 None（应该正常搜索）
-        result = await server._mfs_search({
+        result = await server._diting_search({
             "query": "测试",
             "scope": None
         })

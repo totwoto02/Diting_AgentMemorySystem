@@ -19,8 +19,8 @@ class TestUltraLongConversationsStress:
     """超长对话高压测试"""
 
     @pytest.fixture(scope="class")
-    def mfs_system(self):
-        """初始化完整的 MFS 系统"""
+    def diting_system(self):
+        """初始化完整的 DITING_ 系统"""
         import random
         db_id = f"memdb_ultra_{int(time.time()*1000)}_{random.randint(0, 10000)}"
         
@@ -59,11 +59,11 @@ class TestUltraLongConversationsStress:
         
         print(f"✅ 加载 10 个超长对话，总字数：{total_chars:,}，总消息数：{total_messages:,}")
 
-    def test_massive_create_operations(self, mfs_system, ultra_conversations):
+    def test_massive_create_operations(self, diting_system, ultra_conversations):
         """测试海量 CREATE 操作（120 万字数据）"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        wal = diting_system["wal"]
         
         start_time = time.time()
         success_count = 0
@@ -108,13 +108,13 @@ class TestUltraLongConversationsStress:
         
         assert success_count >= 30  # 由于数据中 CREATE 操作有限，降低阈值
 
-    def test_concurrent_multi_operations(self, mfs_system, ultra_conversations):
+    def test_concurrent_multi_operations(self, diting_system, ultra_conversations):
         """测试并发多操作（CREATE + UPDATE + SEARCH 混合）"""
         import threading
         
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        wal = diting_system["wal"]
         
         results = {
             "create": 0,
@@ -169,12 +169,12 @@ class TestUltraLongConversationsStress:
         
         assert sum(results.values()) >= 20  # 由于数据中操作有限，降低阈值
 
-    def test_memory_usage_stress(self, mfs_system, ultra_conversations):
+    def test_memory_usage_stress(self, diting_system, ultra_conversations):
         """测试内存使用压力"""
         import sys
         
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
         
         # 获取初始内存
         import os
@@ -206,9 +206,9 @@ class TestUltraLongConversationsStress:
         # 内存增长应该合理（<500MB）
         assert memory_increase < 500
 
-    def test_knowledge_graph_large_scale(self, mfs_system, ultra_conversations):
+    def test_knowledge_graph_large_scale(self, diting_system, ultra_conversations):
         """测试大规模知识图谱构建"""
-        kg = mfs_system["kg"]
+        kg = diting_system["kg"]
         
         start_time = time.time()
         concepts_added = 0
@@ -248,9 +248,9 @@ class TestUltraLongConversationsStress:
         
         assert stats["concept_count"] >= 100
 
-    def test_wal_large_volume_logging(self, mfs_system, ultra_conversations):
+    def test_wal_large_volume_logging(self, diting_system, ultra_conversations):
         """测试 WAL 大量日志记录"""
-        wal = mfs_system["wal"]
+        wal = diting_system["wal"]
         
         start_time = time.time()
         logged_count = 0
@@ -284,10 +284,10 @@ class TestUltraLongConversationsStress:
         
         assert logged_count >= 100
 
-    def test_long_running_stability(self, mfs_system, ultra_conversations):
+    def test_long_running_stability(self, diting_system, ultra_conversations):
         """测试长时间运行稳定性"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
         
         start_time = time.time()
         iteration = 0
@@ -315,12 +315,12 @@ class TestUltraLongConversationsStress:
         
         assert iteration >= 100  # 至少完成 100 次迭代
 
-    def test_system_stats_summary(self, mfs_system, ultra_conversations):
+    def test_system_stats_summary(self, diting_system, ultra_conversations):
         """测试系统统计汇总"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        kg = mfs_system["kg"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        kg = diting_system["kg"]
+        wal = diting_system["wal"]
         
         fts5_stats = fts5.get_stats()
         kg_stats = kg.get_stats()
@@ -328,7 +328,7 @@ class TestUltraLongConversationsStress:
         cache_stats = mft.get_cache_stats()
         
         print("=" * 70)
-        print("📊 MFS 系统高压测试统计汇总")
+        print("📊 DITING_ 系统高压测试统计汇总")
         print("=" * 70)
         print(f"FTS5 文档数：{fts5_stats.get('doc_count', 0):,}")
         print(f"知识图谱：{kg_stats.get('concept_count', 0)}概念，{kg_stats.get('edge_count', 0)}边")

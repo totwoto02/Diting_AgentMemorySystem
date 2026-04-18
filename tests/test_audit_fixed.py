@@ -39,7 +39,7 @@ def main():
         
         # 测试 2: 记录系统日志
         print("\n[测试 2] 记录系统日志...")
-        logger.log_system('MFS', '系统启动', 'INFO')
+        logger.log_system('DITING_', '系统启动', 'INFO')
         logger.log_system('MCP', 'MCP 服务器启动', 'INFO')
         logger.log_system('TEST', '测试错误', 'ERROR', 'stack_trace_here')
         

@@ -33,7 +33,7 @@ mfs-check-install
 
 **短文本**（<2000 字）：
 ```
-使用 mfs_write 工具：
+使用 diting_write 工具：
 path: /test/notes
 type: NOTE
 content: 这是短笔记
@@ -41,7 +41,7 @@ content: 这是短笔记
 
 **长文本**（>2000 字）：
 ```
-使用 mfs_write 工具：
+使用 diting_write 工具：
 path: /test/long_doc
 type: DOCUMENT
 content: [5000 字的长文档...]
@@ -52,7 +52,7 @@ content: [5000 字的长文档...]
 ### 读取记忆
 
 ```
-使用 mfs_read 工具：
+使用 diting_read 工具：
 path: /test/long_doc
 
 返回：完整原文（自动还原）
@@ -61,7 +61,7 @@ path: /test/long_doc
 ### 搜索记忆
 
 ```
-使用 mfs_search 工具：
+使用 diting_search 工具：
 query: 用户朋友
 
 返回：

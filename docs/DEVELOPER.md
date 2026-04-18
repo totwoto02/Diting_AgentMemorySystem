@@ -106,9 +106,9 @@ SQLite 连接管理。
 MCP Server 实现，暴露工具给 AI Agent。
 
 **主要功能**:
-- `mfs_read` 工具实现
-- `mfs_write` 工具实现
-- `mfs_search` 工具实现
+- `diting_read` 工具实现
+- `diting_write` 工具实现
+- `diting_search` 工具实现
 - MCP 协议处理
 
 #### mfs/config.py
@@ -494,7 +494,7 @@ chore:    构建/工具
 
 # 示例
 feat(mft): 添加 MFT 创建功能
-fix(mcp): 修复 mfs_read 的错误处理
+fix(mcp): 修复 diting_read 的错误处理
 docs(readme): 更新快速开始指南
 test(mft): 添加 MFT 单元测试
 refactor(database): 优化数据库连接管理

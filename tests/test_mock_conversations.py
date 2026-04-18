@@ -1,7 +1,7 @@
 """
 使用模拟对话数据进行真实压力测试
 
-读取 mock_conversations.json，执行真实的 MFS 操作
+读取 mock_conversations.json，执行真实的 DITING_ 操作
 """
 
 import pytest
@@ -20,8 +20,8 @@ class TestMockConversations:
     """使用模拟对话数据进行压力测试"""
 
     @pytest.fixture(scope="function")
-    def mfs_system(self):
-        """初始化完整的 MFS 系统（统一数据库）"""
+    def diting_system(self):
+        """初始化完整的 DITING_ 系统（统一数据库）"""
         import random
         db_id = f"memdb_mock_{int(time.time()*1000)}_{random.randint(0, 10000)}"
         
@@ -61,11 +61,11 @@ class TestMockConversations:
         assert len(conversations) == 100
         print(f"✅ 成功加载 {len(conversations)} 段对话")
 
-    def test_batch_create_operations(self, mfs_system, conversations):
+    def test_batch_create_operations(self, diting_system, conversations):
         """测试批量 CREATE 操作"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        wal = diting_system["wal"]
         
         start_time = time.time()
         success_count = 0
@@ -107,10 +107,10 @@ class TestMockConversations:
         assert success_count >= 20  # 至少 20 个 CREATE 操作（调整阈值）
         print(f"✅ 批量 CREATE 完成：{success_count}次，平均耗时：{avg_time:.2f}ms/次")
 
-    def test_batch_update_operations(self, mfs_system, conversations):
+    def test_batch_update_operations(self, diting_system, conversations):
         """测试批量 UPDATE 操作"""
-        mft = mfs_system["mft"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        wal = diting_system["wal"]
         
         start_time = time.time()
         success_count = 0
@@ -145,10 +145,10 @@ class TestMockConversations:
         assert success_count >= 10  # 至少 10 个 UPDATE 操作
         print(f"✅ 批量 UPDATE 完成：{success_count}次，平均耗时：{avg_time:.2f}ms/次")
 
-    def test_batch_search_operations(self, mfs_system, conversations):
+    def test_batch_search_operations(self, diting_system, conversations):
         """测试批量 SEARCH 操作"""
-        fts5 = mfs_system["fts5"]
-        kg = mfs_system["kg"]
+        fts5 = diting_system["fts5"]
+        kg = diting_system["kg"]
         
         # 先插入一些测试数据
         test_keywords = ["video game", "测试角色", "测试用户", "拍照", "活动", "技术", "AI", "Python"]
@@ -184,9 +184,9 @@ class TestMockConversations:
         
         print(f"✅ 批量 SEARCH 完成：{success_count}次，平均耗时：{avg_time:.2f}ms/次")
 
-    def test_knowledge_graph_construction(self, mfs_system, conversations):
+    def test_knowledge_graph_construction(self, diting_system, conversations):
         """测试从对话构建知识图谱"""
-        kg = mfs_system["kg"]
+        kg = diting_system["kg"]
         
         start_time = time.time()
         concepts_added = 0
@@ -222,9 +222,9 @@ class TestMockConversations:
         assert stats["concept_count"] >= 10
         assert stats["edge_count"] >= 5
 
-    def test_wal_audit_trail(self, mfs_system, conversations):
+    def test_wal_audit_trail(self, diting_system, conversations):
         """测试 WAL 审计追踪"""
-        wal = mfs_system["wal"]
+        wal = diting_system["wal"]
         
         # 获取审计追踪
         audit = wal.get_audit_trail(limit=100)
@@ -238,11 +238,11 @@ class TestMockConversations:
             assert "source_agent" in audit[0]
             assert "evidence" in audit[0]
 
-    def test_mixed_operations_stress(self, mfs_system, conversations):
+    def test_mixed_operations_stress(self, diting_system, conversations):
         """测试混合操作压力"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        wal = diting_system["wal"]
         
         start_time = time.time()
         total_ops = 0
@@ -273,12 +273,12 @@ class TestMockConversations:
         
         assert total_ops >= 20  # 由于随机性和异常处理，降低阈值到 20
 
-    def test_system_stats(self, mfs_system, conversations):
+    def test_system_stats(self, diting_system, conversations):
         """测试系统统计信息"""
-        mft = mfs_system["mft"]
-        fts5 = mfs_system["fts5"]
-        kg = mfs_system["kg"]
-        wal = mfs_system["wal"]
+        mft = diting_system["mft"]
+        fts5 = diting_system["fts5"]
+        kg = diting_system["kg"]
+        wal = diting_system["wal"]
         
         # 获取各组件统计
         fts5_stats = fts5.get_stats()
@@ -286,7 +286,7 @@ class TestMockConversations:
         wal_history = wal.get_audit_trail(limit=1000)
         
         print("=" * 60)
-        print("📊 MFS 系统统计")
+        print("📊 DITING_ 系统统计")
         print("=" * 60)
         print(f"FTS5 文档数：{fts5_stats.get('doc_count', 0)}")
         print(f"知识图谱：{kg_stats.get('concept_count', 0)}概念，{kg_stats.get('edge_count', 0)}边")

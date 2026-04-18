@@ -6,7 +6,7 @@
 
 ## 🎯 新增工具
 
-### 1. kg_search - 搜索概念并扩展
+### 1. diting_kg_search - 搜索概念并扩展
 
 **功能**: 搜索知识图谱中的概念，并返回关联扩展
 
@@ -16,8 +16,8 @@
 
 **示例**:
 ```bash
-mcporter call diting.kg_search query="用户朋友"
-mcporter call diting.kg_search query="游戏" max_depth=3
+mcporter call diting.diting_kg_search query="用户朋友"
+mcporter call diting.diting_kg_search query="游戏" max_depth=3
 ```
 
 **返回**:
@@ -36,7 +36,7 @@ mcporter call diting.kg_search query="游戏" max_depth=3
 
 ---
 
-### 2. kg_get_related - 获取相关概念
+### 2. diting_kg_get_related - 获取相关概念
 
 **功能**: 获取与指定概念相关的其他概念（按权重排序）
 
@@ -46,8 +46,8 @@ mcporter call diting.kg_search query="游戏" max_depth=3
 
 **示例**:
 ```bash
-mcporter call diting.kg_get_related concept="用户朋友"
-mcporter call diting.kg_get_related concept="游戏" top_k=10
+mcporter call diting.diting_kg_get_related concept="用户朋友"
+mcporter call diting.diting_kg_get_related concept="游戏" top_k=10
 ```
 
 **返回**:
@@ -63,7 +63,7 @@ mcporter call diting.kg_get_related concept="游戏" top_k=10
 
 ---
 
-### 3. kg_stats - 图谱统计
+### 3. diting_kg_stats - 图谱统计
 
 **功能**: 获取知识图谱的统计信息
 
@@ -71,7 +71,7 @@ mcporter call diting.kg_get_related concept="游戏" top_k=10
 
 **示例**:
 ```bash
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 ```
 
 **返回**:
@@ -91,10 +91,10 @@ mcporter call diting.kg_stats
 
 ```bash
 # 普通搜索
-mcporter call diting.mfs_search query="用户朋友"
+mcporter call diting.diting_search query="用户朋友"
 
 # KG 扩展搜索（推荐）
-mcporter call diting.kg_search query="用户朋友"
+mcporter call diting.diting_kg_search query="用户朋友"
 # 自动推荐相关概念，帮助发现更多相关记忆
 ```
 
@@ -102,7 +102,7 @@ mcporter call diting.kg_search query="用户朋友"
 
 ```bash
 # 查看"游戏"的关联
-mcporter call diting.kg_get_related concept="游戏"
+mcporter call diting.diting_kg_get_related concept="游戏"
 
 # 可能发现：游戏角色、另一个角色、恋与制作人等相关概念
 ```
@@ -111,7 +111,7 @@ mcporter call diting.kg_get_related concept="游戏"
 
 ```bash
 # 定期检查图谱规模
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 
 # 输出示例：
 # 概念数：1,234
@@ -127,36 +127,36 @@ mcporter call diting.kg_stats
 
 ```bash
 # 写入记忆（自动建图）
-mcporter call diting.mfs_write \
+mcporter call diting.diting_write \
   path="/memory/doc.md" \
   type="NOTE" \
   content="用户朋友 游戏 游戏角色"
 
 # 查看图谱增长
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 ```
 
 ### 2. 深度探索概念
 
 ```bash
 # 第一层扩展
-mcporter call diting.kg_search query="用户朋友" max_depth=1
+mcporter call diting.diting_kg_search query="用户朋友" max_depth=1
 
 # 第二层扩展（默认）
-mcporter call diting.kg_search query="用户朋友" max_depth=2
+mcporter call diting.diting_kg_search query="用户朋友" max_depth=2
 
 # 第三层扩展（更深入）
-mcporter call diting.kg_search query="用户朋友" max_depth=3
+mcporter call diting.diting_kg_search query="用户朋友" max_depth=3
 ```
 
 ### 3. 权重过滤
 
 ```bash
 # 获取高权重关联（top_k 小）
-mcporter call diting.kg_get_related concept="用户朋友" top_k=3
+mcporter call diting.diting_kg_get_related concept="用户朋友" top_k=3
 
 # 获取全部关联（top_k 大）
-mcporter call diting.kg_get_related concept="用户朋友" top_k=20
+mcporter call diting.diting_kg_get_related concept="用户朋友" top_k=20
 ```
 
 ---
@@ -165,9 +165,9 @@ mcporter call diting.kg_get_related concept="用户朋友" top_k=20
 
 | 工具 | 平均延迟 | 推荐用法 |
 |------|---------|---------|
-| **kg_stats** | <0.01ms | 随时调用 |
-| **kg_get_related** | <0.05ms | 高频使用 |
-| **kg_search** | <0.1ms | 搜索时使用 |
+| **diting_kg_stats** | <0.01ms | 随时调用 |
+| **diting_kg_get_related** | <0.05ms | 高频使用 |
+| **diting_kg_search** | <0.1ms | 搜索时使用 |
 
 ---
 
@@ -185,7 +185,7 @@ mcporter call diting.kg_get_related concept="用户朋友" top_k=20
 ### 问题 1: 工具未找到
 
 ```
-错误：未知工具：kg_stats
+错误：未知工具：diting_kg_stats
 ```
 
 **解决**: MCP server 需要重启以加载新工具

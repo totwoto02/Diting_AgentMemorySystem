@@ -51,7 +51,7 @@ MCP 注册：✅ 通过
 🎉 所有检查通过！Diting 已正确安装。
 
 使用方法:
-  1. 在 OpenClaw 中自动识别 mfs_read/mfs_write/mfs_search 工具
+  1. 在 OpenClaw 中自动识别 diting_read/diting_write/diting_search 工具
   2. 开始使用 Diting 管理记忆
 ```
 
@@ -59,9 +59,9 @@ MCP 注册：✅ 通过
 
 安装完成后，在 OpenClaw 中自动识别以下工具：
 
-- **mfs_read**: 读取记忆（自动还原切片）
-- **mfs_write**: 写入记忆（长文本自动切片）
-- **mfs_search**: 搜索记忆（知识图谱扩展）
+- **diting_read**: 读取记忆（自动还原切片）
+- **diting_write**: 写入记忆（长文本自动切片）
+- **diting_search**: 搜索记忆（知识图谱扩展）
 
 ---
 

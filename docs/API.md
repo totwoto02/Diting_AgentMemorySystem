@@ -6,16 +6,16 @@
 
 ## 📋 目录
 
-- [mfs_read](#mfs_read) - 读取记忆
-- [mfs_write](#mfs_write) - 写入/更新记忆
-- [mfs_search](#mfs_search) - 搜索记忆
+- [diting_read](#diting_read) - 读取记忆
+- [diting_write](#diting_write) - 写入/更新记忆
+- [diting_search](#diting_search) - 搜索记忆
 - [MCP 配置](#mcp-配置) - MCP Server 配置说明
 - [错误码](#错误码) - 错误码说明
 - [使用示例](#使用示例) - 完整使用示例
 
 ---
 
-## mfs_read
+## diting_read
 
 读取指定路径的记忆内容。
 
@@ -23,7 +23,7 @@
 
 | 属性 | 说明 |
 |------|------|
-| **工具名称** | `mfs_read` |
+| **工具名称** | `diting_read` |
 | **功能** | 读取记忆文件内容 |
 | **输入** | 路径 (path) |
 | **输出** | 记忆内容 + 元数据 |
@@ -77,7 +77,7 @@
 ```python
 from diting import MFT
 
-mft = MFT("file:mfs_memory.db?mode=rwc")
+mft = MFT("file:diting_memory.db?mode=rwc")
 
 # 读取记忆
 result = mft.read("/rules/coding")
@@ -88,7 +88,7 @@ print(result["content"])
 
 ```json
 {
-  "name": "mfs_read",
+  "name": "diting_read",
   "arguments": {
     "path": "/rules/coding"
   }
@@ -97,7 +97,7 @@ print(result["content"])
 
 ---
 
-## mfs_write
+## diting_write
 
 写入新记忆或更新已有记忆。
 
@@ -105,7 +105,7 @@ print(result["content"])
 
 | 属性 | 说明 |
 |------|------|
-| **工具名称** | `mfs_write` |
+| **工具名称** | `diting_write` |
 | **功能** | 写入或更新记忆文件 |
 | **输入** | 路径 (path) + 类型 (type) + 内容 (content) |
 | **输出** | 操作结果 + inode |
@@ -167,7 +167,7 @@ print(result["content"])
 ```python
 from diting import MFT
 
-mft = MFT("file:mfs_memory.db?mode=rwc")
+mft = MFT("file:diting_memory.db?mode=rwc")
 
 # 创建新记忆
 inode = mft.create("/rules/coding", "RULE", "代码必须经过测试才能提交")
@@ -182,7 +182,7 @@ mft.update("/rules/coding", "代码必须经过测试和代码审查才能提交
 **创建新记忆**:
 ```json
 {
-  "name": "mfs_write",
+  "name": "diting_write",
   "arguments": {
     "path": "/rules/coding",
     "type": "RULE",
@@ -194,7 +194,7 @@ mft.update("/rules/coding", "代码必须经过测试和代码审查才能提交
 **更新已有记忆**:
 ```json
 {
-  "name": "mfs_write",
+  "name": "diting_write",
   "arguments": {
     "path": "/rules/coding",
     "type": "RULE",
@@ -205,7 +205,7 @@ mft.update("/rules/coding", "代码必须经过测试和代码审查才能提交
 
 ---
 
-## mfs_search
+## diting_search
 
 搜索记忆，支持关键词匹配和范围过滤。
 
@@ -213,7 +213,7 @@ mft.update("/rules/coding", "代码必须经过测试和代码审查才能提交
 
 | 属性 | 说明 |
 |------|------|
-| **工具名称** | `mfs_search` |
+| **工具名称** | `diting_search` |
 | **功能** | 搜索记忆文件 |
 | **输入** | 查询词 (query) + 可选参数 |
 | **输出** | 匹配的记忆列表 |
@@ -269,7 +269,7 @@ mft.update("/rules/coding", "代码必须经过测试和代码审查才能提交
 ```python
 from diting import MFT
 
-mft = MFT("file:mfs_memory.db?mode=rwc")
+mft = MFT("file:diting_memory.db?mode=rwc")
 
 # 基本搜索
 results = mft.search("代码")
@@ -291,7 +291,7 @@ results = mft.search("会议", limit=5)
 **基本搜索**:
 ```json
 {
-  "name": "mfs_search",
+  "name": "diting_search",
   "arguments": {
     "query": "代码"
   }
@@ -301,7 +301,7 @@ results = mft.search("会议", limit=5)
 **范围搜索**:
 ```json
 {
-  "name": "mfs_search",
+  "name": "diting_search",
   "arguments": {
     "query": "测试",
     "scope": "/rules"
@@ -312,7 +312,7 @@ results = mft.search("会议", limit=5)
 **类型过滤**:
 ```json
 {
-  "name": "mfs_search",
+  "name": "diting_search",
   "arguments": {
     "query": "规范",
     "type": "RULE",
@@ -332,12 +332,12 @@ results = mft.search("会议", limit=5)
 ```json
 {
   "mcpServers": {
-    "mfs": {
+    "diting": {
       "command": "python",
       "args": ["-m", "diting.mcp_server"],
       "cwd": "/path/to/diting",
       "env": {
-        "Diting_DB_PATH": "file:/path/to/mfs_memory.db?mode=rwc"
+        "Diting_DB_PATH": "file:/path/to/diting_memory.db?mode=rwc"
       }
     }
   }
@@ -351,7 +351,7 @@ results = mft.search("会议", limit=5)
 ```json
 {
   "mcpServers": {
-    "mfs": {
+    "diting": {
       "command": "python",
       "args": ["-m", "diting.mcp_server"],
       "cwd": "/path/to/diting"
@@ -375,7 +375,7 @@ results = mft.search("会议", limit=5)
 python -m diting.mcp_server
 
 # 使用文件数据库 (持久化)
-Diting_DB_PATH="file:/path/to/mfs_memory.db?mode=rwc" python -m diting.mcp_server
+Diting_DB_PATH="file:/path/to/diting_memory.db?mode=rwc" python -m diting.mcp_server
 
 # 自定义日志级别
 Diting_LOG_LEVEL=DEBUG python -m diting.mcp_server
@@ -417,7 +417,7 @@ Diting_LOG_LEVEL=DEBUG python -m diting.mcp_server
 ```python
 from diting import MFT, DitingPathNotFoundError, DitingError
 
-mft = MFT("file:mfs_memory.db?mode=rwc")
+mft = MFT("file:diting_memory.db?mode=rwc")
 
 try:
     result = mft.read("/nonexistent/path")
@@ -432,7 +432,7 @@ except DitingError as e:
 ```json
 // 请求
 {
-  "name": "mfs_read",
+  "name": "diting_read",
   "arguments": {
     "path": "/nonexistent/path"
   }
@@ -458,7 +458,7 @@ except DitingError as e:
 from diting import MFT
 
 # 1. 初始化
-mft = MFT("file:mfs_memory.db?mode=rwc")
+mft = MFT("file:diting_memory.db?mode=rwc")
 
 # 2. 创建记忆
 print("=== 创建记忆 ===")
@@ -517,9 +517,9 @@ except Exception as e:
 
 AI: 好的，我来帮你保存。
 
-[调用 mfs_write 工具]
+[调用 diting_write 工具]
 {
-  "name": "mfs_write",
+  "name": "diting_write",
   "arguments": {
     "path": "/rules/coding",
     "type": "RULE",
@@ -535,9 +535,9 @@ AI: ✅ 已保存规则到 `/rules/coding`
 
 AI: 让我帮你查询。
 
-[调用 mfs_read 工具]
+[调用 diting_read 工具]
 {
-  "name": "mfs_read",
+  "name": "diting_read",
   "arguments": {
     "path": "/rules/coding"
   }
@@ -551,9 +551,9 @@ AI: 你保存的规则是：**代码必须经过测试才能提交**
 
 AI: 好的，我来搜索。
 
-[调用 mfs_search 工具]
+[调用 diting_search 工具]
 {
-  "name": "mfs_search",
+  "name": "diting_search",
   "arguments": {
     "query": "代码"
   }

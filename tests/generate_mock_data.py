@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-生成 100 段 OpenClaw 模拟对话和工作场景，用于 MFS 系统压力测试
+生成 100 段 OpenClaw 模拟对话和工作场景，用于 DITING_ 系统压力测试
 """
 
 import json
@@ -40,7 +40,7 @@ PERSONS = [
 
 # 项目资料库
 PROJECTS = [
-    "MFS 记忆系统", "OpenClaw 核心", "Clawdbot", "智能助手 v2", "知识图谱引擎",
+    "DITING_ 记忆系统", "OpenClaw 核心", "Clawdbot", "智能助手 v2", "知识图谱引擎",
     "WAL 日志系统", "向量数据库", "语义搜索引擎", "多模态 RAG", "Agent 协调框架",
     "Feishu 集成", "QQBot 插件", "企业微信 MCP", "语音合成服务", "图像处理管道"
 ]
@@ -463,7 +463,7 @@ def main():
     
     # 生成统计报告
     print("=" * 60)
-    print("MFS 系统压力测试 - 模拟对话生成完成")
+    print("DITING_ 系统压力测试 - 模拟对话生成完成")
     print("=" * 60)
     
     # 场景统计

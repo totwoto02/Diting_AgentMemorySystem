@@ -21,7 +21,7 @@
 
 1. [前置检查](#1-前置检查)
 2. [备份现有数据](#2-备份现有数据)
-3. [安装 Diting](#3-安装-mfs)
+3. [安装 Diting](#3-安装-diting)
 4. [初始化配置](#4-初始化配置)
 5. [记忆迁移](#5-记忆迁移)
 6. [验证测试](#6-验证测试)
@@ -261,8 +261,8 @@ stats = mft.get_stats()
 print(f"   初始记录数：{stats['total']}")
 
 if mft.kg:
-    kg_stats = mft.kg.get_stats()
-    print(f"   KG 概念数：{kg_stats['concept_count']}")
+    diting_kg_stats = mft.kg.get_stats()
+    print(f"   KG 概念数：{diting_kg_stats['concept_count']}")
 EOF
 ```
 
@@ -276,12 +276,12 @@ mcporter daemon restart
 mcporter list diting
 
 # 应该显示 6 个工具：
-# - mfs_read
-# - mfs_write
-# - mfs_search
-# - kg_search
-# - kg_get_related
-# - kg_stats
+# - diting_read
+# - diting_write
+# - diting_search
+# - diting_kg_search
+# - diting_kg_get_related
+# - diting_kg_stats
 ```
 
 ### 4.3 初始化对话管理器
@@ -353,8 +353,8 @@ EOF
 
 ```bash
 # 验证迁移结果
-mcporter call diting.kg_stats
-mcporter call diting.mfs_search query="关键记忆"
+mcporter call diting.diting_kg_stats
+mcporter call diting.diting_search query="关键记忆"
 ```
 
 ---
@@ -366,28 +366,28 @@ mcporter call diting.mfs_search query="关键记忆"
 ```bash
 # 测试 1: 写入记忆
 echo "=== 测试 1: 写入记忆 ==="
-mcporter call diting.mfs_write \
+mcporter call diting.diting_write \
   path="/test/setup_guide.md" \
   type="NOTE" \
   content="安装测试记忆"
 
 # 测试 2: 读取记忆
 echo "=== 测试 2: 读取记忆 ==="
-mcporter call diting.mfs_read \
+mcporter call diting.diting_read \
   path="/test/setup_guide.md"
 
 # 测试 3: 搜索记忆
 echo "=== 测试 3: 搜索记忆 ==="
-mcporter call diting.mfs_search \
+mcporter call diting.diting_search \
   query="安装测试"
 
 # 测试 4: KG 统计
 echo "=== 测试 4: KG 统计 ==="
-mcporter call diting.kg_stats
+mcporter call diting.diting_kg_stats
 
 # 测试 5: KG 搜索
 echo "=== 测试 5: KG 搜索 ==="
-mcporter call diting.kg_search \
+mcporter call diting.diting_kg_search \
   query="测试"
 ```
 
@@ -420,7 +420,7 @@ python3 -m pytest tests/ -v
 #### 问题 1: MCP 工具未找到
 
 ```
-错误：未知工具：kg_stats
+错误：未知工具：diting_kg_stats
 ```
 
 **解决**:
@@ -432,7 +432,7 @@ mcporter daemon restart
 mcporter list diting
 
 # 如果仍无，检查 mcp_server.py 是否正确
-python3 -m py_compile /root/.openclaw/workspace/projects/diting/mfs/mcp_server.py
+python3 -m py_compile /root/.openclaw/workspace/projects/diting/diting/mcp_server.py
 ```
 
 #### 问题 2: 数据库路径错误

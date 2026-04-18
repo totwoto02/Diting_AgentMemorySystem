@@ -259,7 +259,7 @@ openclaw gateway restart
 ```
 用户：帮我记住一条规则：代码必须经过测试
 
-AI: [调用 mfs_write 工具]
+AI: [调用 diting_write 工具]
 ✅ 已保存规则到 `/rules/coding`
 ```
 
@@ -318,7 +318,7 @@ opencode restart
 ```
 用户：保存这条规则：所有代码必须有单元测试
 
-AI: [调用 mfs_write 工具]
+AI: [调用 diting_write 工具]
 ✅ 规则已保存到 `/rules/testing`
 ```
 

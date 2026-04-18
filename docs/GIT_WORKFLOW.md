@@ -55,7 +55,7 @@ git checkout -b hotfix/critical-bug
 
 # 示例
 feat(mft): 添加 MFT 创建功能
-fix(mcp): 修复 mfs_read 工具的错误处理
+fix(mcp): 修复 diting_read 工具的错误处理
 docs(readme): 更新快速开始指南
 test(mft): 添加 MFT 单元测试
 chore(git): 添加 Git 分支保护规则

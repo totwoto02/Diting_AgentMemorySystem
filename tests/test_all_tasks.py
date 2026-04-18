@@ -1,5 +1,5 @@
 """
-MFS 完整测试套件 - 覆盖所有 Task 场景
+DITING_ 完整测试套件 - 覆盖所有 Task 场景
 
 测试范围:
 - P0: 多模态基础
@@ -343,7 +343,7 @@ def test_p3_audit():
         print(f"   ✅ 记录审计日志：{len(logs)}条")
         
         # 测试记录系统日志
-        logger.log_system('MFS', '系统启动', 'INFO')
+        logger.log_system('DITING_', '系统启动', 'INFO')
         sys_logs = logger.query_system(time_range='24h')
         assert len(sys_logs) >= 1
         print(f"   ✅ 记录系统日志：{len(sys_logs)}条")
@@ -373,7 +373,7 @@ def test_p3_audit():
 def main():
     """运行所有测试"""
     print("\n" + "🧪"*35)
-    print("MFS 完整测试套件 - 覆盖所有 Task 场景")
+    print("DITING_ 完整测试套件 - 覆盖所有 Task 场景")
     print("🧪"*35)
     print(f"\n开始时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
