@@ -111,7 +111,8 @@ class WALLogger:
             # 插入 WAL 记录
             cursor.execute("""
                 INSERT INTO wal_log 
-                (operation, v_path, content, source_agent, evidence, confidence, timestamp, version, status)
+                (operation, v_path, content, source_agent, 
+                 evidence, confidence, timestamp, version, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'COMMITTED')
             """, (
                 operation, v_path, content, source_agent, evidence,
