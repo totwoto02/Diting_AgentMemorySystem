@@ -29,15 +29,15 @@ jobs:
     
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=mfs --cov-report=xml --cov-report=term-missing
+        pytest tests/ -v --cov=diting --cov-report=xml --cov-report=term-missing
     
     - name: Check coverage
       run: |
-        pytest --cov=mfs --cov-fail-under=65
+        pytest --cov=diting --cov-fail-under=65
     
     - name: Code style check
       run: |
-        flake8 mfs/ --max-line-length=100
+        flake8 diting/ --max-line-length=100
     
     - name: Upload coverage
       uses: codecov/codecov-action@v4
