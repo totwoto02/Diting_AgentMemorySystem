@@ -154,14 +154,39 @@ class MonitorDashboard:
         Returns:
             指标数据列表
         """
-        cursor = self.db.execute("""
-            SELECT metric_value, timestamp
-            FROM monitor_metrics
-            WHERE metric_name = ?
-              AND timestamp > datetime('now', ?)
-            ORDER BY timestamp DESC
-        """, (metric_name, f'-{time_range}'))
+        # 解析时间范围
+        if time_range.endswith('h'):
+            hours = int(time_range[:-1])
+            sql = """
+                SELECT metric_value, timestamp
+                FROM monitor_metrics
+                WHERE metric_name = ?
+                  AND timestamp > datetime('now', ?)
+                ORDER BY timestamp DESC
+            """
+            params = (metric_name, f'-{hours} hours')
+        elif time_range.endswith('d'):
+            days = int(time_range[:-1])
+            sql = """
+                SELECT metric_value, timestamp
+                FROM monitor_metrics
+                WHERE metric_name = ?
+                  AND timestamp > datetime('now', ?)
+                ORDER BY timestamp DESC
+            """
+            params = (metric_name, f'-{days} days')
+        else:
+            # 默认 1 小时
+            sql = """
+                SELECT metric_value, timestamp
+                FROM monitor_metrics
+                WHERE metric_name = ?
+                  AND timestamp > datetime('now', '-1 hour')
+                ORDER BY timestamp DESC
+            """
+            params = (metric_name,)
         
+        cursor = self.db.execute(sql, params)
         return [dict(row) for row in cursor.fetchall()]
     
     def check_alerts(self) -> List[Alert]:
