@@ -70,6 +70,165 @@ pip install -e .
 pytest tests/ -v
 ```
 
+### AI Agent 安装指南 / AI Agent Installation Guide
+
+**适用场景**：AI Agent 首次使用 Diting 时自动安装和配置
+
+**适用平台**：OpenClaw、Codex、Claude Code、OpenCode 等支持 MCP 的 AI Agent
+
+#### 方案一：手动安装 / Manual Installation
+
+```bash
+# 1. 克隆仓库 / Clone repository
+git clone https://github.com/totwoto02/Diting.git
+cd Diting
+
+# 2. 安装依赖 / Install dependencies
+pip install -e .
+
+# 3. 验证安装 / Verify installation
+python -c "from diting.mft import MFT; print('✅ Diting 安装成功')"
+
+# 4. 配置 MCP 服务器 / Configure MCP Server
+# 在 AI Agent 的 MCP 配置中添加：
+{
+  "mcpServers": {
+    "diting": {
+      "command": "python3",
+      "args": ["-m", "diting.mcp_server"],
+      "cwd": "/path/to/Diting",
+      "env": {
+        "DITING_DB_PATH": "/path/to/diting.db"
+      }
+    }
+  }
+}
+```
+
+#### 方案二：AI Agent 自动安装（推荐）/ AI Agent Auto-Installation (Recommended)
+
+**AI Agent 可以自动执行以下步骤：**
+
+```bash
+# 1. 检查是否已安装 / Check if installed
+cd /path/to/Diting && python -c "from diting.mft import MFT" 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo "❌ Diting 未安装，开始自动安装..."
+  
+  # 2. 克隆或拉取最新代码 / Clone or pull latest
+  if [ ! -d ".git" ]; then
+    git clone https://github.com/totwoto02/Diting.git .
+  else
+    git pull origin main
+  fi
+  
+  # 3. 安装依赖 / Install dependencies
+  pip install -e .
+  
+  # 4. 运行测试验证 / Run tests to verify
+  pytest tests/ -q --tb=no
+  
+  echo "✅ Diting 安装完成"
+else
+  echo "✅ Diting 已安装"
+fi
+```
+
+#### 方案三：使用安装检查脚本 / Using Installation Check Script
+
+Diting 提供 CLI 工具自动检查和安装：
+
+```bash
+# 运行安装检查 / Run installation check
+python -m diting.cli.install_check
+
+# 输出示例 / Example output:
+# ✅ Python 版本：3.11.6
+# ✅ 依赖包：已安装
+# ✅ Diting 模块：已安装
+# ✅ 测试：428 passed
+# ✅ 安装完成！
+```
+
+#### MCP 配置示例 / MCP Configuration Examples
+
+**OpenClaw 配置**：
+```json
+// ~/.openclaw/config/mcp.json
+{
+  "mcpServers": {
+    "diting": {
+      "command": "python3",
+      "args": ["-m", "diting.mcp_server"],
+      "cwd": "/root/.openclaw/workspace/projects/Diting",
+      "env": {
+        "DITING_DB_PATH": "/root/.openclaw/workspace/projects/Diting/diting.db"
+      }
+    }
+  }
+}
+```
+
+**Codex / Claude Code 配置**：
+```json
+// ~/.codex/settings.json 或 ~/.claude/settings.json
+{
+  "mcp": {
+    "diting": {
+      "command": "python3",
+      "args": ["-m", "diting.mcp_server"],
+      "cwd": "/path/to/Diting"
+    }
+  }
+}
+```
+
+#### 验证安装 / Verify Installation
+
+```bash
+# 1. 检查模块导入 / Check module import
+python -c "from diting.mft import MFT; print('✅ 模块导入成功')"
+
+# 2. 运行快速测试 / Run quick test
+python -c "
+from diting.mft import MFT
+mft = MFT(db_path=':memory:')
+inode = mft.create(path='/test', type='NOTE', content='test')
+print('✅ 基本功能正常')
+"
+
+# 3. 检查 MCP 服务器 / Check MCP server
+python -m diting.mcp_server --help
+```
+
+#### 常见问题 / Troubleshooting
+
+**问题 1：依赖安装失败**
+```bash
+# 解决方案：使用国内镜像
+pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+**问题 2：权限错误**
+```bash
+# 解决方案：使用 --user 参数
+pip install -e . --user
+```
+
+**问题 3：MCP 服务器无法启动**
+```bash
+# 检查 Python 路径
+which python3
+
+# 检查模块路径
+python3 -c "import diting; print(diting.__file__)"
+```
+
+**更多帮助 / More Help**：
+- [完整安装指南](docs/INSTALL.md)
+- [AI Agent 设置指南](docs/AI_AGENT_SETUP_GUIDE.md)
+- [GitHub Issues](https://github.com/totwoto02/Diting/issues)
+
 ### 基础用法 / Basic Usage
 
 ```python
