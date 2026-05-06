@@ -43,3 +43,33 @@ class DatabaseException(MFSException):
     """数据库操作异常"""
 
     pass
+
+
+class LLMException(MFSException):
+    """LLM API 操作异常"""
+
+    pass
+
+
+class LLMTimeoutError(LLMException):
+    """LLM API 超时"""
+
+    pass
+
+
+class LLMAPIError(LLMException):
+    """LLM API 错误响应"""
+
+    pass
+
+
+class LLMConnectionError(LLMException):
+    """LLM API 连接失败"""
+
+    pass
+
+
+class LLMRateLimitError(LLMException):
+    """LLM API 速率限制"""
+
+    pass

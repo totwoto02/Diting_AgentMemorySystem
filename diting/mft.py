@@ -23,6 +23,12 @@ def _get_kg_class():
     return KnowledgeGraphV2
 
 
+def _get_semantic_scorer_class():
+    from .semantic_scorer import SemanticScorer
+
+    return SemanticScorer
+
+
 class LRUCache:
     """
     LRU 缓存实现
@@ -150,6 +156,13 @@ class MFT:
         if kg_db_path:
             KnowledgeGraphV2 = _get_kg_class()
             self.kg = KnowledgeGraphV2(kg_db_path)
+
+        # 初始化 LLM 语义评分器
+        self.semantic_scorer = None
+        if self.config and self.config.semantic_scoring_enabled and self.config.llm_api_key:
+            SemanticScorer = _get_semantic_scorer_class()
+            llm_config = self.config.get_llm_config()
+            self.semantic_scorer = SemanticScorer(llm_config)
 
     def _init_schema(self):
         """初始化 MFT 表结构（Phase 2 扩展 lcn_pointers 字段）"""
@@ -406,6 +419,49 @@ class MFT:
                 )
 
             return [dict(row) for row in cursor.fetchall()]
+
+    async def async_search(
+        self,
+        query: str,
+        scope: Optional[str] = None,
+        top_k: int = 10,
+        enable_semantic: bool = True,
+        context: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        异步搜索记忆文件（支持 LLM 语义评分）
+
+        Args:
+            query: 搜索关键词
+            scope: 搜索范围 (路径前缀)，默认为 None (全局搜索)
+            top_k: 返回前 K 个结果
+            enable_semantic: 是否启用语义评分，默认 True
+            context: 可选的上下文信息（用于语义评分）
+
+        Returns:
+            匹配的记忆文件列表，每个包含 semantic_score 和 temp_score
+        """
+
+        # Step 1: BM25 粗排（取更多候选）
+        fetch_k = top_k * 3 if enable_semantic and self.semantic_scorer else top_k
+        results = self.search(query, scope)
+
+        if not results:
+            return []
+
+        # 限制候选数量
+        results = results[:fetch_k]
+
+        # 给每个结果添加 BM25 rank（模拟，实际应使用 FTS5）
+        for i, r in enumerate(results):
+            r["rank"] = -i  # 简化：rank 越小越相关
+
+        # Step 2: LLM 语义精排（可选）
+        if enable_semantic and self.semantic_scorer:
+            results = await self.semantic_scorer.score(query, results, context)
+
+        # Step 3: 返回 top K
+        return results[:top_k]
 
     def list_by_type(self, type: str) -> List[Dict[str, Any]]:
         """
@@ -806,4 +862,5 @@ class MFT:
 
     def __repr__(self) -> str:
         kg_status = "with KG" if self.kg else "no KG"
-        return f"MFT(db_path='{self.db.db_path}', {kg_status})"
+        semantic_status = "with semantic" if self.semantic_scorer else "no semantic"
+        return f"MFT(db_path='{self.db.db_path}', {kg_status}, {semantic_status})"
