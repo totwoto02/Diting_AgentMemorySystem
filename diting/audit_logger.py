@@ -54,6 +54,7 @@ class AuditLogger:
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 level TEXT NOT NULL,
                 user_id TEXT,
+                session_id TEXT,
                 action TEXT NOT NULL,
                 resource TEXT,
                 details TEXT,
@@ -77,12 +78,23 @@ class AuditLogger:
 
         # 创建索引
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id)")
+        self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_session ON audit_log(session_id)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log(action)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log(timestamp)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_system_time ON system_log(timestamp)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_system_level ON system_log(level)")
 
+        # 迁移：为已有表添加 session_id 列（如果不存在）
+        self._migrate_add_session_id()
+
         self.db.commit()
+
+    def _migrate_add_session_id(self):
+        """为旧表添加 session_id 列"""
+        cursor = self.db.execute("PRAGMA table_info(audit_log)")
+        columns = {row[1] for row in cursor.fetchall()}
+        if "session_id" not in columns:
+            self.db.execute("ALTER TABLE audit_log ADD COLUMN session_id TEXT")
 
     def log(
         self,
@@ -94,6 +106,7 @@ class AuditLogger:
         user_agent: str = None,
         success: bool = True,
         level: str = "INFO",
+        session_id: str = None,
     ):
         """
         记录审计日志
@@ -107,16 +120,18 @@ class AuditLogger:
             user_agent: 用户代理
             success: 是否成功
             level: 日志级别
+            session_id: 会话 ID，用于关联同一会话的操作
         """
         self.db.execute(
             """
             INSERT INTO audit_log
-            (level, user_id, action, resource, details, ip_address, user_agent, success)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (level, user_id, session_id, action, resource, details, ip_address, user_agent, success)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
             (
                 level,
                 user_id,
+                session_id,
                 action,
                 resource,
                 json.dumps(details) if details else None,
