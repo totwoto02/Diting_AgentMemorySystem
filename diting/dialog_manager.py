@@ -7,7 +7,7 @@
 - 冷数据：重要对话，永久保存
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from .mft import MFT
@@ -155,19 +155,48 @@ class DialogManager:
 
         return True
 
-    def cleanup_old_dialogs(self) -> Dict[str, int]:
+    def archive_old_dialogs(self) -> Dict[str, int]:
         """
-        清理过期对话
+        归档过期对话
+
+        - 热数据区（hot）超过 7 天 → 移到温数据区（warm）
+        - 温数据区（warm）超过 30 天 → 归档（status='archived'）
 
         Returns:
-            清理统计 {"hot_to_warm": X, "warm_deleted": Y}
+            归档统计 {"hot_to_warm": X, "warm_archived": Y}
         """
-        stats = {"hot_to_warm": 0, "warm_deleted": 0}
+        stats = {"hot_to_warm": 0, "warm_archived": 0}
+        now = datetime.now()
 
-        # TODO: 扫描热数据区，超过 7 天的移到温数据区
-        # TODO: 扫描温数据区，超过 30 天的删除
+        # 1. 热数据 → 温数据（超过 7 天）
+        hot_cutoff = (now - timedelta(days=self.hot_days)).isoformat()
+        hot_memories = self.mft.search("", scope=self.path_hot)
+        for memory in hot_memories:
+            update_ts = memory.get("update_ts", "")
+            if update_ts and update_ts < hot_cutoff:
+                new_path = f"{self.path_warm}/{memory['v_path'].split('/')[-1]}"
+                self.mft.create(
+                    new_path,
+                    "NOTE",
+                    f"[摘要] {self.extract_summary(memory['v_path']) or ''}",
+                )
+                self.mft.update(memory["v_path"], status="archived")
+                stats["hot_to_warm"] += 1
+
+        # 2. 温数据 → 归档（超过 30 天）
+        warm_cutoff = (now - timedelta(days=self.warm_days)).isoformat()
+        warm_memories = self.mft.search("", scope=self.path_warm)
+        for memory in warm_memories:
+            update_ts = memory.get("update_ts", "")
+            if update_ts and update_ts < warm_cutoff:
+                self.mft.update(memory["v_path"], status="archived")
+                stats["warm_archived"] += 1
 
         return stats
+
+    def cleanup_old_dialogs(self) -> Dict[str, int]:
+        """兼容旧接口，内部调用 archive_old_dialogs"""
+        return self.archive_old_dialogs()
 
     def search_dialogs(self, query: str, scope: str = "all") -> List[Dict]:
         """

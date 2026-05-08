@@ -5,7 +5,8 @@ Dialog Manager 对话管理器测试用例
 """
 
 import pytest
-from unittest.mock import MagicMock, Mock
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock, Mock, patch, call
 from diting.dialog_manager import DialogManager
 
 
@@ -195,20 +196,189 @@ class TestDialogManagerMigrateToWarm:
         mft.create.assert_not_called()
 
 
-class TestDialogManagerCleanup:
-    """清理测试"""
+class TestDialogManagerArchive:
+    """归档测试"""
 
-    def test_cleanup_old_dialogs(self):
-        """测试清理过期对话"""
+    def _make_memory(self, v_path: str, update_ts: str, content: str = "test") -> dict:
+        return {"v_path": v_path, "update_ts": update_ts, "content": content}
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_hot_to_warm(self, mock_dt):
+        """热数据超过 7 天 → 移到温数据区"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        old_ts = (now - timedelta(days=10)).isoformat()  # 10天前 → 超过阈值
+        hot_mem = self._make_memory("/dialog/hot/s1/20260428_msg", old_ts, "hello")
+
         mft = MagicMock()
+        mft.search.side_effect = [
+            [hot_mem],  # hot 查询
+            [],         # warm 查询
+        ]
+        mft.create.return_value = True
+        mft.update.return_value = True
+        mft.read.return_value = {"content": "hello"}
+
         manager = DialogManager(mft)
-        
-        stats = manager.cleanup_old_dialogs()
-        
-        assert "hot_to_warm" in stats
-        assert "warm_deleted" in stats
+        stats = manager.archive_old_dialogs()
+
+        assert stats["hot_to_warm"] == 1
+        assert stats["warm_archived"] == 0
+        # 原热数据被标记为 archived
+        mft.update.assert_called_with("/dialog/hot/s1/20260428_msg", status="archived")
+        # 新摘要被写入温数据区
+        mft.create.assert_called_once()
+        create_args = mft.create.call_args[0]
+        assert create_args[0].startswith("/dialog/warm/")
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_hot_not_expired(self, mock_dt):
+        """热数据未超过 7 天 → 不迁移"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        recent_ts = (now - timedelta(days=3)).isoformat()  # 3天前 → 未过期
+        hot_mem = self._make_memory("/dialog/hot/s1/recent_msg", recent_ts)
+
+        mft = MagicMock()
+        mft.search.side_effect = [[hot_mem], []]
+
+        manager = DialogManager(mft)
+        stats = manager.archive_old_dialogs()
+
         assert stats["hot_to_warm"] == 0
-        assert stats["warm_deleted"] == 0
+        mft.create.assert_not_called()
+        mft.update.assert_not_called()
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_warm_to_archived(self, mock_dt):
+        """温数据超过 30 天 → status='archived'"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        old_ts = (now - timedelta(days=35)).isoformat()  # 35天前 → 超过阈值
+        warm_mem = self._make_memory("/dialog/warm/old_msg", old_ts)
+
+        mft = MagicMock()
+        mft.search.side_effect = [
+            [],          # hot 查询
+            [warm_mem],  # warm 查询
+        ]
+        mft.update.return_value = True
+
+        manager = DialogManager(mft)
+        stats = manager.archive_old_dialogs()
+
+        assert stats["hot_to_warm"] == 0
+        assert stats["warm_archived"] == 1
+        mft.update.assert_called_with("/dialog/warm/old_msg", status="archived")
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_warm_not_expired(self, mock_dt):
+        """温数据未超过 30 天 → 不归档"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        recent_ts = (now - timedelta(days=15)).isoformat()  # 15天前 → 未过期
+        warm_mem = self._make_memory("/dialog/warm/recent_msg", recent_ts)
+
+        mft = MagicMock()
+        mft.search.side_effect = [[], [warm_mem]]
+
+        manager = DialogManager(mft)
+        stats = manager.archive_old_dialogs()
+
+        assert stats["warm_archived"] == 0
+        mft.update.assert_not_called()
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_mixed(self, mock_dt):
+        """混合场景：热→温 + 温→归档"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        hot_old = self._make_memory(
+            "/dialog/hot/s1/old1", (now - timedelta(days=10)).isoformat(), "content1"
+        )
+        hot_new = self._make_memory(
+            "/dialog/hot/s1/new1", (now - timedelta(days=2)).isoformat(), "content2"
+        )
+        warm_old = self._make_memory(
+            "/dialog/warm/old_w1", (now - timedelta(days=40)).isoformat(), "content3"
+        )
+        warm_new = self._make_memory(
+            "/dialog/warm/new_w1", (now - timedelta(days=10)).isoformat(), "content4"
+        )
+
+        mft = MagicMock()
+        mft.search.side_effect = [
+            [hot_old, hot_new],     # hot 查询
+            [warm_old, warm_new],   # warm 查询
+        ]
+        mft.create.return_value = True
+        mft.update.return_value = True
+        mft.read.return_value = {"content": "dummy"}
+
+        manager = DialogManager(mft)
+        stats = manager.archive_old_dialogs()
+
+        assert stats["hot_to_warm"] == 1
+        assert stats["warm_archived"] == 1
+
+    @patch("diting.dialog_manager.datetime")
+    def test_archive_empty(self, mock_dt):
+        """无数据时返回零统计"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        mft = MagicMock()
+        mft.search.side_effect = [[], []]
+
+        manager = DialogManager(mft)
+        stats = manager.archive_old_dialogs()
+
+        assert stats == {"hot_to_warm": 0, "warm_archived": 0}
+
+    @patch("diting.dialog_manager.datetime")
+    def test_no_memories_deleted(self, mock_dt):
+        """核心原则：归档不删除，mft.delete 不应被调用"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        hot_old = self._make_memory(
+            "/dialog/hot/s1/old1", (now - timedelta(days=10)).isoformat()
+        )
+        warm_old = self._make_memory(
+            "/dialog/warm/old_w1", (now - timedelta(days=40)).isoformat()
+        )
+
+        mft = MagicMock()
+        mft.search.side_effect = [[hot_old], [warm_old]]
+        mft.create.return_value = True
+        mft.update.return_value = True
+        mft.read.return_value = {"content": "x"}
+
+        manager = DialogManager(mft)
+        manager.archive_old_dialogs()
+
+        mft.delete.assert_not_called()
+
+    @patch("diting.dialog_manager.datetime")
+    def test_cleanup_alias_calls_archive(self, mock_dt):
+        """cleanup_old_dialogs 兼容别名内部调用 archive_old_dialogs"""
+        now = datetime(2026, 5, 8, 12, 0, 0)
+        mock_dt.now.return_value = now
+
+        mft = MagicMock()
+        mft.search.side_effect = [[], []]
+
+        manager = DialogManager(mft)
+        stats = manager.cleanup_old_dialogs()
+
+        assert "hot_to_warm" in stats
+        assert "warm_archived" in stats
+        assert stats == {"hot_to_warm": 0, "warm_archived": 0}
 
 
 class TestDialogManagerSearch:
