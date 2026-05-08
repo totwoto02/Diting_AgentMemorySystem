@@ -6,7 +6,7 @@
 
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List
 
@@ -315,16 +315,29 @@ class MonitorDashboard:
 
         return [dict(row) for row in cursor.fetchall()]
 
-    def cleanup_old_metrics(self, keep_days: int = 7):
-        """清理旧指标数据"""
+    def archive_old_metrics(self, keep_days: int = 7):
+        """归档旧指标数据（移动到 archived_monitor_metrics 表，不删除）"""
+        cutoff = (datetime.now() - timedelta(days=keep_days)).isoformat()
+
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS archived_monitor_metrics AS
+            SELECT * FROM monitor_metrics WHERE 0
+        """)
+
         self.db.execute(
-            """
-            DELETE FROM monitor_metrics
-            WHERE timestamp < datetime('now', ?)
-        """,
-            (f"-{keep_days} days",),
+            "INSERT INTO archived_monitor_metrics SELECT * FROM monitor_metrics WHERE timestamp < ?",
+            (cutoff,)
         )
+        self.db.execute(
+            "DELETE FROM monitor_metrics WHERE timestamp < ?",
+            (cutoff,)
+        )
+
         self.db.commit()
+
+    def cleanup_old_metrics(self, keep_days: int = 7):
+        """兼容旧接口，内部调用 archive_old_metrics"""
+        return self.archive_old_metrics(keep_days)
 
     def close(self):
         """关闭数据库连接"""

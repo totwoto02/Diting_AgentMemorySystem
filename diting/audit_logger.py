@@ -8,6 +8,7 @@ import csv
 import io
 import json
 import sqlite3
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List
 
@@ -365,27 +366,42 @@ class AuditLogger:
             "time_range": time_range,
         }
 
-    def cleanup_old_logs(self):
-        """清理旧日志"""
-        # 清理审计日志
+    def archive_old_logs(self):
+        """归档旧日志（移动到 archived_* 表，不删除）"""
+        cutoff = datetime.now() - timedelta(days=self.log_retention_days)
+
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS archived_audit_log AS
+            SELECT * FROM audit_log WHERE 0
+        """)
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS archived_system_log AS
+            SELECT * FROM system_log WHERE 0
+        """)
+
         self.db.execute(
-            """
-            DELETE FROM audit_log
-            WHERE timestamp < datetime('now', ?)
-        """,
-            (f"-{self.log_retention_days} days",),
+            "INSERT INTO archived_audit_log SELECT * FROM audit_log WHERE timestamp < ?",
+            (cutoff.isoformat(),)
+        )
+        self.db.execute(
+            "DELETE FROM audit_log WHERE timestamp < ?",
+            (cutoff.isoformat(),)
         )
 
-        # 清理系统日志
         self.db.execute(
-            """
-            DELETE FROM system_log
-            WHERE timestamp < datetime('now', ?)
-        """,
-            (f"-{self.log_retention_days} days",),
+            "INSERT INTO archived_system_log SELECT * FROM system_log WHERE timestamp < ?",
+            (cutoff.isoformat(),)
+        )
+        self.db.execute(
+            "DELETE FROM system_log WHERE timestamp < ?",
+            (cutoff.isoformat(),)
         )
 
         self.db.commit()
+
+    def cleanup_old_logs(self):
+        """兼容旧接口，内部调用 archive_old_logs"""
+        return self.archive_old_logs()
 
     def close(self):
         """关闭数据库连接"""

@@ -360,3 +360,105 @@ class TestAuditLoggerEdgeCases:
         
         logs = logger.query()
         assert len(logs) == 1
+
+
+class TestAuditLoggerArchive:
+    """归档功能测试"""
+
+    def test_archive_old_logs_creates_tables(self, tmp_path):
+        """归档操作自动创建 archived_* 表"""
+        db_path = str(tmp_path / "audit.db")
+        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
+
+        logger.archive_old_logs()
+
+        cursor = logger.db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'archived_%'"
+        )
+        table_names = {row[0] for row in cursor.fetchall()}
+        assert "archived_audit_log" in table_names
+        assert "archived_system_log" in table_names
+
+    def test_archive_old_logs_moves_audit_data(self, tmp_path):
+        """归档审计日志：INSERT INTO archived 再 DELETE FROM 原表"""
+        db_path = str(tmp_path / "audit.db")
+        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
+
+        logger.log(user_id="user1", action="OLD_ACTION")
+
+        logger.db.execute(
+            "UPDATE audit_log SET timestamp = datetime('now', '-30 days') WHERE action = 'OLD_ACTION'"
+        )
+        logger.db.commit()
+
+        logger.log(user_id="user1", action="NEW_ACTION")
+
+        logger.archive_old_logs()
+
+        cursor = logger.db.execute("SELECT * FROM audit_log")
+        remaining = [dict(row) for row in cursor.fetchall()]
+        assert len(remaining) == 1
+        assert remaining[0]["action"] == "NEW_ACTION"
+
+        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
+        archived = [dict(row) for row in cursor.fetchall()]
+        assert len(archived) == 1
+        assert archived[0]["action"] == "OLD_ACTION"
+
+    def test_archive_old_logs_moves_system_data(self, tmp_path):
+        """归档系统日志：INSERT INTO archived 再 DELETE FROM 原表"""
+        db_path = str(tmp_path / "audit.db")
+        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
+
+        logger.log_system("OLD_COMP", "old message")
+
+        logger.db.execute(
+            "UPDATE system_log SET timestamp = datetime('now', '-30 days') WHERE component = 'OLD_COMP'"
+        )
+        logger.db.commit()
+
+        logger.log_system("NEW_COMP", "new message")
+
+        logger.archive_old_logs()
+
+        cursor = logger.db.execute("SELECT * FROM system_log")
+        remaining = [dict(row) for row in cursor.fetchall()]
+        assert len(remaining) == 1
+        assert remaining[0]["component"] == "NEW_COMP"
+
+        cursor = logger.db.execute("SELECT * FROM archived_system_log")
+        archived = [dict(row) for row in cursor.fetchall()]
+        assert len(archived) == 1
+        assert archived[0]["component"] == "OLD_COMP"
+
+    def test_archive_old_logs_no_old_data(self, tmp_path):
+        """无旧数据时归档不报错"""
+        db_path = str(tmp_path / "audit.db")
+        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
+
+        logger.log(user_id="user1", action="RECENT")
+        logger.archive_old_logs()
+
+        cursor = logger.db.execute("SELECT * FROM audit_log")
+        assert len(cursor.fetchall()) == 1
+
+        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
+        assert len(cursor.fetchall()) == 0
+
+    def test_cleanup_old_logs_is_alias_for_archive(self, tmp_path):
+        """cleanup_old_logs() 作为 archive_old_logs() 的兼容别名"""
+        db_path = str(tmp_path / "audit.db")
+        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
+
+        logger.log(user_id="user1", action="OLD_ACTION")
+        logger.db.execute(
+            "UPDATE audit_log SET timestamp = datetime('now', '-30 days') WHERE action = 'OLD_ACTION'"
+        )
+        logger.db.commit()
+
+        logger.cleanup_old_logs()
+
+        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
+        archived = [dict(row) for row in cursor.fetchall()]
+        assert len(archived) == 1
+        assert archived[0]["action"] == "OLD_ACTION"

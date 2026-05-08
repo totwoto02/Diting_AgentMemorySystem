@@ -405,3 +405,77 @@ class TestAlertDataclass:
         repr_str = repr(alert)
         assert "test_001" in repr_str
         assert "memory" in repr_str
+
+
+class TestMonitorDashboardArchive:
+    """归档功能测试"""
+
+    def test_archive_old_metrics_creates_table(self, tmp_path):
+        """归档操作自动创建 archived_monitor_metrics 表"""
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+
+        dashboard.archive_old_metrics()
+
+        cursor = dashboard.db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name = 'archived_monitor_metrics'"
+        )
+        assert cursor.fetchone() is not None
+
+    def test_archive_old_metrics_moves_data(self, tmp_path):
+        """归档指标：INSERT INTO archived 再 DELETE FROM 原表"""
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+
+        dashboard.record_metric("old_metric", 42.0)
+        dashboard.db.execute(
+            "UPDATE monitor_metrics SET timestamp = datetime('now', '-30 days') WHERE metric_name = 'old_metric'"
+        )
+        dashboard.db.commit()
+
+        dashboard.record_metric("new_metric", 99.0)
+
+        dashboard.archive_old_metrics(keep_days=7)
+
+        cursor = dashboard.db.execute("SELECT * FROM monitor_metrics")
+        remaining = [dict(row) for row in cursor.fetchall()]
+        assert len(remaining) == 1
+        assert remaining[0]["metric_name"] == "new_metric"
+
+        cursor = dashboard.db.execute("SELECT * FROM archived_monitor_metrics")
+        archived = [dict(row) for row in cursor.fetchall()]
+        assert len(archived) == 1
+        assert archived[0]["metric_name"] == "old_metric"
+        assert archived[0]["metric_value"] == 42.0
+
+    def test_archive_old_metrics_no_old_data(self, tmp_path):
+        """无旧数据时归档不报错"""
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+
+        dashboard.record_metric("recent", 1.0)
+        dashboard.archive_old_metrics(keep_days=7)
+
+        cursor = dashboard.db.execute("SELECT * FROM monitor_metrics")
+        assert len(cursor.fetchall()) == 1
+
+        cursor = dashboard.db.execute("SELECT * FROM archived_monitor_metrics")
+        assert len(cursor.fetchall()) == 0
+
+    def test_cleanup_old_metrics_is_alias_for_archive(self, tmp_path):
+        """cleanup_old_metrics() 作为 archive_old_metrics() 的兼容别名"""
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+
+        dashboard.record_metric("old_metric", 42.0)
+        dashboard.db.execute(
+            "UPDATE monitor_metrics SET timestamp = datetime('now', '-30 days') WHERE metric_name = 'old_metric'"
+        )
+        dashboard.db.commit()
+
+        dashboard.cleanup_old_metrics(keep_days=7)
+
+        cursor = dashboard.db.execute("SELECT * FROM archived_monitor_metrics")
+        archived = [dict(row) for row in cursor.fetchall()]
+        assert len(archived) == 1
+        assert archived[0]["metric_name"] == "old_metric"
