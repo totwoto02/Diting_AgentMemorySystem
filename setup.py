@@ -20,6 +20,7 @@ setup(
         "console_scripts": [
             "diting-check-install=diting.cli.install_check:main",
             "diting-version=diting.cli.version:main",
+            "diting-db-tool=diting.cli.db_tool:main",
         ],
     },
     classifiers=[
