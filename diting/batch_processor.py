@@ -4,7 +4,9 @@
 优化批量操作性能，降低 API 成本
 """
 
+import collections
 import json
+import math
 import sqlite3
 import threading
 import time
@@ -50,6 +52,9 @@ class BatchProcessor:
 
         # 任务队列
         self.task_queue = PriorityQueue()
+
+        # 线程锁：保护所有 DB 操作
+        self._db_lock = threading.Lock()
 
         # 初始化数据库
         self.db = sqlite3.connect(db_path, check_same_thread=False)
@@ -120,16 +125,16 @@ class BatchProcessor:
             callback=callback,
         )
 
-        # 添加到数据库
-        self.db.execute(
-            """
-            INSERT OR REPLACE INTO batch_tasks
-            (id, task_type, priority, data, status, created_at)
-            VALUES (?, ?, ?, ?, 'pending', ?)
-        """,
-            (task_id, task_type, priority, json.dumps(data), datetime.now().isoformat()),
-        )
-        self.db.commit()
+        with self._db_lock:
+            self.db.execute(
+                """
+                INSERT OR REPLACE INTO batch_tasks
+                (id, task_type, priority, data, status, created_at)
+                VALUES (?, ?, ?, ?, 'pending', ?)
+            """,
+                (task_id, task_type, priority, json.dumps(data), datetime.now().isoformat()),
+            )
+            self.db.commit()
 
         # 添加到队列
         self.task_queue.put((-priority, task))
@@ -152,20 +157,21 @@ class BatchProcessor:
                 _, task = self.task_queue.get_nowait()
                 tasks.append(task)
 
-                # 更新数据库状态
-                self.db.execute(
-                    """
-                    UPDATE batch_tasks
-                    SET status = 'processing', started_at = ?
-                    WHERE id = ?
-                """,
-                    (datetime.now().isoformat(), task.id),
-                )
+                with self._db_lock:
+                    self.db.execute(
+                        """
+                        UPDATE batch_tasks
+                        SET status = 'processing', started_at = ?
+                        WHERE id = ?
+                    """,
+                        (datetime.now().isoformat(), task.id),
+                    )
 
             except Exception:
                 break
 
-        self.db.commit()
+        with self._db_lock:
+            self.db.commit()
         return tasks
 
     def complete_task(self, task_id: str, result: Dict = None, error: str = None):
@@ -177,21 +183,22 @@ class BatchProcessor:
             result: 处理结果
             error: 错误信息
         """
-        self.db.execute(
-            """
-            UPDATE batch_tasks
-            SET status = ?, result = ?, error_message = ?, completed_at = ?
-            WHERE id = ?
-        """,
-            (
-                "completed" if not error else "failed",
-                json.dumps(result) if result else None,
-                error,
-                datetime.now().isoformat(),
-                task_id,
-            ),
-        )
-        self.db.commit()
+        with self._db_lock:
+            self.db.execute(
+                """
+                UPDATE batch_tasks
+                SET status = ?, result = ?, error_message = ?, completed_at = ?
+                WHERE id = ?
+            """,
+                (
+                    "completed" if not error else "failed",
+                    json.dumps(result) if result else None,
+                    error,
+                    datetime.now().isoformat(),
+                    task_id,
+                ),
+            )
+            self.db.commit()
 
     def process_batch(self, tasks: List[BatchTask], processor: Callable) -> Dict:
         """
@@ -225,17 +232,17 @@ class BatchProcessor:
 
         duration = time.time() - start_time
 
-        # 记录日志
         batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.db.execute(
-            """
-            INSERT INTO batch_log
-            (batch_id, task_count, success_count, failed_count, duration_seconds)
-            VALUES (?, ?, ?, ?, ?)
-        """,
-            (batch_id, len(tasks), success_count, failed_count, duration),
-        )
-        self.db.commit()
+        with self._db_lock:
+            self.db.execute(
+                """
+                INSERT INTO batch_log
+                (batch_id, task_count, success_count, failed_count, duration_seconds)
+                VALUES (?, ?, ?, ?, ?)
+            """,
+                (batch_id, len(tasks), success_count, failed_count, duration),
+            )
+            self.db.commit()
 
         return {
             "batch_id": batch_id,
@@ -264,34 +271,100 @@ class BatchProcessor:
 
     def _default_processor(self, task: BatchTask) -> Dict:
         """默认处理器"""
-        # 根据任务类型执行不同处理
-        if task.task_type == "ai_summary":
-            # TODO: 批量 AI 概括
-            return {"status": "processed"}
+        handlers = {
+            "ai_summary": self._process_ai_summary,
+            "entropy_calc": self._process_entropy_calc,
+            "temp_calc": self._process_temp_calc,
+            "file_cleanup": self._process_file_freeze,
+        }
+        handler = handlers.get(task.task_type)
+        if handler is None:
+            return {"status": "unknown_task_type"}
+        return self._retry_with_backoff(handler, task)
 
-        elif task.task_type == "entropy_calc":
-            # TODO: 批量熵计算
-            return {"status": "processed"}
+    def _retry_with_backoff(
+        self, handler: Callable[[BatchTask], Dict], task: BatchTask, max_retries: int = 3
+    ) -> Dict:
+        backoff_seconds = [1, 2, 4]
+        last_error: Optional[Exception] = None
+        for attempt in range(max_retries):
+            try:
+                return handler(task)
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    time.sleep(backoff_seconds[attempt])
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("retry_with_backoff: max_retries must be >= 1")
 
-        elif task.task_type == "temp_calc":
-            # TODO: 批量温度计算
-            return {"status": "processed"}
+    def _process_ai_summary(self, task: BatchTask) -> Dict:
+        content = task.data.get("content", "")
+        if not content:
+            return {"status": "no_content", "summary": ""}
+        summary = content[:200] + "..." if len(content) > 200 else content
+        return {"status": "processed", "summary": summary}
 
-        elif task.task_type == "file_cleanup":
-            # TODO: 批量文件清理
-            return {"status": "processed"}
+    def _process_entropy_calc(self, task: BatchTask) -> Dict:
+        content = task.data.get("content", "")
+        if not content:
+            return {"status": "no_content", "entropy": 0.0}
 
-        return {"status": "unknown_task_type"}
+        freq = collections.Counter(content)
+        length = len(content)
+        shannon_entropy = -sum(
+            (count / length) * math.log2(count / length) for count in freq.values()
+        )
+
+        max_entropy = math.log2(len(freq)) if len(freq) > 1 else 1.0
+        normalized = shannon_entropy / max_entropy if max_entropy > 0 else 0.0
+        normalized = max(0.0, min(1.0, normalized))
+
+        return {"status": "processed", "entropy": round(normalized, 4)}
+
+    def _process_temp_calc(self, task: BatchTask) -> Dict:
+        access_count = task.data.get("access_count", 0)
+        last_access_hours = task.data.get("last_access_hours", 0)
+        round_count = task.data.get("round_count", 0)
+
+        temperature = (
+            (access_count / 1000)
+            * math.exp(-last_access_hours / 168)
+            * (1 / (1 + round_count))
+        )
+        temperature = max(0.0, min(1.0, temperature))
+
+        return {"status": "processed", "temperature": round(temperature, 4)}
+
+    def _process_file_freeze(self, task: BatchTask) -> Dict:
+        file_status = task.data.get("status", "")
+        if file_status != "archived":
+            return {"status": "skipped", "reason": "not_archived"}
+
+        file_id = task.data.get("file_id", "")
+        with self._db_lock:
+            self.db.execute(
+                """
+                UPDATE batch_tasks
+                SET status = 'archived'
+                WHERE id = ?
+            """,
+                (file_id,),
+            )
+            self.db.commit()
+
+        return {"status": "frozen", "file_id": file_id}
 
     def get_queue_status(self) -> Dict:
         """获取队列状态"""
-        cursor = self.db.execute("""
-            SELECT status, COUNT(*) as count
-            FROM batch_tasks
-            GROUP BY status
-        """)
+        with self._db_lock:
+            cursor = self.db.execute("""
+                SELECT status, COUNT(*) as count
+                FROM batch_tasks
+                GROUP BY status
+            """)
 
-        status_counts = {row["status"]: row["count"] for row in cursor.fetchall()}
+            status_counts = {row["status"]: row["count"] for row in cursor.fetchall()}
 
         return {
             "pending": status_counts.get("pending", 0),
@@ -302,16 +375,17 @@ class BatchProcessor:
 
     def get_batch_history(self, limit: int = 10) -> List[Dict]:
         """获取批量处理历史"""
-        cursor = self.db.execute(
-            """
-            SELECT * FROM batch_log
-            ORDER BY created_at DESC
-            LIMIT ?
-        """,
-            (limit,),
-        )
+        with self._db_lock:
+            cursor = self.db.execute(
+                """
+                SELECT * FROM batch_log
+                ORDER BY created_at DESC
+                LIMIT ?
+            """,
+                (limit,),
+            )
 
-        return [dict(row) for row in cursor.fetchall()]
+            return [dict(row) for row in cursor.fetchall()]
 
     def stop(self):
         """停止处理器"""
