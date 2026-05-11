@@ -61,6 +61,9 @@ class MonitorDashboard:
             },
         )
 
+        # 告警冷却记录
+        self._alert_cooldowns: Dict[str, datetime] = {}
+
         # 初始化数据库
         self.db = sqlite3.connect(db_path, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
@@ -249,6 +252,17 @@ class MonitorDashboard:
 
         return alerts
 
+    def _is_in_cooldown(self, alert: Alert, cooldown_minutes: int = 30) -> bool:
+        key = f"{alert.metric}:{alert.level.value}"
+        if key not in self._alert_cooldowns:
+            return False
+        elapsed = (datetime.now() - self._alert_cooldowns[key]).total_seconds()
+        return elapsed < cooldown_minutes * 60
+
+    def _update_cooldown(self, alert: Alert):
+        key = f"{alert.metric}:{alert.level.value}"
+        self._alert_cooldowns[key] = datetime.now()
+
     def _record_alert(self, alert: Alert):
         """记录告警"""
         self.db.execute(
@@ -276,17 +290,90 @@ class MonitorDashboard:
             alert: 告警对象
             channel: 通知渠道（log/email/webhook）
         """
+        if self._is_in_cooldown(alert):
+            return
+
         if channel == "log":
-            # 记录到日志
             print(f"[ALERT] {alert.level.value.upper()}: {alert.message}")
 
         elif channel == "email":
-            # TODO: 发送邮件
-            pass
+            self._send_email(alert)
 
         elif channel == "webhook":
-            # TODO: 发送 Webhook
-            pass
+            self._send_webhook(alert)
+
+        self._update_cooldown(alert)
+
+    def _send_email(self, alert: Alert):
+        import smtplib
+        import ssl
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+
+        host = self.config.get("EMAIL_HOST")
+        port = self.config.get("EMAIL_PORT")
+        user = self.config.get("EMAIL_USER")
+        password = self.config.get("EMAIL_PASSWORD")
+        recipients = self.config.get("EMAIL_RECIPIENTS")
+
+        if not all([host, port, user, password, recipients]):
+            raise ValueError(
+                "Email config incomplete. Required: EMAIL_HOST, EMAIL_PORT, "
+                "EMAIL_USER, EMAIL_PASSWORD, EMAIL_RECIPIENTS"
+            )
+
+        assert host is not None
+        assert port is not None
+        assert user is not None
+        assert password is not None
+        assert recipients is not None
+
+        subject = f"[Diting Alert] {alert.level.value.upper()}: {alert.metric}"
+        body = (
+            f"Alert: {alert.message}\n"
+            f"Metric: {alert.metric}\n"
+            f"Level: {alert.level.value.upper()}\n"
+            f"Threshold: {alert.threshold}\n"
+            f"Current Value: {alert.current_value}\n"
+            f"Timestamp: {alert.timestamp.isoformat()}\n"
+        )
+
+        msg = MIMEMultipart()
+        msg["From"] = user
+        msg["To"] = ", ".join(recipients) if isinstance(recipients, list) else str(recipients)
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain"))
+
+        try:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(host, int(port), context=context) as server:
+                server.login(user, password)
+                server.sendmail(user, recipients, msg.as_string())
+        except Exception as e:
+            raise RuntimeError(f"Failed to send email alert: {e}") from e
+
+    def _send_webhook(self, alert: Alert):
+        import requests
+
+        url = self.config.get("WEBHOOK_URL")
+        if not url:
+            raise ValueError("Webhook config incomplete. Required: WEBHOOK_URL")
+
+        payload = {
+            "alert_id": alert.id,
+            "level": alert.level.value,
+            "metric": alert.metric,
+            "message": alert.message,
+            "threshold": alert.threshold,
+            "current_value": alert.current_value,
+            "timestamp": alert.timestamp.isoformat(),
+        }
+
+        try:
+            response = requests.post(url, json=payload, timeout=10)
+            response.raise_for_status()
+        except Exception as e:
+            raise RuntimeError(f"Failed to send webhook alert: {e}") from e
 
     def acknowledge_alert(self, alert_id: str):
         """

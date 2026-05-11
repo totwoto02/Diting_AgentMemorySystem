@@ -6,8 +6,12 @@ Monitor 监控告警系统测试用例
 
 import pytest
 import tempfile
-from datetime import datetime
+import smtplib
+from datetime import datetime, timedelta
+from unittest.mock import patch, MagicMock
+
 from diting.monitor import MonitorDashboard, AlertLevel, Alert
+from diting.metrics_collector import MetricsCollector
 
 
 class TestMonitorDashboardInit:
@@ -479,3 +483,351 @@ class TestMonitorDashboardArchive:
         archived = [dict(row) for row in cursor.fetchall()]
         assert len(archived) == 1
         assert archived[0]["metric_name"] == "old_metric"
+
+
+class TestCooldownMechanism:
+    """冷却机制测试"""
+
+    def test_is_in_cooldown_returns_false_initially(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = Alert(
+            id="cd_001", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        assert dashboard._is_in_cooldown(alert) is False
+
+    def test_is_in_cooldown_returns_true_after_update(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = Alert(
+            id="cd_002", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        dashboard._update_cooldown(alert)
+        assert dashboard._is_in_cooldown(alert) is True
+
+    def test_cooldown_different_metrics_not_interfering(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert_cpu = Alert(
+            id="cd_003", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        alert_mem = Alert(
+            id="cd_004", level=AlertLevel.WARNING, metric="memory",
+            message="High memory", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        dashboard._update_cooldown(alert_cpu)
+        assert dashboard._is_in_cooldown(alert_cpu) is True
+        assert dashboard._is_in_cooldown(alert_mem) is False
+
+    def test_cooldown_different_levels_not_interfering(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert_warn = Alert(
+            id="cd_005", level=AlertLevel.WARNING, metric="cpu",
+            message="Warn", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        alert_crit = Alert(
+            id="cd_006", level=AlertLevel.CRITICAL, metric="cpu",
+            message="Critical", threshold=90.0, current_value=99.0,
+            timestamp=datetime.now()
+        )
+        dashboard._update_cooldown(alert_warn)
+        assert dashboard._is_in_cooldown(alert_warn) is True
+        assert dashboard._is_in_cooldown(alert_crit) is False
+
+    def test_cooldown_expires_after_time(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = Alert(
+            id="cd_007", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        base_time = datetime(2026, 5, 10, 12, 0, 0)
+        with patch('diting.monitor.datetime') as mock_dt:
+            mock_dt.now.return_value = base_time
+            dashboard._update_cooldown(alert)
+            assert dashboard._is_in_cooldown(alert) is True
+
+            mock_dt.now.return_value = base_time + timedelta(minutes=31)
+            assert dashboard._is_in_cooldown(alert) is False
+
+    def test_send_alert_skips_when_in_cooldown(self, tmp_path, capsys):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = Alert(
+            id="cd_008", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        dashboard._update_cooldown(alert)
+        dashboard.send_alert(alert, channel='log')
+        captured = capsys.readouterr()
+        assert "[ALERT]" not in captured.out
+
+    def test_send_alert_updates_cooldown_after_send(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = Alert(
+            id="cd_009", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+        assert dashboard._is_in_cooldown(alert) is False
+        dashboard.send_alert(alert, channel='log')
+        assert dashboard._is_in_cooldown(alert) is True
+
+
+class TestSendEmail:
+    """邮件发送测试"""
+
+    def _make_alert(self):
+        return Alert(
+            id="email_001", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+
+    def test_send_email_success(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {
+            'EMAIL_HOST': 'smtp.example.com', 'EMAIL_PORT': 465,
+            'EMAIL_USER': 'user@example.com', 'EMAIL_PASSWORD': 'password',
+            'EMAIL_RECIPIENTS': ['recipient@example.com']
+        }
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+
+        mock_server = MagicMock()
+        mock_smtp = MagicMock()
+        mock_smtp.__enter__ = MagicMock(return_value=mock_server)
+        mock_smtp.__exit__ = MagicMock(return_value=False)
+
+        with patch('smtplib.SMTP_SSL', return_value=mock_smtp):
+            dashboard._send_email(alert)
+            mock_server.login.assert_called_once_with('user@example.com', 'password')
+            mock_server.sendmail.assert_called_once()
+
+    def test_send_email_missing_config_raises(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = self._make_alert()
+        with pytest.raises(ValueError, match="Email config incomplete"):
+            dashboard._send_email(alert)
+
+    def test_send_email_partial_config_raises(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {'EMAIL_HOST': 'smtp.example.com', 'EMAIL_PORT': 465}
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+        with pytest.raises(ValueError, match="Email config incomplete"):
+            dashboard._send_email(alert)
+
+    def test_send_email_smtp_error_raises_runtime_error(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {
+            'EMAIL_HOST': 'smtp.example.com', 'EMAIL_PORT': 465,
+            'EMAIL_USER': 'user@example.com', 'EMAIL_PASSWORD': 'password',
+            'EMAIL_RECIPIENTS': ['recipient@example.com']
+        }
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+
+        with patch('smtplib.SMTP_SSL', side_effect=smtplib.SMTPException("Connection failed")):
+            with pytest.raises(RuntimeError, match="Failed to send email"):
+                dashboard._send_email(alert)
+
+    def test_send_email_lazy_import(self):
+        import diting.monitor as m
+        assert 'smtplib' not in dir(m)
+
+
+class TestSendWebhook:
+    """Webhook 发送测试"""
+
+    def _make_alert(self):
+        return Alert(
+            id="wh_001", level=AlertLevel.WARNING, metric="cpu",
+            message="High CPU", threshold=90.0, current_value=95.0,
+            timestamp=datetime.now()
+        )
+
+    def test_send_webhook_success(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {'WEBHOOK_URL': 'https://example.com/webhook'}
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+
+        mock_response = MagicMock()
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.post', return_value=mock_response) as mock_post:
+            dashboard._send_webhook(alert)
+            mock_post.assert_called_once()
+            call_args = mock_post.call_args
+            assert call_args[0][0] == 'https://example.com/webhook'
+            payload = call_args[1]['json']
+            assert payload['alert_id'] == 'wh_001'
+            assert payload['level'] == 'warning'
+            assert payload['metric'] == 'cpu'
+
+    def test_send_webhook_missing_url_raises(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        dashboard = MonitorDashboard(db_path)
+        alert = self._make_alert()
+        with pytest.raises(ValueError, match="Webhook config incomplete"):
+            dashboard._send_webhook(alert)
+
+    def test_send_webhook_http_error_raises_runtime_error(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {'WEBHOOK_URL': 'https://example.com/webhook'}
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = Exception("500 Server Error")
+
+        with patch('requests.post', return_value=mock_response):
+            with pytest.raises(RuntimeError, match="Failed to send webhook"):
+                dashboard._send_webhook(alert)
+
+    def test_send_webhook_timeout(self, tmp_path):
+        db_path = str(tmp_path / "monitor.db")
+        config = {'WEBHOOK_URL': 'https://example.com/webhook'}
+        dashboard = MonitorDashboard(db_path, config)
+        alert = self._make_alert()
+
+        mock_response = MagicMock()
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.post', return_value=mock_response) as mock_post:
+            dashboard._send_webhook(alert)
+            call_kwargs = mock_post.call_args[1]
+            assert call_kwargs['timeout'] == 10
+
+    def test_send_webhook_lazy_import(self):
+        import diting.monitor as m
+        assert 'requests' not in dir(m)
+
+
+class TestMetricsCollector:
+    """MetricsCollector 测试"""
+
+    def test_init(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+        assert collector.db_path == db_path
+        assert collector.db is not None
+        collector.close()
+
+    def test_collect_system_metrics(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+        metrics = collector.collect_system_metrics()
+        expected_keys = {
+            "cpu_percent", "memory_percent", "memory_used_mb", "memory_total_mb",
+            "disk_percent", "disk_used_gb", "disk_total_gb"
+        }
+        assert set(metrics.keys()) == expected_keys
+        collector.close()
+
+    def test_collect_system_metrics_values_in_range(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+        metrics = collector.collect_system_metrics()
+        for value in metrics.values():
+            assert value >= 0
+        collector.close()
+
+    def test_collect_db_metrics(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+        metrics = collector.collect_db_metrics()
+        assert "db_size_mb" in metrics
+        assert "table_count" in metrics
+        assert "db_path" in metrics
+        assert metrics["db_path"] == db_path
+        assert metrics["table_count"] >= 1
+        collector.close()
+
+    def test_collect_db_metrics_with_target(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        target_db = str(tmp_path / "target.db")
+        collector = MetricsCollector(db_path)
+
+        import sqlite3
+        conn = sqlite3.connect(target_db)
+        conn.execute("CREATE TABLE test (id INTEGER)")
+        conn.close()
+
+        metrics = collector.collect_db_metrics(target_db)
+        assert metrics["db_path"] == target_db
+        assert metrics["table_count"] >= 1
+        collector.close()
+
+    def test_store_metrics(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+
+        collector.store_metrics({"cpu_percent": 50.0, "memory_percent": 75.0})
+
+        history = collector.get_metrics_history("system.cpu_percent")
+        assert len(history) >= 1
+        assert history[0]["metric_value"] == 50.0
+        collector.close()
+
+    def test_store_metrics_category_prefix(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+
+        collector.store_metrics({"cpu_percent": 50.0}, category="custom")
+
+        history = collector.get_metrics_history("custom.cpu_percent")
+        assert len(history) >= 1
+        collector.close()
+
+    def test_store_metrics_skips_non_numeric(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+
+        collector.store_metrics({"cpu_percent": 50.0, "hostname": "server1", "status": "ok"})
+
+        history = collector.get_metrics_history("system.cpu_percent")
+        assert len(history) >= 1
+
+        history_hostname = collector.get_metrics_history("system.hostname")
+        assert len(history_hostname) == 0
+        collector.close()
+
+    def test_get_metrics_history(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+
+        collector.store_metrics({"test_metric": 42.0})
+        history = collector.get_metrics_history("system.test_metric")
+        assert len(history) >= 1
+        assert history[0]["metric_value"] == 42.0
+        collector.close()
+
+    def test_get_metrics_history_empty(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+
+        history = collector.get_metrics_history("nonexistent.metric")
+        assert history == []
+        collector.close()
+
+    def test_close(self, tmp_path):
+        db_path = str(tmp_path / "metrics.db")
+        collector = MetricsCollector(db_path)
+        collector.close()
+        with pytest.raises(Exception):
+            collector.db.execute("SELECT 1")
