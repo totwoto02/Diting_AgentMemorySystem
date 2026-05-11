@@ -7,7 +7,7 @@
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 
 class StorageBackend(ABC):
@@ -31,6 +31,16 @@ class StorageBackend(ABC):
     @abstractmethod
     def exists(self, file_path: str) -> bool:
         """检查文件是否存在"""
+        pass
+
+    @abstractmethod
+    def get_url(self, file_path: str) -> str:
+        """获取文件访问 URL"""
+        pass
+
+    @abstractmethod
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出指定前缀的文件"""
         pass
 
 
@@ -79,9 +89,31 @@ class LocalStorage(StorageBackend):
         full_path = self.root_path / file_path
         return full_path.exists()
 
+    def get_url(self, file_path: str) -> str:
+        """获取文件的完整文件系统路径"""
+        return str(self.root_path / file_path)
+
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出指定前缀的文件"""
+        result: List[str] = []
+        search_path = self.root_path / prefix if prefix else self.root_path
+
+        if not search_path.exists():
+            return result
+
+        if search_path.is_file():
+            return [prefix] if prefix else [search_path.name]
+
+        for file_path in sorted(search_path.rglob("*")):
+            if file_path.is_file():
+                relative = file_path.relative_to(self.root_path)
+                result.append(str(relative))
+
+        return result
+
 
 class S3Storage(StorageBackend):
-    """AWS S3 存储（占位实现）"""
+    """AWS S3 存储"""
 
     def __init__(self, config: Dict):
         """
@@ -94,42 +126,68 @@ class S3Storage(StorageBackend):
         self.region = config.get("region", "us-east-1")
         self.access_key = config.get("access_key")
         self.secret_key = config.get("secret_key")
+        self._client = None
 
-        # TODO: 初始化 boto3 客户端
-        # self.client = boto3.client('s3', ...)
+    def _get_client(self):
+        """懒加载获取 boto3 S3 客户端"""
+        if self._client is None:
+            import boto3
+
+            kwargs: Dict = {"region_name": self.region}
+            if self.access_key and self.secret_key:
+                kwargs["aws_access_key_id"] = self.access_key
+                kwargs["aws_secret_access_key"] = self.secret_key
+            self._client = boto3.client("s3", **kwargs)
+        return self._client
 
     def save(self, file_path: str, data: bytes) -> str:
         """保存文件到 S3"""
-        # TODO: 实现 S3 上传
-        # self.client.put_object(Bucket=self.bucket, Key=file_path, Body=data)
+        client = self._get_client()
+        client.put_object(Bucket=self.bucket, Key=file_path, Body=data)
         return f"s3://{self.bucket}/{file_path}"
 
     def load(self, file_path: str) -> bytes:
         """从 S3 加载文件"""
-        # TODO: 实现 S3 下载
-        # response = self.client.get_object(Bucket=self.bucket, Key=file_path)
-        # return response['Body'].read()
-        raise NotImplementedError("S3 storage not fully implemented")
+        client = self._get_client()
+        response = client.get_object(Bucket=self.bucket, Key=file_path)
+        return response["Body"].read()
 
     def delete(self, file_path: str):
         """删除 S3 文件"""
-        # TODO: 实现 S3 删除
-        # self.client.delete_object(Bucket=self.bucket, Key=file_path)
-        pass
+        client = self._get_client()
+        client.delete_object(Bucket=self.bucket, Key=file_path)
 
     def exists(self, file_path: str) -> bool:
         """检查 S3 文件是否存在"""
-        # TODO: 实现 S3 检查
-        # try:
-        #     self.client.head_object(Bucket=self.bucket, Key=file_path)
-        #     return True
-        # except:
-        #     return False
-        return False
+        client = self._get_client()
+        try:
+            client.head_object(Bucket=self.bucket, Key=file_path)
+            return True
+        except Exception:
+            return False
+
+    def get_url(self, file_path: str) -> str:
+        """生成 S3 预签名 URL"""
+        client = self._get_client()
+        url = client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": self.bucket, "Key": file_path},
+            ExpiresIn=3600,
+        )
+        return url
+
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出 S3 指定前缀的文件"""
+        client = self._get_client()
+        kwargs: Dict = {"Bucket": self.bucket}
+        if prefix:
+            kwargs["Prefix"] = prefix
+        response = client.list_objects_v2(**kwargs)
+        return [obj["Key"] for obj in response.get("Contents", [])]
 
 
 class OSSStorage(StorageBackend):
-    """阿里云 OSS 存储（占位实现）"""
+    """阿里云 OSS 存储"""
 
     def __init__(self, config: Dict):
         """
@@ -138,44 +196,140 @@ class OSSStorage(StorageBackend):
         Args:
             config: OSS 配置 {bucket, endpoint, access_key_id, access_key_secret}
         """
-        self.bucket = config.get("bucket", "diting-storage")
+        self.bucket_name = config.get("bucket", "diting-storage")
         self.endpoint = config.get("endpoint", "oss-cn-hangzhou.aliyuncs.com")
         self.access_key_id = config.get("access_key_id")
         self.access_key_secret = config.get("access_key_secret")
+        self._bucket = None
 
-        # TODO: 初始化 oss2 客户端
-        # self.auth = oss2.Auth(...)
-        # self.bucket = oss2.Bucket(...)
+    def _get_bucket(self):
+        """懒加载获取 oss2 Bucket 对象"""
+        if self._bucket is None:
+            import oss2
+
+            auth = oss2.Auth(self.access_key_id, self.access_key_secret)
+            self._bucket = oss2.Bucket(auth, self.endpoint, self.bucket_name)
+        return self._bucket
 
     def save(self, file_path: str, data: bytes) -> str:
         """保存文件到 OSS"""
-        # TODO: 实现 OSS 上传
-        return f"oss://{self.bucket}/{file_path}"
+        bucket = self._get_bucket()
+        bucket.put_object(file_path, data)
+        return f"oss://{self.bucket_name}/{file_path}"
 
     def load(self, file_path: str) -> bytes:
         """从 OSS 加载文件"""
-        raise NotImplementedError("OSS storage not fully implemented")
+        bucket = self._get_bucket()
+        response = bucket.get_object(file_path)
+        return response.read()
 
     def delete(self, file_path: str):
         """删除 OSS 文件"""
-        pass
+        bucket = self._get_bucket()
+        bucket.delete_object(file_path)
 
     def exists(self, file_path: str) -> bool:
         """检查 OSS 文件是否存在"""
-        return False
+        bucket = self._get_bucket()
+        return bucket.object_exists(file_path)
+
+    def get_url(self, file_path: str) -> str:
+        """生成 OSS 签名 URL"""
+        bucket = self._get_bucket()
+        url = bucket.sign_url("GET", file_path, 3600)
+        return url
+
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出 OSS 指定前缀的文件"""
+        bucket = self._get_bucket()
+        result = bucket.list_objects(prefix=prefix)
+        return [obj.key for obj in result.object_list]
+
+
+class COSStorage(StorageBackend):
+    """腾讯云 COS 存储"""
+
+    def __init__(self, config: Dict):
+        """
+        初始化 COS 存储
+
+        Args:
+            config: COS 配置 {bucket, region, secret_id, secret_key}
+        """
+        self.bucket = config.get("bucket", "diting-storage")
+        self.region = config.get("region", "ap-guangzhou")
+        self.secret_id = config.get("secret_id")
+        self.secret_key = config.get("secret_key")
+        self._client = None
+
+    def _get_client(self):
+        """懒加载获取 COS 客户端"""
+        if self._client is None:
+            from qcloud_cos import CosConfig, CosS3Client
+
+            cos_config = CosConfig(
+                Region=self.region,
+                SecretId=self.secret_id,
+                SecretKey=self.secret_key,
+            )
+            self._client = CosS3Client(cos_config)
+        return self._client
+
+    def save(self, file_path: str, data: bytes) -> str:
+        """保存文件到 COS"""
+        client = self._get_client()
+        client.put_object(Bucket=self.bucket, Body=data, Key=file_path)
+        return f"cos://{self.bucket}/{file_path}"
+
+    def load(self, file_path: str) -> bytes:
+        """从 COS 加载文件"""
+        client = self._get_client()
+        response = client.get_object(Bucket=self.bucket, Key=file_path)
+        return response["Body"].get_raw_stream().read()
+
+    def delete(self, file_path: str):
+        """删除 COS 文件"""
+        client = self._get_client()
+        client.delete_object(Bucket=self.bucket, Key=file_path)
+
+    def exists(self, file_path: str) -> bool:
+        """检查 COS 文件是否存在"""
+        client = self._get_client()
+        try:
+            client.head_object(Bucket=self.bucket, Key=file_path)
+            return True
+        except Exception:
+            return False
+
+    def get_url(self, file_path: str) -> str:
+        """生成 COS 预签名 URL"""
+        client = self._get_client()
+        url = client.get_presigned_url(
+            Method="GET", Bucket=self.bucket, Key=file_path
+        )
+        return url
+
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出 COS 指定前缀的文件"""
+        client = self._get_client()
+        kwargs: Dict = {"Bucket": self.bucket}
+        if prefix:
+            kwargs["Prefix"] = prefix
+        response = client.list_objects(**kwargs)
+        return [obj["Key"] for obj in response.get("Contents", [])]
 
 
 class StorageManager:
     """存储管理器"""
 
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict] = None):
         """
         初始化存储管理器
 
         Args:
             config: 存储配置
         """
-        self.config = config or {}
+        self.config: Dict = config or {}
         self.backend = self._create_backend()
 
     def _create_backend(self) -> StorageBackend:
@@ -183,7 +337,9 @@ class StorageManager:
         backend_type = self.config.get("backend", "local")
 
         if backend_type == "local":
-            root_path = self.config.get("local", {}).get("root_path", "/tmp/diting-storage")
+            root_path = self.config.get("local", {}).get(
+                "root_path", "/tmp/diting-storage"
+            )
             return LocalStorage(root_path)
 
         elif backend_type == "s3":
@@ -193,6 +349,10 @@ class StorageManager:
         elif backend_type == "oss":
             oss_config = self.config.get("oss", {})
             return OSSStorage(oss_config)
+
+        elif backend_type == "cos":
+            cos_config = self.config.get("cos", {})
+            return COSStorage(cos_config)
 
         else:
             # 默认本地存储
@@ -213,6 +373,14 @@ class StorageManager:
     def exists(self, file_path: str) -> bool:
         """检查文件是否存在"""
         return self.backend.exists(file_path)
+
+    def get_url(self, file_path: str) -> str:
+        """获取文件访问 URL"""
+        return self.backend.get_url(file_path)
+
+    def list_files(self, prefix: str = "") -> List[str]:
+        """列出指定前缀的文件"""
+        return self.backend.list_files(prefix)
 
 
 # 使用示例
