@@ -122,10 +122,10 @@ def main():
                 result = maintenance.cleanup_archived_data(
                     retention_days=args.days, dry_run=True
                 )
-                print(f"\n📋 预览模式（不会删除任何数据）")
+                print("\n📋 预览模式（不会删除任何数据）")
                 print(f"保留天数: {result['retention_days']}")
                 print(f"截止日期: {result['cutoff_date']}")
-                print(f"\n将要清理的记录:")
+                print("\n将要清理的记录:")
                 for table, count in result["tables"].items():
                     if count > 0:
                         print(f"  {table}: {count} 条")
@@ -145,10 +145,10 @@ def main():
                 result = maintenance.cleanup_archived_data(
                     retention_days=args.days, dry_run=False
                 )
-                print(f"\n✅ 清理完成")
+                print("\n✅ 清理完成")
                 print(f"保留天数: {result['retention_days']}")
                 print(f"截止日期: {result['cutoff_date']}")
-                print(f"\n已删除记录:")
+                print("\n已删除记录:")
                 for table, count in result["details"].items():
                     if count > 0:
                         print(f"  {table}: {count} 条")
