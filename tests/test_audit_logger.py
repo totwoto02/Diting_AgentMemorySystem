@@ -6,6 +6,7 @@ Audit Logger 审计日志器测试用例
 
 import pytest
 import json
+import sqlite3
 from diting.audit_logger import AuditLogger, LogLevel
 
 
@@ -363,90 +364,98 @@ class TestAuditLoggerEdgeCases:
 
 
 class TestAuditLoggerArchive:
-    """归档功能测试"""
+    """归档功能测试 - T046: 使用 UPDATE 代替 DELETE"""
 
-    def test_archive_old_logs_creates_tables(self, tmp_path):
-        """归档操作自动创建 archived_* 表"""
+    def test_archive_old_logs_updates_status(self, tmp_path):
+        """T046: 归档操作更新 status='archived'，不删除数据"""
         db_path = str(tmp_path / "audit.db")
         logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
 
-        logger.archive_old_logs()
-
-        cursor = logger.db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'archived_%'"
-        )
-        table_names = {row[0] for row in cursor.fetchall()}
-        assert "archived_audit_log" in table_names
-        assert "archived_system_log" in table_names
-
-    def test_archive_old_logs_moves_audit_data(self, tmp_path):
-        """归档审计日志：INSERT INTO archived 再 DELETE FROM 原表"""
-        db_path = str(tmp_path / "audit.db")
-        logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
-
+        # 创建旧日志
         logger.log(user_id="user1", action="OLD_ACTION")
-
         logger.db.execute(
             "UPDATE audit_log SET timestamp = datetime('now', '-30 days') WHERE action = 'OLD_ACTION'"
         )
         logger.db.commit()
 
+        # 创建新日志
         logger.log(user_id="user1", action="NEW_ACTION")
 
+        # 获取归档前的总记录数
+        cursor = logger.db.execute("SELECT COUNT(*) FROM audit_log")
+        total_before = cursor.fetchone()[0]
+        assert total_before == 2
+
+        # 执行归档
         logger.archive_old_logs()
 
-        cursor = logger.db.execute("SELECT * FROM audit_log")
-        remaining = [dict(row) for row in cursor.fetchall()]
-        assert len(remaining) == 1
-        assert remaining[0]["action"] == "NEW_ACTION"
+        # T046: 验证数据未被删除，总记录数不变
+        cursor = logger.db.execute("SELECT COUNT(*) FROM audit_log")
+        total_after = cursor.fetchone()[0]
+        assert total_after == 2
 
-        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
-        archived = [dict(row) for row in cursor.fetchall()]
-        assert len(archived) == 1
-        assert archived[0]["action"] == "OLD_ACTION"
+        # T046: 验证旧日志状态变为 'archived'
+        cursor = logger.db.execute(
+            "SELECT status FROM audit_log WHERE action = 'OLD_ACTION'"
+        )
+        old_status = cursor.fetchone()[0]
+        assert old_status == 'archived'
 
-    def test_archive_old_logs_moves_system_data(self, tmp_path):
-        """归档系统日志：INSERT INTO archived 再 DELETE FROM 原表"""
+        # T046: 验证新日志状态仍为 'active'
+        cursor = logger.db.execute(
+            "SELECT status FROM audit_log WHERE action = 'NEW_ACTION'"
+        )
+        new_status = cursor.fetchone()[0]
+        assert new_status == 'active'
+
+    def test_archive_old_logs_system_log_status(self, tmp_path):
+        """T046: 系统日志归档更新 status='archived'"""
         db_path = str(tmp_path / "audit.db")
         logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
 
+        # 创建旧系统日志
         logger.log_system("OLD_COMP", "old message")
-
         logger.db.execute(
             "UPDATE system_log SET timestamp = datetime('now', '-30 days') WHERE component = 'OLD_COMP'"
         )
         logger.db.commit()
 
+        # 创建新系统日志
         logger.log_system("NEW_COMP", "new message")
 
+        # 执行归档
         logger.archive_old_logs()
 
-        cursor = logger.db.execute("SELECT * FROM system_log")
-        remaining = [dict(row) for row in cursor.fetchall()]
-        assert len(remaining) == 1
-        assert remaining[0]["component"] == "NEW_COMP"
+        # T046: 验证旧系统日志状态变为 'archived'
+        cursor = logger.db.execute(
+            "SELECT status FROM system_log WHERE component = 'OLD_COMP'"
+        )
+        old_status = cursor.fetchone()[0]
+        assert old_status == 'archived'
 
-        cursor = logger.db.execute("SELECT * FROM archived_system_log")
-        archived = [dict(row) for row in cursor.fetchall()]
-        assert len(archived) == 1
-        assert archived[0]["component"] == "OLD_COMP"
+        # T046: 验证新系统日志状态仍为 'active'
+        cursor = logger.db.execute(
+            "SELECT status FROM system_log WHERE component = 'NEW_COMP'"
+        )
+        new_status = cursor.fetchone()[0]
+        assert new_status == 'active'
 
     def test_archive_old_logs_no_old_data(self, tmp_path):
-        """无旧数据时归档不报错"""
+        """T046: 无旧数据时归档不报错"""
         db_path = str(tmp_path / "audit.db")
         logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
 
         logger.log(user_id="user1", action="RECENT")
         logger.archive_old_logs()
 
-        cursor = logger.db.execute("SELECT * FROM audit_log")
-        assert len(cursor.fetchall()) == 1
+        cursor = logger.db.execute("SELECT COUNT(*) FROM audit_log")
+        assert cursor.fetchone()[0] == 1
 
-        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
-        assert len(cursor.fetchall()) == 0
+        cursor = logger.db.execute("SELECT status FROM audit_log WHERE action = 'RECENT'")
+        assert cursor.fetchone()[0] == 'active'
 
-    def test_cleanup_old_logs_is_alias_for_archive(self, tmp_path):
-        """cleanup_old_logs() 作为 archive_old_logs() 的兼容别名"""
+    def test_cleanup_old_logs_calls_archive(self, tmp_path):
+        """T046: cleanup_old_logs() 调用 archive_old_logs()"""
         db_path = str(tmp_path / "audit.db")
         logger = AuditLogger(db_path, {'LOG_RETENTION_DAYS': 7})
 
@@ -458,7 +467,62 @@ class TestAuditLoggerArchive:
 
         logger.cleanup_old_logs()
 
-        cursor = logger.db.execute("SELECT * FROM archived_audit_log")
-        archived = [dict(row) for row in cursor.fetchall()]
-        assert len(archived) == 1
-        assert archived[0]["action"] == "OLD_ACTION"
+        # T046: 验证数据未被删除，只是状态更新
+        cursor = logger.db.execute("SELECT COUNT(*) FROM audit_log")
+        assert cursor.fetchone()[0] == 1
+
+        cursor = logger.db.execute(
+            "SELECT status FROM audit_log WHERE action = 'OLD_ACTION'"
+        )
+        assert cursor.fetchone()[0] == 'archived'
+
+    def test_status_column_migration(self, tmp_path):
+        """T046: 测试 status 列自动迁移"""
+        db_path = str(tmp_path / "audit.db")
+
+        # 创建不带 status 列的旧数据库（包含所有其他列）
+        conn = sqlite3.connect(db_path)
+        conn.execute("""
+            CREATE TABLE audit_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                level TEXT NOT NULL,
+                user_id TEXT,
+                session_id TEXT,
+                action TEXT NOT NULL,
+                resource TEXT,
+                details TEXT,
+                ip_address TEXT,
+                user_agent TEXT,
+                success INTEGER DEFAULT 1
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE system_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                level TEXT NOT NULL,
+                component TEXT NOT NULL,
+                message TEXT,
+                stack_trace TEXT
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+        # 使用 AuditLogger 初始化（应自动迁移）
+        logger = AuditLogger(db_path)
+
+        # 验证 status 列已添加
+        cursor = logger.db.execute("PRAGMA table_info(audit_log)")
+        columns = {row[1] for row in cursor.fetchall()}
+        assert "status" in columns
+
+        cursor = logger.db.execute("PRAGMA table_info(system_log)")
+        columns = {row[1] for row in cursor.fetchall()}
+        assert "status" in columns
+
+        # 验证可以正常记录日志
+        logger.log(user_id="user1", action="TEST")
+        cursor = logger.db.execute("SELECT status FROM audit_log WHERE action = 'TEST'")
+        assert cursor.fetchone()[0] == 'active'

@@ -60,7 +60,8 @@ class AuditLogger:
                 details TEXT,
                 ip_address TEXT,
                 user_agent TEXT,
-                success INTEGER DEFAULT 1
+                success INTEGER DEFAULT 1,
+                status TEXT DEFAULT 'active'
             )
         """)
 
@@ -72,20 +73,26 @@ class AuditLogger:
                 level TEXT NOT NULL,
                 component TEXT NOT NULL,
                 message TEXT,
-                stack_trace TEXT
+                stack_trace TEXT,
+                status TEXT DEFAULT 'active'
             )
         """)
 
-        # 创建索引
+        # 迁移：为已有表添加 session_id 列（如果不存在）
+        self._migrate_add_session_id()
+
+        # 迁移：为已有表添加 status 列（如果不存在）
+        self._migrate_add_status()
+
+        # 创建索引（在迁移之后，确保列存在）
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_session ON audit_log(session_id)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log(action)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log(timestamp)")
+        self.db.execute("CREATE INDEX IF NOT EXISTS idx_audit_status ON audit_log(status)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_system_time ON system_log(timestamp)")
         self.db.execute("CREATE INDEX IF NOT EXISTS idx_system_level ON system_log(level)")
-
-        # 迁移：为已有表添加 session_id 列（如果不存在）
-        self._migrate_add_session_id()
+        self.db.execute("CREATE INDEX IF NOT EXISTS idx_system_status ON system_log(status)")
 
         self.db.commit()
 
@@ -95,6 +102,18 @@ class AuditLogger:
         columns = {row[1] for row in cursor.fetchall()}
         if "session_id" not in columns:
             self.db.execute("ALTER TABLE audit_log ADD COLUMN session_id TEXT")
+
+    def _migrate_add_status(self):
+        """为旧表添加 status 列"""
+        cursor = self.db.execute("PRAGMA table_info(audit_log)")
+        columns = {row[1] for row in cursor.fetchall()}
+        if "status" not in columns:
+            self.db.execute("ALTER TABLE audit_log ADD COLUMN status TEXT DEFAULT 'active'")
+
+        cursor = self.db.execute("PRAGMA table_info(system_log)")
+        columns = {row[1] for row in cursor.fetchall()}
+        if "status" not in columns:
+            self.db.execute("ALTER TABLE system_log ADD COLUMN status TEXT DEFAULT 'active'")
 
     def log(
         self,
@@ -382,33 +401,17 @@ class AuditLogger:
         }
 
     def archive_old_logs(self):
-        """归档旧日志（移动到 archived_* 表，不删除）"""
+        """归档旧日志（通过 UPDATE 设置 status='archived'，不删除）"""
         cutoff = datetime.now() - timedelta(days=self.log_retention_days)
 
-        self.db.execute("""
-            CREATE TABLE IF NOT EXISTS archived_audit_log AS
-            SELECT * FROM audit_log WHERE 0
-        """)
-        self.db.execute("""
-            CREATE TABLE IF NOT EXISTS archived_system_log AS
-            SELECT * FROM system_log WHERE 0
-        """)
-
+        # T046: 使用 UPDATE 代替 DELETE，符合'只归档不删除'原则
         self.db.execute(
-            "INSERT INTO archived_audit_log SELECT * FROM audit_log WHERE timestamp < ?",
-            (cutoff.isoformat(),)
-        )
-        self.db.execute(
-            "DELETE FROM audit_log WHERE timestamp < ?",
+            "UPDATE audit_log SET status = 'archived' WHERE timestamp < ?",
             (cutoff.isoformat(),)
         )
 
         self.db.execute(
-            "INSERT INTO archived_system_log SELECT * FROM system_log WHERE timestamp < ?",
-            (cutoff.isoformat(),)
-        )
-        self.db.execute(
-            "DELETE FROM system_log WHERE timestamp < ?",
+            "UPDATE system_log SET status = 'archived' WHERE timestamp < ?",
             (cutoff.isoformat(),)
         )
 
