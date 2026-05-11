@@ -454,17 +454,6 @@ class DatabaseMaintenance:
 
         return None
 
-        size_after = os.path.getsize(self.db_path)
-        saved_mb = (size_before - size_after) / (1024 * 1024)
-
-        return {
-            "operation": "vacuum",
-            "size_before_mb": size_before / (1024 * 1024),
-            "size_after_mb": size_after / (1024 * 1024),
-            "saved_mb": saved_mb,
-            "saved_percent": (saved_mb / (size_before / (1024 * 1024))) * 100 if size_before > 0 else 0,
-        }
-
     def analyze(self) -> dict:
         """
         分析数据库统计信息
